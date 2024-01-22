@@ -1,9 +1,22 @@
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import LoginForm from './pages/common/Login';
+import RegisterForm from './pages/common/Register';
 
-function App() {
+// Import HomePage component if you have one
+
+const App = () => {
   return (
-    <div className="App">
-      <h1>ĐỊT CÁI CON MẸ MÀY</h1>
-    </div>
+    <Router>
+      
+      <Routes>
+        {/* Uncomment and use this if you have a HomePage component */}
+        {/* <Route path="/" element={<HomePage />} /> */}
+        <Route path="/login" element={<LoginForm />} />
+        <Route path="/register" element={<RegisterForm />} />
+        {/* Add more routes as needed */}
+      </Routes>
+    </Router>
   );
 }
 
