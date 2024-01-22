@@ -10,20 +10,31 @@ import {
   Spin,
   message,
 } from "antd";
+import AuthAPI from "../../api/AuthAPI";
 import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
 
 const RegisterForm = () => {
   const [loading, setLoading] = useState(false);
 
-  const onFinish = (values) => {
+  const onFinish = async (values) => {
     setLoading(true);
-    console.log("Received values of form: ", values);
-    // Simulate an API call
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      // Call the registration API function from AuthAPI
+      const response = await AuthAPI.Register(
+        values.username,
+        values.password,
+        values.storeName,
+        values.storeAddress
+      );
+      console.log("Registration successful:", response);
       message.success("Registration successful!");
-      // handle successful registration logic here
-    }, 2000);
+      // You can perform additional actions here, such as redirecting to a login page
+      setLoading(false);
+    } catch (error) {
+      console.error("Registration failed:", error);
+      message.error("Registration failed. Please check your inputs.");
+      setLoading(false);
+    }
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -56,13 +67,13 @@ const RegisterForm = () => {
               autoComplete="off"
             >
               <Form.Item
-                name="email"
+                name="username"
                 rules={[
-                  { required: true, message: "Please input your email!" },
-                  { type: "email", message: "Please enter a valid email!" },
+                  { required: true, message: "Please input your username!" },
+                  { type: "text", message: "Please enter a valid username!" },
                 ]}
               >
-                <Input prefix={<MailOutlined />} placeholder="Email" />
+                <Input prefix={<MailOutlined />} placeholder="Username" />
               </Form.Item>
 
               <Form.Item
@@ -82,7 +93,7 @@ const RegisterForm = () => {
                 />
               </Form.Item>
 
-              <Form.Item
+              {/* <Form.Item
                 name="confirm"
                 dependencies={["password"]}
                 hasFeedback
@@ -109,6 +120,31 @@ const RegisterForm = () => {
                   prefix={<LockOutlined />}
                   placeholder="Confirm Password"
                 />
+              </Form.Item> */}
+              <Form.Item
+                name="storeName"
+                hasFeedback
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter your store name!",
+                  },
+                ]}
+              >
+                <Input prefix={<MailOutlined />} placeholder="Store name" />
+              </Form.Item>
+
+              <Form.Item
+                name="storeAddress"
+                hasFeedback
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter your store address!",
+                  },
+                ]}
+              >
+                <Input prefix={<MailOutlined />} placeholder="Store address" />
               </Form.Item>
 
               <Form.Item
