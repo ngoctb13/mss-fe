@@ -22,6 +22,7 @@ const LoginForm = () => {
       // Call the login API function from LoginAPI
       const response = await AuthAPI.Login(values.username, values.password);
       localStorage.setItem("accessToken", response.data.token);
+      message.success("ok");
       setLoading(false);
     } catch (error) {
       console.error("Login failed:", error);

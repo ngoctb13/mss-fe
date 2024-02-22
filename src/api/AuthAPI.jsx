@@ -1,7 +1,7 @@
 import axiosClient from "./axiosClient";
 const AuthAPI = {
   Login: (username, password) => {
-    const url = `/v1/auth/authenticate`;
+    const url = `/auth/login`;
     const data = { username, password };
     return axiosClient.post(url, data);
   },
