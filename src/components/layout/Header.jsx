@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Menu as AntMenu, Layout, Dropdown, Avatar } from "antd";
+import Notification from "../notification";
 import "./style.css";
 const { Header } = Layout;
 
@@ -8,6 +9,15 @@ const AppHeader = () => {
   const [userProfile, setUserProfile] = useState(null);
   const [isClicked, setIsClicked] = useState(false);
 
+  const handleLogout = () => {
+    // Notification("warning", "Good Bye!");
+    setTimeout(() => {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("userRole");
+      window.location.href = "/login";
+    }, 1000);
+  };
+
   // Menu for dropdown
   const menu = (
     <AntMenu>
@@ -15,7 +25,9 @@ const AppHeader = () => {
         <a href="#">Trang cá nhân</a>
       </AntMenu.Item>
       <AntMenu.Divider />
-      <AntMenu.Item key="3">Đăng xuất</AntMenu.Item>
+      <AntMenu.Item key="3" onClick={handleLogout}>
+        Đăng xuất
+      </AntMenu.Item>
     </AntMenu>
   );
 
@@ -24,6 +36,8 @@ const AppHeader = () => {
     setIsClicked(true);
     setTimeout(() => setIsClicked(false), 200); // Reset state after animation
   };
+
+  // Handle Logout
 
   return (
     <Header

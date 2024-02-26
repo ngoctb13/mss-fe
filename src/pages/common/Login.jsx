@@ -12,17 +12,28 @@ import {
 } from "antd";
 import AuthAPI from "../../api/AuthAPI";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
+import { Navigate, Redirect } from "react-router-dom";
 
 const LoginForm = () => {
   const [loading, setLoading] = useState(false);
+  const [redirectToHome, setRedirectToHome] = useState(false);
 
   const onFinish = async (values) => {
     setLoading(true);
     try {
       // Call the login API function from LoginAPI
       const response = await AuthAPI.Login(values.username, values.password);
-      localStorage.setItem("accessToken", response.data.token);
-      message.success("ok");
+      localStorage.setItem("accessToken", response.data.accessToken);
+      localStorage.setItem("userRole", response.data.role);
+
+      // Redirect based on user role
+      if (
+        response.data.role === "STORE_OWNER" ||
+        response.data.role === "STAFF"
+      ) {
+        setRedirectToHome(true);
+      }
+
       setLoading(false);
     } catch (error) {
       console.error("Login failed:", error);
@@ -35,6 +46,10 @@ const LoginForm = () => {
     console.log("Failed:", errorInfo);
     message.error("Login failed. Please check your inputs.");
   };
+
+  if (redirectToHome) {
+    return <Navigate to="/home" />; // Redirect if needed
+  }
 
   return (
     <Row justify="center" align="middle" style={{ minHeight: "100vh" }}>
