@@ -93,7 +93,7 @@ const RegisterForm = () => {
                 />
               </Form.Item>
 
-              {/* <Form.Item
+              <Form.Item
                 name="confirm"
                 dependencies={["password"]}
                 hasFeedback
@@ -120,8 +120,9 @@ const RegisterForm = () => {
                   prefix={<LockOutlined />}
                   placeholder="Confirm Password"
                 />
-              </Form.Item> */}
-              <Form.Item
+              </Form.Item>
+
+              {/* <Form.Item
                 name="storeName"
                 hasFeedback
                 rules={[
@@ -145,9 +146,9 @@ const RegisterForm = () => {
                 ]}
               >
                 <Input prefix={<MailOutlined />} placeholder="Store address" />
-              </Form.Item>
+              </Form.Item> */}
 
-              <Form.Item
+              {/* <Form.Item
                 name="agreement"
                 valuePropName="checked"
                 rules={[
@@ -167,7 +168,7 @@ const RegisterForm = () => {
                 <Checkbox>
                   I have read the <a href="">agreement</a>
                 </Checkbox>
-              </Form.Item>
+              </Form.Item> */}
 
               <Form.Item>
                 <Button type="primary" htmlType="submit" block>
