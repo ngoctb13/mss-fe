@@ -5,12 +5,18 @@ import Page404 from "../pages/ErrorPage/Page404";
 import RegisterForm from "../pages/common/Register.jsx";
 import Home from "../pages/Home.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
+import CreateStore from "../pages/StoreOwner/CreateStore.jsx";
 
 const AppRoute = () => {
   return [
     <Route key="/logout" path="/logout" element={<LoginForm />} />,
     <Route key="*" path="*" element={<Page404 />} />,
     <Route key="/login" path="/login" element={<LoginForm />} />,
+    <Route
+      key="/create-store"
+      path="/create-store"
+      element={<CreateStore />}
+    />,
     <Route key="/register" path="/register" element={<RegisterForm />} />,
     <Route
       key="/home"
