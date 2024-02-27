@@ -13,10 +13,13 @@ import {
 import AuthAPI from "../../api/AuthAPI";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { Navigate, Redirect } from "react-router-dom";
+import UserAPI from "../../api/UserAPI";
 
 const LoginForm = () => {
   const [loading, setLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState();
   const [redirectToHome, setRedirectToHome] = useState(false);
+  const [redirectToCreateStore, setRedirectToCreateStore] = useState(false);
 
   const onFinish = async (values) => {
     setLoading(true);
@@ -27,13 +30,31 @@ const LoginForm = () => {
       localStorage.setItem("userRole", response.data.role);
 
       // Redirect based on user role
+      // if (
+      //   userResponse.data.storeId === null &&
+      //   response.data.role === "STORE_OWNER"
+      // ) {
+      //   setRedirectToCreateStore(true);
+      // }
+
       if (
         response.data.role === "STORE_OWNER" ||
         response.data.role === "STAFF"
       ) {
-        setRedirectToHome(true);
+        const userResponse = await UserAPI.GetUserById(response.data.id);
+        if (userResponse.data.storeId === null) {
+          setRedirectToCreateStore(true);
+        } else {
+          setRedirectToHome(true);
+        }
       }
 
+      // if (
+      //   response.data.role === "STORE_OWNER" ||
+      //   response.data.role === "STAFF"
+      // ) {
+      //   setRedirectToHome(true);
+      // }
       setLoading(false);
     } catch (error) {
       console.error("Login failed:", error);
@@ -49,6 +70,9 @@ const LoginForm = () => {
 
   if (redirectToHome) {
     return <Navigate to="/home" />; // Redirect if needed
+  }
+  if (redirectToCreateStore) {
+    return <Navigate to="/create-store" />;
   }
 
   return (
