@@ -6,6 +6,7 @@ import RegisterForm from "../pages/common/Register.jsx";
 import Home from "../pages/Home.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import CreateStore from "../pages/StoreOwner/CreateStore.jsx";
+import Customer from "../pages/Customer/Customer.jsx";
 
 const AppRoute = () => {
   return [
@@ -18,6 +19,7 @@ const AppRoute = () => {
       element={<CreateStore />}
     />,
     <Route key="/register" path="/register" element={<RegisterForm />} />,
+    <Route key="/customer" path="/customer" element={<Customer />} />,
     <Route
       key="/home"
       path="/home"
