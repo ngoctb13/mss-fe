@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import StoreAPI from "../../api/StoreAPI";
 import {
   Form,
   Input,
@@ -9,12 +10,17 @@ import {
   Col,
   Spin,
   message,
+  Layout,
 } from "antd";
-import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
-import StoreAPI from "../../api/StoreAPI";
+
+import AppHeader from "../../components/layout/Header";
+import AppFooter from "../../components/layout/Footer";
+import { Navigate } from "react-router-dom";
+const { Content } = Layout;
 
 const CreateStore = () => {
   const [loading, setLoading] = useState(false);
+  const [redirectToHome, setRedirectToHome] = useState(false);
 
   const onFinish = async (values) => {
     setLoading(true);
@@ -23,18 +29,24 @@ const CreateStore = () => {
       const response = await StoreAPI.Create(
         values.storeName,
         values.address,
-        values.phoneNumeber
+        values.phoneNumber
       );
       console.log("Create OK!: ", response);
       message.success("Tạo cửa hàng thành công!");
+      setRedirectToHome(true);
       // You can perform additional actions here, such as redirecting to a login page
       setLoading(false);
     } catch (error) {
-      console.error("Registration failed:", error);
-      message.error("Registration failed. Please check your inputs.");
+      console.error("Create failed:", error);
+      message.error(
+        "Tạo cửa hàng thất bại, vui lòng kiểm tra lại thông tin đã nhập!"
+      );
       setLoading(false);
     }
   };
+  if (redirectToHome) {
+    return <Navigate to="/home" />; // Redirect if needed
+  }
 
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
@@ -53,116 +65,80 @@ const CreateStore = () => {
     },
   };
   return (
-    <div>
-      <Row justify="center" align="middle" style={{ minHeight: "100vh" }}>
-        <Col>
-          <Card title="CreateStore" bordered={false} style={{ width: 500 }}>
-            <Spin spinning={loading}>
-              <Form
-                name="createStoreForm"
-                initialValues={{ remember: true }}
-                onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
-                autoComplete="off"
+    <Layout style={{ minHeight: "100vh" }}>
+      <Layout>
+        <AppHeader />
+        <Content style={{ padding: "0px 20px", marginTop: 20 }}>
+          <Row justify="center" align="middle" style={{ minHeight: "100vh" }}>
+            <Col>
+              <Card
+                title="Tạo cửa hàng của bạn"
+                bordered={false}
+                style={{ width: 500 }}
               >
-                <Form.Item
-                  name="storeName"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập tên cửa hàng của bạn!",
-                    },
-                    { type: "text", message: "Vui lòng nhập đúng định dạng!" },
-                  ]}
-                >
-                  <Input placeholder="Tên cửa hàng" />
-                </Form.Item>
+                <Spin spinning={loading}>
+                  <Form
+                    name="createStoreForm"
+                    initialValues={{ remember: true }}
+                    onFinish={onFinish}
+                    onFinishFailed={onFinishFailed}
+                    autoComplete="off"
+                  >
+                    <Form.Item
+                      name="storeName"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng nhập tên cửa hàng của bạn!",
+                        },
+                        {
+                          type: "text",
+                          message: "Vui lòng nhập đúng định dạng!",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Tên cửa hàng" />
+                    </Form.Item>
 
-                <Form.Item
-                  name="address"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập địa chỉ của cửa hàng!",
-                    },
-                  ]}
-                  hasFeedback
-                >
-                  <Input placeholder="Địa chỉ" />
-                </Form.Item>
+                    <Form.Item
+                      name="address"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng nhập địa chỉ của cửa hàng!",
+                        },
+                      ]}
+                      hasFeedback
+                    >
+                      <Input placeholder="Địa chỉ" />
+                    </Form.Item>
 
-                <Form.Item
-                  name="phoneNumber"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập số điện thoại của cửa hàng!",
-                    },
-                  ]}
-                  hasFeedback
-                >
-                  <Input placeholder="Số điện thoại" />
-                </Form.Item>
-
-                {/* <Form.Item
-                name="storeName"
-                hasFeedback
-                rules={[
-                  {
-                    required: true,
-                    message: "Please enter your store name!",
-                  },
-                ]}
-              >
-                <Input prefix={<MailOutlined />} placeholder="Store name" />
-              </Form.Item>
-
-              <Form.Item
-                name="storeAddress"
-                hasFeedback
-                rules={[
-                  {
-                    required: true,
-                    message: "Please enter your store address!",
-                  },
-                ]}
-              >
-                <Input prefix={<MailOutlined />} placeholder="Store address" />
-              </Form.Item> */}
-
-                {/* <Form.Item
-                name="agreement"
-                valuePropName="checked"
-                rules={[
-                  {
-                    validator: (_, value) =>
-                      value
-                        ? Promise.resolve()
-                        : Promise.reject(
-                            new Error(
-                              "You must agree to the terms and conditions"
-                            )
-                          ),
-                  },
-                ]}
-                // {...tailFormItemLayout}
-              >
-                <Checkbox>
-                  I have read the <a href="">agreement</a>
-                </Checkbox>
-              </Form.Item> */}
-
-                <Form.Item>
-                  <Button type="primary" htmlType="submit" block>
-                    Tạo cửa hàng
-                  </Button>
-                </Form.Item>
-              </Form>
-            </Spin>
-          </Card>
-        </Col>
-      </Row>
-    </div>
+                    <Form.Item
+                      name="phoneNumber"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng nhập số điện thoại của cửa hàng!",
+                        },
+                      ]}
+                      hasFeedback
+                    >
+                      <Input placeholder="Số điện thoại" />
+                    </Form.Item>
+                    <Form.Item>
+                      <Button type="primary" htmlType="submit" block>
+                        Tạo cửa hàng
+                      </Button>
+                    </Form.Item>
+                  </Form>
+                </Spin>
+              </Card>
+            </Col>
+          </Row>
+        </Content>
+        <AppFooter />
+      </Layout>
+    </Layout>
   );
 };
 
