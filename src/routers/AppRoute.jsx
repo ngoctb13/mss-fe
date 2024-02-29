@@ -7,6 +7,7 @@ import Home from "../pages/Home.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import CreateStore from "../pages/StoreOwner/CreateStore.jsx";
 import Customer from "../pages/Customer/Customer.jsx";
+import SaleInvoice from "../pages/SaleInvoice/SaleInvoice.jsx";
 
 const AppRoute = () => {
   return [
@@ -20,6 +21,7 @@ const AppRoute = () => {
     />,
     <Route key="/register" path="/register" element={<RegisterForm />} />,
     <Route key="/customer" path="/customer" element={<Customer />} />,
+    <Route key="/sale" path="/sale" element={<SaleInvoice />} />,
     <Route
       key="/home"
       path="/home"

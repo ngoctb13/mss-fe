@@ -48,11 +48,7 @@ const AppSidebar = () => {
       theme="light"
     >
       <div className="demo-logo-vertical sider-container">
-        <img
-          className="sider-logo"
-          src="https://upload.wikimedia.org/wikipedia/commons/a/ad/FPT_Education_logo.svg"
-          alt=""
-        />
+        <img className="sider-logo" src="" alt="" />
       </div>
       <Menu
         theme="light"
@@ -86,7 +82,7 @@ const AppSidebar = () => {
                 key: "2-2",
                 icon: <UserSwitchOutlined />,
                 label: (
-                  <Link to="../customer">
+                  <Link to="/customer">
                     <span style={{ float: "left" }}>Khách Hàng</span>
                   </Link>
                 ),
@@ -115,7 +111,7 @@ const AppSidebar = () => {
             key: "3",
             icon: <DollarOutlined />,
             label: (
-              <Link to="#">
+              <Link to="../sale">
                 <span style={{ float: "left" }}>Bán Hàng</span>
               </Link>
             ),
