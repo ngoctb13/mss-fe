@@ -15,16 +15,18 @@ import {
 
 import AppHeader from "../../components/layout/Header";
 import AppFooter from "../../components/layout/Footer";
-import CreateStoreForm from "../../components/Stores/CreateStoreForm";
+import OwnerSidebar from "../../components/layout/StoreOwner/OwnerSidebar";
+import SupplierDebtNoteList from "../../components/DebtNotes/SupplierDebtNoteList";
 const { Content } = Layout;
 
-const CreateStore = () => {
+const SupplierDebtNote = () => {
   return (
     <Layout style={{ minHeight: "100vh" }}>
+      <OwnerSidebar />
       <Layout>
         <AppHeader />
         <Content style={{ padding: "0px 20px", marginTop: 20 }}>
-          <CreateStoreForm />
+          <SupplierDebtNoteList />
         </Content>
         <AppFooter />
       </Layout>
@@ -32,4 +34,4 @@ const CreateStore = () => {
   );
 };
 
-export default CreateStore;
+export default SupplierDebtNote;

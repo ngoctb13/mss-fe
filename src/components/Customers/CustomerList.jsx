@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import CustomerAPI from "../../api/CustomerAPI";
 import {
   Table,
   Spin,
@@ -10,11 +9,11 @@ import {
   InputNumber,
   Popconfirm,
   Typography,
+  Button,
 } from "antd";
-import AppHeader from "../../components/layout/Header";
-import AppFooter from "../../components/layout/Footer";
-import AppSidebar from "../../components/layout/Sidebar";
-const { Content } = Layout;
+import { PlusOutlined } from "@ant-design/icons";
+import CreateCustomerModal from "./CreateCustomerModal";
+import CustomerAPI from "../../api/CustomerAPI";
 
 const EditableCell = ({
   editing,
@@ -50,13 +49,21 @@ const EditableCell = ({
     </td>
   );
 };
-const Customer = () => {
+const CustomerList = () => {
   const [form] = Form.useForm();
   const [customers, setCustomers] = useState([]);
   const [editingKey, setEditingKey] = useState("");
   const isEditing = (record) => record.key === editingKey;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isCustomerModalVisible, setIsCustomerModalVisible] = useState(false);
+
+  const showCreateCustomerModal = () => {
+    setIsCustomerModalVisible(true);
+  };
+  const handleCancelCreateCustomerModal = () => {
+    setIsCustomerModalVisible(false);
+  };
 
   const edit = (record) => {
     form.setFieldsValue({
@@ -181,7 +188,7 @@ const Customer = () => {
       ...col,
       onCell: (record) => ({
         record,
-        inputType: col.dataIndex === "age" ? "number" : "text",
+        inputType: col.dataIndex === "customerName" ? "number" : "text",
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
@@ -198,32 +205,37 @@ const Customer = () => {
   }
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <AppSidebar />
-      <Layout>
-        <AppHeader />
-        <Content style={{ padding: "0px 20px", marginTop: 20 }}>
-          <Form form={form} component={false}>
-            <Table
-              components={{
-                body: {
-                  cell: EditableCell,
-                },
-              }}
-              bordered
-              dataSource={customers}
-              columns={mergedColumns}
-              rowClassName="editable-row"
-              pagination={{
-                onChange: cancel,
-              }}
-            />
-          </Form>
-        </Content>
-        <AppFooter />
-      </Layout>
-    </Layout>
+    <div>
+      <Button
+        style={{ marginBottom: 10 }}
+        type="primary"
+        icon={<PlusOutlined />}
+        onClick={showCreateCustomerModal}
+      >
+        Thêm khách hàng
+      </Button>
+      <Form form={form} component={false}>
+        <Table
+          components={{
+            body: {
+              cell: EditableCell,
+            },
+          }}
+          bordered
+          dataSource={customers}
+          columns={mergedColumns}
+          rowClassName="editable-row"
+          pagination={{
+            onChange: cancel,
+          }}
+        />
+      </Form>
+      <CreateCustomerModal
+        isVisible={isCustomerModalVisible}
+        onCancel={handleCancelCreateCustomerModal}
+      />
+    </div>
   );
 };
 
-export default Customer;
+export default CustomerList;

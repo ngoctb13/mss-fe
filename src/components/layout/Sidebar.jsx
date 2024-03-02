@@ -73,7 +73,7 @@ const AppSidebar = () => {
                 key: "2-1",
                 icon: <InboxOutlined />,
                 label: (
-                  <Link to="">
+                  <Link to="../product">
                     <span style={{ float: "left" }}>Hàng Hóa</span>
                   </Link>
                 ),
@@ -82,7 +82,7 @@ const AppSidebar = () => {
                 key: "2-2",
                 icon: <UserSwitchOutlined />,
                 label: (
-                  <Link to="/customer">
+                  <Link to="../customer">
                     <span style={{ float: "left" }}>Khách Hàng</span>
                   </Link>
                 ),
