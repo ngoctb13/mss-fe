@@ -1,30 +1,19 @@
-import React, { useState } from "react";
-import StoreAPI from "../../api/StoreAPI";
-import {
-  Form,
-  Input,
-  Button,
-  Checkbox,
-  Card,
-  Row,
-  Col,
-  Spin,
-  message,
-  Layout,
-} from "antd";
-
+import React from "react";
+import ProductList from "../../components/Products/ProductList";
+import { Layout } from "antd";
+import OwnerSidebar from "../../components/layout/StoreOwner/OwnerSidebar";
 import AppHeader from "../../components/layout/Header";
 import AppFooter from "../../components/layout/Footer";
-import CreateStoreForm from "../../components/Stores/CreateStoreForm";
 const { Content } = Layout;
 
-const CreateStore = () => {
+const Products = () => {
   return (
     <Layout style={{ minHeight: "100vh" }}>
+      <OwnerSidebar />
       <Layout>
         <AppHeader />
         <Content style={{ padding: "0px 20px", marginTop: 20 }}>
-          <CreateStoreForm />
+          <ProductList />
         </Content>
         <AppFooter />
       </Layout>
@@ -32,4 +21,4 @@ const CreateStore = () => {
   );
 };
 
-export default CreateStore;
+export default Products;

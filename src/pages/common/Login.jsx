@@ -14,6 +14,7 @@ import AuthAPI from "../../api/AuthAPI";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { Navigate, Redirect } from "react-router-dom";
 import UserAPI from "../../api/UserAPI";
+import { TOKEN_EXPITY_TIME } from "../../constant/constant";
 
 const LoginForm = () => {
   const [loading, setLoading] = useState(false);
@@ -28,15 +29,8 @@ const LoginForm = () => {
       const response = await AuthAPI.Login(values.username, values.password);
       localStorage.setItem("accessToken", response.data.accessToken);
       localStorage.setItem("userRole", response.data.role);
-
-      // Redirect based on user role
-      // if (
-      //   userResponse.data.storeId === null &&
-      //   response.data.role === "STORE_OWNER"
-      // ) {
-      //   setRedirectToCreateStore(true);
-      // }
-
+      const expiryTime = new Date().getTime() + TOKEN_EXPITY_TIME;
+      localStorage.setItem("token_expiry", expiryTime);
       if (
         response.data.role === "STORE_OWNER" ||
         response.data.role === "STAFF"
@@ -48,13 +42,6 @@ const LoginForm = () => {
           setRedirectToHome(true);
         }
       }
-
-      // if (
-      //   response.data.role === "STORE_OWNER" ||
-      //   response.data.role === "STAFF"
-      // ) {
-      //   setRedirectToHome(true);
-      // }
       setLoading(false);
     } catch (error) {
       console.error("Login failed:", error);
@@ -69,12 +56,12 @@ const LoginForm = () => {
   };
 
   if (redirectToHome) {
-    return <Navigate to="/home" />; // Redirect if needed
-  }
-  if (redirectToCreateStore) {
-    return <Navigate to="/create-store" />;
+    return <Navigate to="/owner/home" />;
   }
 
+  if (redirectToCreateStore) {
+    return <Navigate to="/owner/create-store" />;
+  }
   return (
     <Row justify="center" align="middle" style={{ minHeight: "100vh" }}>
       <Col>

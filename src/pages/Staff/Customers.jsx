@@ -15,16 +15,16 @@ import {
 
 import AppHeader from "../../components/layout/Header";
 import AppFooter from "../../components/layout/Footer";
-import CreateStoreForm from "../../components/Stores/CreateStoreForm";
+import CustomerList from "../../components/Customers/CustomerList";
 const { Content } = Layout;
 
-const CreateStore = () => {
+const Customers = () => {
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Layout>
         <AppHeader />
         <Content style={{ padding: "0px 20px", marginTop: 20 }}>
-          <CreateStoreForm />
+          <CustomerList />
         </Content>
         <AppFooter />
       </Layout>
@@ -32,4 +32,4 @@ const CreateStore = () => {
   );
 };
 
-export default CreateStore;
+export default Customers;

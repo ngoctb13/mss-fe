@@ -2,37 +2,60 @@ import React from "react";
 import { Route } from "react-router-dom";
 import LoginForm from "../pages/common/Login.jsx";
 import Page404 from "../pages/ErrorPage/Page404";
-import RegisterForm from "../pages/common/Register.jsx";
-import Home from "../pages/Home.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import CreateStore from "../pages/StoreOwner/CreateStore.jsx";
-import Customer from "../pages/Customer/Customer.jsx";
-import SaleInvoice from "../pages/SaleInvoice/SaleInvoice.jsx";
+import Customers from "../pages/StoreOwner/Customers.jsx";
+import Staff_Customers from "../pages/Staff/Customers.jsx";
+import Home from "../pages/StoreOwner/Home.jsx";
+import Products from "../pages/StoreOwner/Products.jsx";
+import Suppliers from "../pages/StoreOwner/Suppliers.jsx";
+import Sale from "../pages/StoreOwner/Sale.jsx";
+import Staffs from "../pages/StoreOwner/Staffs.jsx";
+import CustomerDebtNote from "../pages/StoreOwner/CustomerDebtNote.jsx";
+import SupplierDebtNote from "../pages/StoreOwner/SupplierDebtNote.jsx";
 
+const StoreOwnerRouter = [
+  { path: "/owner/home", component: Home },
+  { path: "/owner/create-store", component: CreateStore },
+  { path: "/owner/customers", component: Customers },
+  { path: "/owner/products", component: Products },
+  { path: "/owner/suppliers", component: Suppliers },
+  { path: "/owner/staff-list", component: Staffs },
+  { path: "/owner/debt-note/customer", component: CustomerDebtNote },
+  { path: "/owner/debt-note/supplier", component: SupplierDebtNote },
+  { path: "/owner/sale", component: Sale },
+];
+const StaffRouter = [{ path: "/staff/customers", component: Staff_Customers }];
+const AdminRouter = [];
 const AppRoute = () => {
+  const OwnerRoutes = StoreOwnerRouter.map((route) => (
+    <Route
+      key={route.path}
+      path={route.path}
+      element={
+        <ProtectedRoute
+          component={route.component}
+          requiredRole={"STORE_OWNER"}
+        />
+      }
+    />
+  ));
+
+  const StaffRoutes = StaffRouter.map((route) => (
+    <Route
+      key={route.path}
+      path={route.path}
+      element={
+        <ProtectedRoute component={route.component} requiredRole={["STAFF"]} />
+      }
+    />
+  ));
   return [
+    ...OwnerRoutes,
+    ...StaffRoutes,
     <Route key="/logout" path="/logout" element={<LoginForm />} />,
     <Route key="*" path="*" element={<Page404 />} />,
     <Route key="/login" path="/login" element={<LoginForm />} />,
-    <Route
-      key="/create-store"
-      path="/create-store"
-      element={<CreateStore />}
-    />,
-    <Route key="/register" path="/register" element={<RegisterForm />} />,
-    <Route key="/customer" path="/customer" element={<Customer />} />,
-    <Route key="/sale" path="/sale" element={<SaleInvoice />} />,
-    <Route
-      key="/home"
-      path="/home"
-      element={
-        <ProtectedRoute
-          component={Home}
-          requiredRole={["STORE_OWNER", "STAFF"]}
-        />
-      }
-    />,
-    <Route key="" path="" element={<LoginForm />} />,
   ];
 };
 
