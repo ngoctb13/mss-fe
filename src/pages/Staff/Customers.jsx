@@ -31,5 +31,5 @@ const Customers = () => {
     </Layout>
   );
 };
-
+// danh sach khach hang
 export default Customers;
