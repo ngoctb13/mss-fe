@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from "react";
-import CustomerAPI from "../../api/CustomerAPI";
 import {
   Table,
   Spin,
   Alert,
-  Layout,
   Form,
   Input,
   InputNumber,
   Popconfirm,
   Typography,
   Button,
+  notification,
+  Switch,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
+import UserAPI from "../../api/UserAPI";
 import CreateStaffModal from "./CreateStaffModal";
+import ResetPasswordStaffModal from "./ResetPasswordStaffModal";
 
 const EditableCell = ({
   editing,
@@ -31,15 +33,8 @@ const EditableCell = ({
       {editing ? (
         <Form.Item
           name={dataIndex}
-          style={{
-            margin: 0,
-          }}
-          rules={[
-            {
-              required: true,
-              message: `Please Input ${title}!`,
-            },
-          ]}
+          style={{ margin: 0 }}
+          rules={[{ required: true, message: `Please Input ${title}!` }]}
         >
           {inputNode}
         </Form.Item>
@@ -49,51 +44,53 @@ const EditableCell = ({
     </td>
   );
 };
+
 const StaffList = () => {
   const [form] = Form.useForm();
   const [staffs, setStaffs] = useState([]);
   const [editingKey, setEditingKey] = useState("");
-  const isEditing = (record) => record.key === editingKey;
+  const isEditing = (record) => record.id === editingKey;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isCreateStaffModalVisible, setIsCreateStaffModalVisible] =
     useState(false);
+  const [isResetPasswordModalVisible, setIsResetPasswordModalVisible] =
+    useState(false);
+  const [selectedStaff, setSelectedStaff] = useState(null);
+
+  const showResetPasswordModal = (record) => {
+    setSelectedStaff(record);
+    setIsResetPasswordModalVisible(true);
+  };
 
   const showCreateStaffModal = () => {
     setIsCreateStaffModalVisible(true);
   };
+
   const handleCancelCreateSupplierModal = () => {
     setIsCreateStaffModalVisible(false);
   };
 
   const edit = (record) => {
-    form.setFieldsValue({
-      username: "",
-      password: "",
-      status: "",
-      ...record,
-    });
-    setEditingKey(record.key);
+    form.setFieldsValue({ ...record });
+    setEditingKey(record.id);
   };
+
   const cancel = () => {
     setEditingKey("");
   };
 
-  const save = async (key) => {
+  const save = async (id) => {
     try {
       const row = await form.validateFields();
       const newData = [...staffs];
-      const index = newData.findIndex((item) => key === item.key);
+      const index = newData.findIndex((item) => id === item.id);
+
       if (index > -1) {
         const item = newData[index];
-        newData.splice(index, 1, {
-          ...item,
-          ...row,
-        });
-        setStaffs(newData);
-        setEditingKey("");
-      } else {
-        newData.push(row);
+        const updatedStaff = { ...item, ...row };
+        await UserAPI.Update(updatedStaff);
+        newData.splice(index, 1, updatedStaff);
         setStaffs(newData);
         setEditingKey("");
       }
@@ -101,10 +98,11 @@ const StaffList = () => {
       console.log("Validate Failed:", errInfo);
     }
   };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await CustomerAPI.GetAll();
+        const response = await UserAPI.GetAllStaffs();
         setStaffs(response.data);
         setLoading(false);
       } catch (error) {
@@ -114,11 +112,53 @@ const StaffList = () => {
     };
 
     fetchData();
-
-    return () => {
-      // Cleanup if needed
-    };
   }, []);
+
+  const onCreate = async (staff) => {
+    setLoading(true);
+    try {
+      const response = await UserAPI.CreateStaffAccount(staff);
+      if (response && response.data) {
+        setStaffs([...staffs, response.data]); // Cập nhật danh sách nhân viên
+        setIsCreateStaffModalVisible(false); // Đóng modal
+        notification.success({
+          message: "Tạo nhân viên thành công",
+          description: `Nhân viên ${staff.username} đã được thêm.`,
+        });
+      }
+    } catch (error) {
+      notification.error({
+        message: "Tạo nhân viên thất bại",
+        description: "Có lỗi xảy ra khi tạo nhân viên mới. Vui lòng thử lại.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleToggleStatus = async (record) => {
+    // Gọi API để cập nhật trạng thái
+    try {
+      const updatedStatus = record.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+      await UserAPI.UpdateStatus(record.id, updatedStatus);
+      // Cập nhật trạng thái trong danh sách staffs
+      const updatedStaffs = staffs.map((staff) =>
+        staff.id === record.id ? { ...staff, status: updatedStatus } : staff
+      );
+      setStaffs(updatedStaffs);
+    } catch (error) {
+      // Hiển thị thông báo lỗi
+      notification.error({
+        message: "Cập nhật trạng thái thất bại",
+        description: "Có lỗi xảy ra khi cập nhật trạng thái.",
+      });
+    }
+  };
+
+  const handleResetPassword = async (staffId, newPassword) => {
+    // Gọi API để đặt lại mật khẩu tại đây
+    // Ví dụ: await UserAPI.ResetPassword(staffId, newPassword);
+  };
 
   const columns = [
     {
@@ -126,50 +166,32 @@ const StaffList = () => {
       dataIndex: "username",
       width: "20%",
       editable: true,
-      key: "username",
     },
     {
       title: "Mật khẩu",
       dataIndex: "password",
       width: "15%",
       editable: true,
-      key: "password",
+      render: () => "********",
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
-      width: "25%",
-      editable: true,
-      key: "status",
+      width: "10%",
+      render: (_, record) => (
+        <Switch
+          checked={record.status === "ACTIVE"}
+          onChange={() => handleToggleStatus(record)}
+        />
+      ),
     },
     {
-      title: "operation",
-      dataIndex: "operation",
-      render: (_, record) => {
-        const editable = isEditing(record);
-        return editable ? (
-          <span>
-            <Typography.Link
-              onClick={() => save(record.key)}
-              style={{
-                marginRight: 8,
-              }}
-            >
-              Save
-            </Typography.Link>
-            <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
-              <a>Cancel</a>
-            </Popconfirm>
-          </span>
-        ) : (
-          <Typography.Link
-            disabled={editingKey !== ""}
-            onClick={() => edit(record)}
-          >
-            Edit
-          </Typography.Link>
-        );
-      },
+      title: "Action",
+      render: (_, record) => (
+        <Button type="link" onClick={() => showResetPasswordModal(record)}>
+          Đặt lại mật khẩu
+        </Button>
+      ),
     },
   ];
 
@@ -205,27 +227,29 @@ const StaffList = () => {
         icon={<PlusOutlined />}
         onClick={showCreateStaffModal}
       >
-        Thêm khách hàng
+        Thêm nhân viên
       </Button>
       <Form form={form} component={false}>
         <Table
-          components={{
-            body: {
-              cell: EditableCell,
-            },
-          }}
+          components={{ body: { cell: EditableCell } }}
           bordered
           dataSource={staffs}
           columns={mergedColumns}
           rowClassName="editable-row"
-          pagination={{
-            onChange: cancel,
-          }}
+          pagination={{ onChange: cancel }}
         />
       </Form>
       <CreateStaffModal
         isVisible={isCreateStaffModalVisible}
+        onCreate={onCreate}
         onCancel={handleCancelCreateSupplierModal}
+        // Pass other necessary props for CreateStaffModal
+      />
+      <ResetPasswordStaffModal
+        isVisible={isResetPasswordModalVisible}
+        staff={selectedStaff}
+        onReset={handleResetPassword}
+        onCancel={() => setIsResetPasswordModalVisible(false)}
       />
     </div>
   );

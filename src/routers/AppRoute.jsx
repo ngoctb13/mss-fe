@@ -13,6 +13,8 @@ import Sale from "../pages/StoreOwner/Sale.jsx";
 import Staffs from "../pages/StoreOwner/Staffs.jsx";
 import CustomerDebtNote from "../pages/StoreOwner/CustomerDebtNote.jsx";
 import SupplierDebtNote from "../pages/StoreOwner/SupplierDebtNote.jsx";
+import SaleInvoiceReport from "../pages/StoreOwner/SaleReport/SaleInvoiceReport.jsx";
+import StockExportReport from "../pages/StoreOwner/SaleReport/StockExportReport.jsx";
 
 const StoreOwnerRouter = [
   { path: "/owner/home", component: Home },
@@ -23,6 +25,14 @@ const StoreOwnerRouter = [
   { path: "/owner/staff-list", component: Staffs },
   { path: "/owner/debt-note/customer", component: CustomerDebtNote },
   { path: "/owner/debt-note/supplier", component: SupplierDebtNote },
+  {
+    path: "/owner/sale-report/sale-invoice-report",
+    component: SaleInvoiceReport,
+  },
+  {
+    path: "/owner/sale-report/stock-export-report",
+    component: StockExportReport,
+  },
   { path: "/owner/sale", component: Sale },
 ];
 const StaffRouter = [{ path: "/staff/customers", component: Staff_Customers }];
@@ -56,6 +66,7 @@ const AppRoute = () => {
     <Route key="/logout" path="/logout" element={<LoginForm />} />,
     <Route key="*" path="*" element={<Page404 />} />,
     <Route key="/login" path="/login" element={<LoginForm />} />,
+    <Route key="/" path="/" element={<LoginForm />} />,
   ];
 };
 

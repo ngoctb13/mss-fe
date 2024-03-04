@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import openNotificationWithIcon from "../notification";
 
 import {
   Form,
@@ -12,20 +13,7 @@ import {
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import CreateProductModal from "./CreateProductModal";
-const originData = [];
-for (let i = 0; i < 100; i++) {
-  originData.push({
-    id: i,
-    productName: `Product ${i}`,
-    unit: `Kg`,
-    retailPrice: `123${i}`,
-    importPrice: `100${i}`,
-    description: `Description product ${i}`,
-    inventory: `500,${i}`,
-    bag_packing: `50`,
-    status: `ACTIVE`,
-  });
-}
+import ProductAPI from "../../api/ProductAPI";
 const EditableCell = ({
   editing,
   dataIndex,
@@ -62,7 +50,7 @@ const EditableCell = ({
 };
 const ProductList = () => {
   const [form] = Form.useForm();
-  const [data, setData] = useState(originData);
+  const [data, setData] = useState();
   const [editingKey, setEditingKey] = useState("");
   const [isCreateModalVisble, setIsCreateModalVisible] = useState(false);
 
@@ -88,19 +76,25 @@ const ProductList = () => {
   const cancel = () => {
     setEditingKey("");
   };
-  const save = async (key) => {
+  const save = async (id) => {
     try {
       const row = await form.validateFields();
       const newData = [...data];
-      const index = newData.findIndex((item) => key === item.id);
+      const index = newData.findIndex((item) => id === item.id);
       if (index > -1) {
         const item = newData[index];
-        newData.splice(index, 1, {
-          ...item,
-          ...row,
-        });
-        setData(newData);
-        setEditingKey("");
+        const updatedProduct = { ...item, ...row };
+
+        console.log(updatedProduct);
+        const response = await ProductAPI.Update(updatedProduct);
+
+        if (response && response.data) {
+          newData.splice(index, 1, { ...response.data }); // Sử dụng dữ liệu trả về từ API để cập nhật
+          setData(newData);
+          setEditingKey("");
+
+          openNotificationWithIcon("success", "Cập nhật thành công");
+        }
       } else {
         newData.push(row);
         setData(newData);
@@ -108,6 +102,11 @@ const ProductList = () => {
       }
     } catch (errInfo) {
       console.log("Validate Failed:", errInfo);
+      openNotificationWithIcon(
+        "error",
+        "Cập nhật thất bại",
+        "Vui lòng thử lại!"
+      );
     }
   };
 
@@ -162,7 +161,7 @@ const ProductList = () => {
         return editable ? (
           <span>
             <Typography.Link
-              onClick={() => save(record.key)}
+              onClick={() => save(record.id)}
               style={{
                 marginRight: 8,
               }}
@@ -199,6 +198,43 @@ const ProductList = () => {
       }),
     };
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await ProductAPI.GetAll();
+      setData(response.data);
+    };
+
+    fetchData();
+
+    return () => {
+      // Cleanup if needed
+    };
+  }, []);
+
+  const onCreate = async (product) => {
+    // Gọi API để thêm sản phẩm mới
+    try {
+      const response = await ProductAPI.Create(product);
+      // Cập nhật dữ liệu trên UI
+      setData([...data, { ...product, id: response.data.id }]);
+      setIsCreateModalVisible(false); // Đóng modal sau khi thêm thành công
+
+      openNotificationWithIcon(
+        "success",
+        "Thêm sản phẩm thành công",
+        `Bạn đã thêm thành công sản phẩm ${product.productName}!`
+      );
+    } catch (error) {
+      // Xử lý lỗi nếu có
+      console.error("Failed to create product:", error);
+      openNotificationWithIcon(
+        "success",
+        "Thêm sản phẩm thất bại",
+        `Vui lòng kiểm tra và thử lại!`
+      );
+    }
+  };
   return (
     <div>
       <Button
@@ -227,6 +263,7 @@ const ProductList = () => {
       </Form>
       <CreateProductModal
         isVisible={isCreateModalVisble}
+        onCreate={onCreate}
         onCancel={handleCreateModalCancel}
         footer={null}
       />

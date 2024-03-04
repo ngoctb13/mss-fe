@@ -47,7 +47,7 @@ const CreateProductModal = ({ isVisible, onCreate, onCancel }) => {
           rules={[{ required: false }]}
           initialValue={"Kg"}
         >
-          <Input value={"Kg"} disabled placeholder="Kg" />
+          <Input defaultValue={"Kg"} disabled placeholder="Kg" />
         </Form.Item>
         <Form.Item
           name="bag_packing"

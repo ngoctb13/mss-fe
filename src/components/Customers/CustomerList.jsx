@@ -10,6 +10,8 @@ import {
   Popconfirm,
   Typography,
   Button,
+  Switch,
+  notification,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import CreateCustomerModal from "./CreateCustomerModal";
@@ -53,7 +55,6 @@ const CustomerList = () => {
   const [form] = Form.useForm();
   const [customers, setCustomers] = useState([]);
   const [editingKey, setEditingKey] = useState("");
-  const isEditing = (record) => record.key === editingKey;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isCustomerModalVisible, setIsCustomerModalVisible] = useState(false);
@@ -65,6 +66,8 @@ const CustomerList = () => {
     setIsCustomerModalVisible(false);
   };
 
+  const isEditing = (record) => record.id === editingKey;
+
   const edit = (record) => {
     form.setFieldsValue({
       customerName: "",
@@ -73,25 +76,33 @@ const CustomerList = () => {
       note: "",
       ...record,
     });
-    setEditingKey(record.key);
+    setEditingKey(record.id);
   };
   const cancel = () => {
     setEditingKey("");
   };
 
-  const save = async (key) => {
+  const save = async (id) => {
     try {
       const row = await form.validateFields();
       const newData = [...customers];
-      const index = newData.findIndex((item) => key === item.key);
+      const index = newData.findIndex((item) => id === item.id);
       if (index > -1) {
         const item = newData[index];
-        newData.splice(index, 1, {
-          ...item,
-          ...row,
-        });
-        setCustomers(newData);
-        setEditingKey("");
+        const updatedCustomer = { ...item, ...row };
+
+        // Gọi API để cập nhật thông tin khách hàng
+        const response = await CustomerAPI.Update(updatedCustomer);
+
+        if (response && response.data) {
+          newData.splice(index, 1, { ...response.data });
+          setCustomers(newData);
+          setEditingKey("");
+          notification.success({
+            message: "Cập nhật thành công",
+            description: `Thông tin khách hàng đã được cập nhật.`,
+          });
+        }
       } else {
         newData.push(row);
         setCustomers(newData);
@@ -99,6 +110,11 @@ const CustomerList = () => {
       }
     } catch (errInfo) {
       console.log("Validate Failed:", errInfo);
+      notification.error({
+        message: "Cập nhật thất bại",
+        description:
+          "Không thể cập nhật thông tin khách hàng. Vui lòng thử lại.",
+      });
     }
   };
   useEffect(() => {
@@ -119,6 +135,54 @@ const CustomerList = () => {
       // Cleanup if needed
     };
   }, []);
+
+  const onCreate = async (customer) => {
+    setLoading(true);
+    try {
+      const response = await CustomerAPI.Create(customer); // Gọi API để thêm khách hàng
+      setLoading(false);
+      if (response && response.data) {
+        setCustomers([...customers, { ...customer, id: response.data.id }]);
+        setIsCustomerModalVisible(false); // Đóng modal
+        notification.success({
+          message: "Thêm khách hàng thành công",
+          description: `Bạn đã thêm thành công khách hàng ${customer.customerName}.`,
+        });
+      }
+    } catch (error) {
+      setLoading(false);
+      notification.error({
+        message: "Thêm khách hàng thất bại",
+        description: "Có lỗi xảy ra khi thêm khách hàng. Vui lòng thử lại.",
+      });
+    }
+  };
+
+  const handleStatusChange = async (checked, record) => {
+    try {
+      const response = await CustomerAPI.Deactive(record.id);
+      if (response && response.data) {
+        // Cập nhật trạng thái trong danh sách customers trên frontend
+        const updatedCustomers = customers.map((customer) =>
+          customer.id === record.id
+            ? { ...customer, status: response.data.status }
+            : customer
+        );
+        setCustomers(updatedCustomers);
+
+        notification.success({
+          message: "Cập nhật trạng thái thành công",
+          description: `Trạng thái của khách hàng đã được cập nhật thành ${response.data.status}.`,
+        });
+      }
+    } catch (error) {
+      notification.error({
+        message: "Cập nhật trạng thái thất bại",
+        description:
+          "Đã có lỗi xảy ra khi cập nhật trạng thái. Vui lòng thử lại.",
+      });
+    }
+  };
 
   const columns = [
     {
@@ -145,19 +209,31 @@ const CustomerList = () => {
     {
       title: "Ghi chú",
       dataIndex: "note",
-      width: "25%",
+      width: "15%",
       editable: true,
       key: "note",
     },
     {
-      title: "operation",
+      title: "Trạng thái",
+      dataIndex: "status",
+      editable: false,
+      key: "status",
+      render: (_, record) => (
+        <Switch
+          checked={record.status === "ACTIVE"}
+          onChange={(checked) => handleStatusChange(checked, record)}
+        />
+      ),
+    },
+    {
+      title: "Action",
       dataIndex: "operation",
       render: (_, record) => {
         const editable = isEditing(record);
         return editable ? (
           <span>
             <Typography.Link
-              onClick={() => save(record.key)}
+              onClick={() => save(record.id)}
               style={{
                 marginRight: 8,
               }}
@@ -188,7 +264,7 @@ const CustomerList = () => {
       ...col,
       onCell: (record) => ({
         record,
-        inputType: col.dataIndex === "customerName" ? "number" : "text",
+        inputType: col.dataIndex === "phoneNumber" ? "number" : "text",
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
@@ -233,6 +309,7 @@ const CustomerList = () => {
       <CreateCustomerModal
         isVisible={isCustomerModalVisible}
         onCancel={handleCancelCreateCustomerModal}
+        onCreate={onCreate}
       />
     </div>
   );

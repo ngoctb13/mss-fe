@@ -55,9 +55,6 @@ const CreateCustomerModal = ({ isVisible, onCreate, onCancel }) => {
         >
           <Input />
         </Form.Item>
-        <Form.Item name="note" label="Ghi chú" rules={[{ required: false }]}>
-          <Input />
-        </Form.Item>
       </Form>
     </Modal>
   );

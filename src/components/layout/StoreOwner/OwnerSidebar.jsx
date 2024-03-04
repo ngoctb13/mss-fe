@@ -55,8 +55,8 @@ const OwnerSidebar = () => {
     if (path.includes("debt-note/supplier")) return "3-2";
     if (path.includes("sale")) return "4";
     if (path.includes("import-product")) return "5";
-    if (path.includes("user-list")) return "5";
-    if (path.includes("class-list")) return "6";
+    if (path.includes("sale-port/sale-invoice-report")) return "6-1";
+    if (path.includes("sale-port/stock-export-report")) return "6-3";
     if (path.includes("debt-note")) return "7";
 
     return "1"; // default to 'Dashboard'
@@ -132,11 +132,7 @@ const OwnerSidebar = () => {
           {
             key: "3",
             icon: <AccountBookOutlined />,
-            label: (
-              <Link to="#">
-                <span style={{ float: "left" }}>Sổ nợ</span>
-              </Link>
-            ),
+            label: <span style={{ float: "left" }}>Sổ nợ</span>,
             children: [
               {
                 key: "3-1",
@@ -185,7 +181,7 @@ const OwnerSidebar = () => {
                 key: "6-1",
                 // icon: <InboxOutlined />,
                 label: (
-                  <Link to="#">
+                  <Link to="../owner/sale-report/sale-invoice-report">
                     <span style={{ float: "left" }}>Hóa đơn bán hàng</span>
                   </Link>
                 ),
@@ -203,7 +199,7 @@ const OwnerSidebar = () => {
                 key: "6-3",
                 // icon: <UsergroupAddOutlined />,
                 label: (
-                  <Link to="../owner/suppliers">
+                  <Link to="../owner/sale-report/stock-export-report">
                     <span style={{ float: "left" }}>Xuất kho, lợi nhuận</span>
                   </Link>
                 ),

@@ -1,3 +1,4 @@
+// CreateStaffModal.jsx
 import React, { useState } from "react";
 import { Modal, Form, Input, Button } from "antd";
 
@@ -7,18 +8,23 @@ const CreateStaffModal = ({ isVisible, onCreate, onCancel }) => {
 
   const onFinish = async (values) => {
     setLoading(true);
-    await onCreate(values);
-    setLoading(false);
-    form.resetFields();
+    try {
+      await onCreate(values);
+      setLoading(false);
+      form.resetFields();
+    } catch (err) {
+      setLoading(false);
+      console.error("Creation failed:", err);
+      // Handle creation failure (e.g., show notification)
+    }
   };
+
   return (
     <Modal
       title="Tạo tài khoản nhân viên"
       visible={isVisible}
       centered
       onCancel={onCancel}
-      width={600}
-      //   height={650}
       footer={[
         <Button key="cancel" onClick={onCancel}>
           Hủy
@@ -46,8 +52,9 @@ const CreateStaffModal = ({ isVisible, onCreate, onCancel }) => {
           label="Mật khẩu"
           rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
         >
-          <Input />
+          <Input.Password />
         </Form.Item>
+        {/* Add additional fields if needed */}
       </Form>
     </Modal>
   );
