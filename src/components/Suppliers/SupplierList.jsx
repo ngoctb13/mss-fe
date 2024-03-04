@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
-import CustomerAPI from "../../api/CustomerAPI";
+import openNotificationWithIcon from "../notification";
+
 import {
-  Table,
-  Spin,
-  Alert,
-  Layout,
   Form,
   Input,
   InputNumber,
   Popconfirm,
+  Table,
   Typography,
+  Layout,
   Button,
+  Switch,
+  notification,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
+import SupplierAPI from "../../api/SupplierAPI";
 import CreateSupplierModal from "./CreateSupplierModal";
-
 const EditableCell = ({
   editing,
   dataIndex,
@@ -51,19 +52,18 @@ const EditableCell = ({
 };
 const SupplierList = () => {
   const [form] = Form.useForm();
-  const [customers, setCustomers] = useState([]);
+  const [data, setData] = useState();
   const [editingKey, setEditingKey] = useState("");
-  const isEditing = (record) => record.key === editingKey;
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isSupplierModalVisible, setIsSupplierModalVisible] = useState(false);
+  const [isCreateModalVisble, setIsCreateModalVisible] = useState(false);
 
-  const showCreateSupplierModal = () => {
-    setIsSupplierModalVisible(true);
+  const showCreateModal = () => {
+    setIsCreateModalVisible(true);
   };
-  const handleCancelCreateSupplierModal = () => {
-    setIsSupplierModalVisible(false);
+  const handleCreateModalCancel = () => {
+    setIsCreateModalVisible(false);
   };
+
+  const isEditing = (record) => record.id === editingKey;
 
   const edit = (record) => {
     form.setFieldsValue({
@@ -73,44 +73,164 @@ const SupplierList = () => {
       note: "",
       ...record,
     });
-    setEditingKey(record.key);
+    setEditingKey(record.id);
   };
   const cancel = () => {
     setEditingKey("");
   };
-
-  const save = async (key) => {
+  const save = async (id) => {
     try {
       const row = await form.validateFields();
-      const newData = [...customers];
-      const index = newData.findIndex((item) => key === item.key);
+      const newData = [...data];
+      const index = newData.findIndex((item) => id === item.id);
       if (index > -1) {
         const item = newData[index];
-        newData.splice(index, 1, {
-          ...item,
-          ...row,
-        });
-        setCustomers(newData);
-        setEditingKey("");
+        const updatedSupplier = { ...item, ...row };
+
+        console.log(updatedSupplier);
+        const response = await SupplierAPI.Update(updatedSupplier);
+
+        if (response && response.data) {
+          newData.splice(index, 1, { ...response.data }); // Sử dụng dữ liệu trả về từ API để cập nhật
+          setData(newData);
+          setEditingKey("");
+
+          openNotificationWithIcon("success", "Cập nhật thành công");
+        }
       } else {
         newData.push(row);
-        setCustomers(newData);
+        setData(newData);
         setEditingKey("");
       }
     } catch (errInfo) {
       console.log("Validate Failed:", errInfo);
+      openNotificationWithIcon(
+        "error",
+        "Cập nhật thất bại",
+        "Vui lòng thử lại!"
+      );
     }
   };
+
+  const handleStatusChange = async (checked, record) => {
+    try {
+      const response = await SupplierAPI.Deactive(record.id);
+      if (response && response.data) {
+        // Cập nhật trạng thái trong danh sách customers trên frontend
+        const updatedSuppliers = data.map((supplier) =>
+          supplier.id === record.id
+            ? { ...supplier, status: response.data.status }
+            : supplier
+        );
+        setData(updatedSuppliers);
+
+        notification.success({
+          message: "Cập nhật trạng thái thành công",
+          description: `Trạng thái đã được cập nhật thành ${response.data.status}.`,
+        });
+      }
+    } catch (error) {
+      notification.error({
+        message: "Cập nhật trạng thái thất bại",
+        description:
+          "Đã có lỗi xảy ra khi cập nhật trạng thái. Vui lòng thử lại.",
+      });
+    }
+  };
+
+  const columns = [
+    {
+      title: "STT",
+      dataIndex: "id",
+      width: "3%",
+      editable: false,
+    },
+    {
+      title: "Nhà cung cấp",
+      dataIndex: "supplierName",
+      width: "20%",
+      editable: true,
+    },
+    {
+      title: "Số điện thoại",
+      dataIndex: "phoneNumber",
+      width: "10%",
+      editable: true,
+    },
+    {
+      title: "Địa chỉ",
+      dataIndex: "address",
+      width: "15%",
+      editable: true,
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "note",
+      width: "10%",
+      editable: true,
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      editable: false,
+      key: "status",
+      render: (_, record) => (
+        <Switch
+          checked={record.status === "ACTIVE"}
+          onChange={(checked) => handleStatusChange(checked, record)}
+        />
+      ),
+    },
+    {
+      title: "Action",
+      dataIndex: "operation",
+      render: (_, record) => {
+        const editable = isEditing(record);
+        return editable ? (
+          <span>
+            <Typography.Link
+              onClick={() => save(record.id)}
+              style={{
+                marginRight: 8,
+              }}
+            >
+              Lưu
+            </Typography.Link>
+            <Popconfirm title="Xác nhận hủy?" onConfirm={cancel}>
+              <a>Hủy</a>
+            </Popconfirm>
+          </span>
+        ) : (
+          <Typography.Link
+            disabled={editingKey !== ""}
+            onClick={() => edit(record)}
+          >
+            Sửa
+          </Typography.Link>
+        );
+      },
+    },
+  ];
+  const mergedColumns = columns.map((col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        inputType: col.dataIndex === "phoneNumber" ? "number" : "text",
+        dataIndex: col.dataIndex,
+        title: col.title,
+        editing: isEditing(record),
+      }),
+    };
+  });
+
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const response = await CustomerAPI.GetAll();
-        setCustomers(response.data);
-        setLoading(false);
-      } catch (error) {
-        setError(error.message);
-        setLoading(false);
-      }
+      const response = await SupplierAPI.GetAll();
+      setData(response.data);
     };
 
     fetchData();
@@ -120,99 +240,38 @@ const SupplierList = () => {
     };
   }, []);
 
-  const columns = [
-    {
-      title: "Nhà cung cấp",
-      dataIndex: "supplierName",
-      width: "20%",
-      editable: true,
-      key: "supplierName",
-    },
-    {
-      title: "Số điện thoại",
-      dataIndex: "phoneNumber",
-      width: "15%",
-      editable: true,
-      key: "phoneNumber",
-    },
-    {
-      title: "Địa chị",
-      dataIndex: "address",
-      width: "25%",
-      editable: true,
-      key: "address",
-    },
-    {
-      title: "Ghi chú",
-      dataIndex: "note",
-      width: "25%",
-      editable: true,
-      key: "note",
-    },
-    {
-      title: "operation",
-      dataIndex: "operation",
-      render: (_, record) => {
-        const editable = isEditing(record);
-        return editable ? (
-          <span>
-            <Typography.Link
-              onClick={() => save(record.key)}
-              style={{
-                marginRight: 8,
-              }}
-            >
-              Save
-            </Typography.Link>
-            <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
-              <a>Cancel</a>
-            </Popconfirm>
-          </span>
-        ) : (
-          <Typography.Link
-            disabled={editingKey !== ""}
-            onClick={() => edit(record)}
-          >
-            Edit
-          </Typography.Link>
-        );
-      },
-    },
-  ];
+  const onCreate = async (supplier) => {
+    // Gọi API để thêm sản phẩm mới
+    try {
+      const response = await SupplierAPI.Create(supplier);
+      // Cập nhật dữ liệu trên UI
+      setData([...data, { ...supplier, id: response.data.id }]);
+      setIsCreateModalVisible(false); // Đóng modal sau khi thêm thành công
 
-  const mergedColumns = columns.map((col) => {
-    if (!col.editable) {
-      return col;
+      openNotificationWithIcon(
+        "success",
+        "Thêm nhà cung cấp thành công",
+        `Bạn đã thêm thành công nhà cung cấp ${supplier.supplierName}!`
+      );
+    } catch (error) {
+      // Xử lý lỗi nếu có
+      console.error("Failed to create supplier:", error);
+      openNotificationWithIcon(
+        "error",
+        "Thêm nhà cung cấp thất bại",
+        `Vui lòng kiểm tra và thử lại!`
+      );
     }
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        inputType: col.dataIndex === "age" ? "number" : "text",
-        dataIndex: col.dataIndex,
-        title: col.title,
-        editing: isEditing(record),
-      }),
-    };
-  });
-
-  if (loading) {
-    return <Spin size="large" />;
-  }
-
-  if (error) {
-    return <Alert message={error} type="error" />;
-  }
-
+  };
   return (
     <div>
       <Button
         style={{ marginBottom: 10 }}
         type="primary"
         icon={<PlusOutlined />}
-        onClick={showCreateSupplierModal}
+        onClick={showCreateModal}
       >
-        Thêm khách hàng
+        Tạo nhà cung cấp
       </Button>
       <Form form={form} component={false}>
         <Table
@@ -222,7 +281,7 @@ const SupplierList = () => {
             },
           }}
           bordered
-          dataSource={customers}
+          dataSource={data}
           columns={mergedColumns}
           rowClassName="editable-row"
           pagination={{
@@ -231,11 +290,12 @@ const SupplierList = () => {
         />
       </Form>
       <CreateSupplierModal
-        isVisible={isSupplierModalVisible}
-        onCancel={handleCancelCreateSupplierModal}
+        isVisible={isCreateModalVisble}
+        onCreate={onCreate}
+        onCancel={handleCreateModalCancel}
+        footer={null}
       />
     </div>
   );
 };
-
 export default SupplierList;
