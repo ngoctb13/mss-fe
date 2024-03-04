@@ -12,6 +12,7 @@ import {
 } from "antd";
 import AuthAPI from "../../api/AuthAPI";
 import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
+import { Link, Navigate } from "react-router-dom";
 
 const RegisterForm = () => {
   const [loading, setLoading] = useState(false);
@@ -30,6 +31,7 @@ const RegisterForm = () => {
       message.success("Registration successful!");
       // You can perform additional actions here, such as redirecting to a login page
       setLoading(false);
+      <Navigate to="/login" />;
     } catch (error) {
       console.error("Registration failed:", error);
       message.error("Registration failed. Please check your inputs.");
@@ -57,7 +59,7 @@ const RegisterForm = () => {
   return (
     <Row justify="center" align="middle" style={{ minHeight: "100vh" }}>
       <Col>
-        <Card title="Register" bordered={false} style={{ width: 500 }}>
+        <Card title="Đăng ký tài khoản" bordered={false}>
           <Spin spinning={loading}>
             <Form
               name="registerForm"
@@ -69,27 +71,27 @@ const RegisterForm = () => {
               <Form.Item
                 name="username"
                 rules={[
-                  { required: true, message: "Please input your username!" },
-                  { type: "text", message: "Please enter a valid username!" },
+                  { required: true, message: "Vui lòng nhập tên tài khoản!" },
+                  { type: "text", message: "Tên tên khoản không hợp lệ!" },
                 ]}
               >
-                <Input prefix={<MailOutlined />} placeholder="Username" />
+                <Input prefix={<MailOutlined />} placeholder="Tên đăng nhập" />
               </Form.Item>
 
               <Form.Item
                 name="password"
                 rules={[
-                  { required: true, message: "Please input your password!" },
+                  { required: true, message: "Vui lòng nhập mật khẩu!" },
                   {
                     min: 6,
-                    message: "Password must be at least 6 characters.",
+                    message: "Mật khẩu phải có ít nhất 6 ký tự",
                   },
                 ]}
                 hasFeedback
               >
                 <Input.Password
                   prefix={<LockOutlined />}
-                  placeholder="Password"
+                  placeholder="Mật khẩu"
                 />
               </Form.Item>
 
@@ -100,7 +102,7 @@ const RegisterForm = () => {
                 rules={[
                   {
                     required: true,
-                    message: "Please confirm your password!",
+                    message: "Vui lòng nhập mật khẩu một lần nữa!",
                   },
                   ({ getFieldValue }) => ({
                     validator(_, value) {
@@ -108,9 +110,7 @@ const RegisterForm = () => {
                         return Promise.resolve();
                       }
                       return Promise.reject(
-                        new Error(
-                          "The two passwords that you entered do not match!"
-                        )
+                        new Error("Mật khẩu không trùng khớp!")
                       );
                     },
                   }),
@@ -118,7 +118,7 @@ const RegisterForm = () => {
               >
                 <Input.Password
                   prefix={<LockOutlined />}
-                  placeholder="Confirm Password"
+                  placeholder="Nhập lại mật khẩu"
                 />
               </Form.Item>
 
@@ -172,9 +172,15 @@ const RegisterForm = () => {
 
               <Form.Item>
                 <Button type="primary" htmlType="submit" block>
-                  Register
+                  Đăng ký
                 </Button>
               </Form.Item>
+              <div>
+                <span>
+                  Bạn đã có tài khoản?{" "}
+                  <Link to={"/login"}>Đăng nhập ngay!</Link>
+                </span>
+              </div>
             </Form>
           </Spin>
         </Card>

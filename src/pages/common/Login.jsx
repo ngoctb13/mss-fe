@@ -12,7 +12,7 @@ import {
 } from "antd";
 import AuthAPI from "../../api/AuthAPI";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
-import { Navigate, Redirect } from "react-router-dom";
+import { Link, Navigate, Redirect } from "react-router-dom";
 import UserAPI from "../../api/UserAPI";
 import { TOKEN_EXPITY_TIME } from "../../constant/constant";
 
@@ -65,7 +65,11 @@ const LoginForm = () => {
   return (
     <Row justify="center" align="middle" style={{ minHeight: "100vh" }}>
       <Col>
-        <Card title="Login" bordered={false} style={{ width: 300 }}>
+        <Card
+          title="Đăng nhập tài khoản"
+          bordered={false}
+          style={{ width: 300 }}
+        >
           <Spin spinning={loading}>
             <Form
               name="loginForm"
@@ -77,34 +81,37 @@ const LoginForm = () => {
               <Form.Item
                 name="username"
                 rules={[
-                  { required: true, message: "Please input your username!" },
-                  { type: "text", message: "Please enter a valid usename!" },
+                  { required: true, message: "Vui lòng nhập tên tài khoản!" },
+                  {
+                    type: "text",
+                    message: "Vui lòng nhập tên tài khoản hợp lệ!",
+                  },
                 ]}
               >
-                <Input prefix={<UserOutlined />} placeholder="Username" />
+                <Input prefix={<UserOutlined />} placeholder="Tên tài khoản" />
               </Form.Item>
 
               <Form.Item
                 name="password"
-                rules={[
-                  { required: true, message: "Please input your password!" },
-                ]}
+                rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
               >
                 <Input.Password
                   prefix={<LockOutlined />}
-                  placeholder="Password"
+                  placeholder="Mật khẩu"
                 />
-              </Form.Item>
-
-              <Form.Item name="remember" valuePropName="checked" noStyle>
-                <Checkbox>Remember me</Checkbox>
               </Form.Item>
 
               <Form.Item>
                 <Button type="primary" htmlType="submit" block>
-                  Login
+                  Đăng nhập
                 </Button>
               </Form.Item>
+              <div>
+                <span>
+                  Bạn chưa có tài khoản?{" "}
+                  <Link to={"/register"}>Đăng ký ngay!</Link>
+                </span>
+              </div>
             </Form>
           </Spin>
         </Card>

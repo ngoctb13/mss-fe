@@ -4,6 +4,7 @@ import Notification from './components/notification'
 import AppRoute from './routers/AppRoute';
 import { ACCESS_TOKEN, TOKEN_EXPITY_TIME, USER_ROLE } from './constant/constant';
 import { Spin } from 'antd';
+import './App.css'
 
 // Import HomePage component if you have one
 
@@ -62,7 +63,7 @@ class App extends Component {
   render() {
     if (this.state.loading) {
       return (
-          <div className="loading-container">
+          <div style={{textAlign:'center'}} className="loading-container">
             <Spin size="large" />
           </div>
       );

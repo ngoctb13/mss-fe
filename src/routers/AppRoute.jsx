@@ -15,6 +15,8 @@ import CustomerDebtNote from "../pages/StoreOwner/CustomerDebtNote.jsx";
 import SupplierDebtNote from "../pages/StoreOwner/SupplierDebtNote.jsx";
 import SaleInvoiceReport from "../pages/StoreOwner/SaleReport/SaleInvoiceReport.jsx";
 import StockExportReport from "../pages/StoreOwner/SaleReport/StockExportReport.jsx";
+import ImportProduct from "../pages/StoreOwner/ImportProduct.jsx";
+import RegisterForm from "../pages/common/Register.jsx";
 
 const StoreOwnerRouter = [
   { path: "/owner/home", component: Home },
@@ -34,6 +36,7 @@ const StoreOwnerRouter = [
     component: StockExportReport,
   },
   { path: "/owner/sale", component: Sale },
+  { path: "/owner/import-product", component: ImportProduct },
 ];
 const StaffRouter = [{ path: "/staff/customers", component: Staff_Customers }];
 const AdminRouter = [];
@@ -67,6 +70,7 @@ const AppRoute = () => {
     <Route key="*" path="*" element={<Page404 />} />,
     <Route key="/login" path="/login" element={<LoginForm />} />,
     <Route key="/" path="/" element={<LoginForm />} />,
+    <Route key="/register" path="/register" element={<RegisterForm />} />,
   ];
 };
 

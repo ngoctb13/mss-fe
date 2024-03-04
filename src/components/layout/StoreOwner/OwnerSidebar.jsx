@@ -53,9 +53,9 @@ const OwnerSidebar = () => {
     if (path.includes("staff-list")) return "2-4";
     if (path.includes("debt-note/customer")) return "3-1";
     if (path.includes("debt-note/supplier")) return "3-2";
-    if (path.includes("sale")) return "4";
+    if (path.includes("hihi")) return "4";
     if (path.includes("import-product")) return "5";
-    if (path.includes("sale-port/sale-invoice-report")) return "6-1";
+    if (path.includes("/owner/sale-report/sale-invoice-report")) return "6-1";
     if (path.includes("sale-port/stock-export-report")) return "6-3";
     if (path.includes("debt-note")) return "7";
 
@@ -167,7 +167,7 @@ const OwnerSidebar = () => {
             key: "5",
             icon: <EditOutlined />,
             label: (
-              <Link to="#">
+              <Link to="../owner/import-product">
                 <span style={{ float: "left" }}>Nhập Hàng</span>
               </Link>
             ),
