@@ -1,20 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Input, Table, Button } from "antd";
+import SupplierAPI from "../../api/SupplierAPI";
 
 const { Search } = Input;
-const longSupplierList = [];
-for (let i = 1; i <= 100; i++) {
-  longSupplierList.push({
-    id: i,
-    name: `Supplier ${i}`,
-    phoneNumber: `12345678${i}`,
-    address: `Address ${i}`,
-  });
-}
 
-const SelectSupplierModal = ({ isVisible, onCancel }) => {
+const SelectSupplierModal = ({ isVisible, onCancel, onSupplierSelect }) => {
   // sample data customer
-  const [supplierList, setSupplierList] = useState(longSupplierList);
+  const [supplierList, setSupplierList] = useState([]);
   const [formData, setFormData] = useState({
     search: "",
     phoneNumber: "",
@@ -29,6 +21,18 @@ const SelectSupplierModal = ({ isVisible, onCancel }) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+  //
+  useEffect(() => {
+    SupplierAPI.GetAll()
+      .then((response) => {
+        // Assuming the response is an array of suppliers
+        setSupplierList(response.data);
+      })
+      .catch((error) => {
+        // Handle the error appropriately
+        console.error("Error fetching suppliers:", error);
+      });
+  }, []);
   //
   const handleSubmit = () => {
     // Call API to add customer with formData
@@ -52,15 +56,15 @@ const SelectSupplierModal = ({ isVisible, onCancel }) => {
     },
     {
       title: "Tên nhà cung cấp",
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "supplierName",
+      key: "supplierName",
     },
   ];
 
   const handleRowSelection = (record) => {
     setSelectedSupplier(record);
     setFormData({
-      search: record.name || "",
+      search: record.supplierName || "",
       phoneNumber: record.phoneNumber || "",
       address: record.address || "",
       note: record.note || "",
@@ -72,6 +76,20 @@ const SelectSupplierModal = ({ isVisible, onCancel }) => {
     // Send selected customer back to parent component (SaleInvoice.jsx)
     // You can implement this part as per your requirement
     console.log("Selected Customer:", selectedSupplier);
+    if (selectedSupplier) {
+      onSupplierSelect(selectedSupplier);
+      resetFields();
+      onCancel(); // Optionally close the modal after selection
+    }
+  };
+  const resetFields = () => {
+    setFormData({
+      search: "",
+      phoneNumber: "",
+      address: "",
+      note: "",
+    });
+    setSelectedSupplier(null);
   };
   return (
     <Modal
@@ -134,7 +152,7 @@ const SelectSupplierModal = ({ isVisible, onCancel }) => {
             }}
           >
             <Button type="primary" onClick={handleSubmit}>
-              Thêm khách hàng
+              Thêm nhà cung cấp
             </Button>
           </div>
         </div>

@@ -1,34 +1,82 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Input, Table, Button } from "antd";
 import Search from "antd/es/input/Search";
+import ProductAPI from "../../api/ProductAPI";
 
-const longProductList = [];
-for (let i = 1; i <= 100; i++) {
-  longProductList.push({
-    id: i,
-    productName: `Product ${i}`,
-    unit: `Kg`,
-    importPice: `12345${i}`,
-    description: `description product ${i}`,
-    inventory: `12${i}`,
-    bag_packing: `50`,
-  });
-}
-
-const SelectProductImportModal = ({ isVisible, onCancel }) => {
+const SelectProductImportModal = ({ isVisible, onCancel, onAddProduct }) => {
   // Danh sách sản phẩm mẫu
-  const [productList, setProductList] = useState(longProductList);
+  const [productList, setProductList] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState({
     productName: "",
     importPrice: 0,
     inventory: 0,
+    bag_packing: 0,
   });
+  const [quantityKg, setQuantityKg] = useState(0);
+  const [quantityBag, setQuantityBag] = useState(0);
+  const [tempQuantityKg, setTempQuantityKg] = useState(0);
+  const [tempQuantityBag, setTempQuantityBag] = useState(0);
+  const [prevQuantityKg, setPrevQuantityKg] = useState(0);
+  const [prevQuantityBag, setPrevQuantityBag] = useState(0);
+  //
+  const handleQuantityKgChange = (e) => {
+    setQuantityKg(e.target.value);
+  };
+
+  const handleQuantityBagChange = (e) => {
+    setQuantityBag(e.target.value);
+  };
+  //
+  const handleKgBlur = () => {
+    if (quantityKg && parseFloat(quantityKg) !== prevQuantityKg) {
+      const calculatedBags = quantityKg / selectedProduct.bag_packing;
+      setQuantityBag(calculatedBags || 0); // Sử dụng giá trị mặc định nếu phép tính không hợp lệ
+      setPrevQuantityKg(quantityKg);
+    }
+  };
+
+  const handleBagBlur = () => {
+    if (quantityBag && parseFloat(quantityBag) !== prevQuantityBag) {
+      const calculatedKg = quantityBag * selectedProduct.bag_packing;
+      setQuantityKg(calculatedKg || 0); // Sử dụng giá trị mặc định nếu phép tính không hợp lệ
+      setPrevQuantityBag(quantityBag);
+    }
+  };
+  // fetch product list
+  useEffect(() => {
+    ProductAPI.GetAll()
+      .then((response) => {
+        // Assuming the response is an array of products
+        setProductList(response.data);
+      })
+      .catch((error) => {
+        // Handle the error appropriately
+        console.error("Error fetching products:", error);
+      });
+  }, []);
+
+  const handleAddProduct = () => {
+    const productDetail = {
+      id: selectedProduct.id,
+      productName: selectedProduct.productName,
+      quantityBag: quantityBag,
+      quantityKg: quantityKg,
+      unitPrice: selectedProduct.importPrice,
+      totalPrice: quantityKg * selectedProduct.importPrice,
+    };
+
+    // Gọi hàm truyền dữ liệu ra ngoài (ví dụ: thông qua callback)
+    onAddProduct(productDetail);
+    onCancel();
+  };
 
   const handleProductSelect = (product) => {
     setSelectedProduct({
+      id: product.id,
       productName: product.productName,
       importPrice: product.retailPrice,
       inventory: product.inventory,
+      bag_packing: product.bag_packing,
     });
   };
   const columns = [
@@ -101,6 +149,9 @@ const SelectProductImportModal = ({ isVisible, onCancel }) => {
             <Input
               style={{ width: "calc(100% - 80px)" }}
               placeholder="Số lượng bao muốn nhập (SL bao)"
+              value={quantityBag}
+              onChange={handleQuantityBagChange}
+              onBlur={handleBagBlur}
             />
           </div>
           <div style={{ marginBottom: 16 }}>
@@ -108,6 +159,9 @@ const SelectProductImportModal = ({ isVisible, onCancel }) => {
             <Input
               style={{ width: "calc(100% - 80px)" }}
               placeholder="Số lượng kg muốn nhập (Số kg)"
+              value={quantityKg}
+              onChange={handleQuantityKgChange}
+              onBlur={handleKgBlur}
             />
           </div>
           <div style={{ marginBottom: 16 }}>
@@ -129,6 +183,15 @@ const SelectProductImportModal = ({ isVisible, onCancel }) => {
               placeholder="Số lượng tồn kho"
               value={selectedProduct.inventory}
             />
+          </div>
+          <div>
+            <Button
+              type="primary"
+              onClick={handleAddProduct}
+              style={{ marginTop: 16 }}
+            >
+              Thêm
+            </Button>
           </div>
         </div>
       </div>
