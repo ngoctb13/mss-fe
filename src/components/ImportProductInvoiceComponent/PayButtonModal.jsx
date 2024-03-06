@@ -31,7 +31,11 @@ const PayButtonModal = ({
   }, [totalPrice, oldDebt]);
 
   const handleCustomerPayChange = (e) => {
-    const customerPayValue = parseFloat(e.target.value) || 0;
+    let customerPayValue = parseFloat(e.target.value) || 0;
+    // Đảm bảo rằng giá trị khách trả không vượt quá tổng thanh toán
+    if (customerPayValue > modalDetails.totalPayment) {
+      customerPayValue = modalDetails.totalPayment;
+    }
     setModalDetails((prevDetails) => ({
       ...prevDetails,
       pricePaid: customerPayValue,
