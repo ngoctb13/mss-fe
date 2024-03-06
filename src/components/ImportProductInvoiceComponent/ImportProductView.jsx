@@ -10,12 +10,18 @@ import {
   Col,
   Card,
   Table,
+  Dropdown,
+  Menu,
+  Tag,
+  notification,
 } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, DownOutlined } from "@ant-design/icons";
 import "./ImportInvoice.css";
 import SelectSupplierModal from "./SelectSupplierModal";
 import SelectProductImportModal from "./SelectProductImportModal";
 import PayButtonModal from "./PayButtonModal";
+import StorageLocationAPI from "../../api/StorageLocationAPI";
+import StoreAPI from "../../api/StoreAPI";
 
 const ImportProductView = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -27,6 +33,21 @@ const ImportProductView = () => {
   const [oldSupplierDebt, setOldSupplierDebt] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
   const [currentDateTime, setCurrentDateTime] = useState("");
+  const [storageLocations, setStorageLocations] = useState([]);
+
+  // fetch storage list
+  useEffect(() => {
+    StorageLocationAPI.GetAll()
+      .then((response) => {
+        // Assuming the response is an array of products
+        setStorageLocations(response.data);
+      })
+      .catch((error) => {
+        // Handle the error appropriately
+        console.error("Error fetching products:", error);
+      });
+    console.log(storageLocations);
+  }, []);
 
   //
   useEffect(() => {
@@ -90,9 +111,10 @@ const ImportProductView = () => {
       ...productDetail,
       key: productDetail.id,
       unit: "Kg",
+      storageLocationId: "", // Thêm trường này
+      storageLocationName: "",
     };
     setImportedProducts([...importedProducts, newProduct]);
-    console.log(importedProducts);
   };
   //edit
   const edit = (record) => {
@@ -131,6 +153,70 @@ const ImportProductView = () => {
       ...prevState,
       [fieldName]: e.target.value,
     }));
+  };
+  //
+  const resetInvoiceData = () => {
+    setSelectedSupplier(null);
+    setImportedProducts([]);
+    setEditingProduct(null);
+    setOldSupplierDebt(0);
+    setTotalPrice(0);
+    setIsPayModalVisible(false);
+    // Cập nhật thêm các trường khác cần reset nếu có
+  };
+  //
+
+  const handlePaymentSubmit = (pricePaid) => {
+    // Tạo danh sách productDetails dựa trên importedProducts
+    const productDetails = importedProducts.map((product) => ({
+      productId: product.id, // Giả định rằng mỗi sản phẩm có id
+      quantity: product.quantityKg,
+      importPrice: product.unitPrice,
+      storageLocationId: product.storageLocationId,
+    }));
+
+    // Tạo request cho API
+    const importInvoiceRequest = StoreAPI.createImportProductInvoiceRequest(
+      selectedSupplier.id, // Giả định rằng selectedSupplier có id
+      productDetails,
+      pricePaid
+    );
+
+    // Gửi request tạo hóa đơn nhập hàng
+    StoreAPI.createImportProductInvoice(importInvoiceRequest)
+      .then((response) => {
+        console.log("Invoice created successfully:", response);
+        resetInvoiceData(); // Reset dữ liệu khi thành công
+        notification.success({
+          message: "Hóa đơn nhập hàng đã được tạo thành công!",
+        });
+        // Xử lý thêm nếu cần (ví dụ: thông báo thành công, làm mới trang, v.v.)
+      })
+      .catch((error) => {
+        console.error("Error creating invoice:", error);
+        notification.error({
+          message: "Có lỗi xảy ra khi tạo hóa đơn nhập hàng!",
+        });
+
+        // Xử lý lỗi (ví dụ: hiển thị thông báo lỗi)
+      });
+  };
+  // Hàm xử lý chọn vị trí lưu trữ
+  const handleSelectStorageLocation = (
+    productKey,
+    locationId,
+    locationName
+  ) => {
+    const newProducts = importedProducts.map((product) =>
+      product.key === productKey
+        ? {
+            ...product,
+            storageLocationId: locationId,
+            storageLocationName: locationName,
+          }
+        : product
+    );
+    setImportedProducts(newProducts);
   };
 
   const columns = [
@@ -206,6 +292,48 @@ const ImportProductView = () => {
       editable: false,
       key: "totalPrice",
     },
+
+    {
+      title: "Storage Location",
+      key: "storageLocation",
+      editable: false,
+      render: (text, record) => {
+        const menu = (
+          <Menu>
+            {storageLocations.map((location) => (
+              <Menu.Item
+                key={location.id}
+                onClick={() =>
+                  handleSelectStorageLocation(
+                    record.key,
+                    location.id,
+                    location.locationName
+                  )
+                }
+              >
+                {location.locationName}
+              </Menu.Item>
+            ))}
+          </Menu>
+        );
+
+        return (
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <a
+              className="ant-dropdown-link"
+              onClick={(e) => e.preventDefault()}
+            >
+              {record.storageLocationName ? (
+                <Tag color="blue">{record.storageLocationName}</Tag>
+              ) : (
+                "Select Location"
+              )}
+              <DownOutlined />
+            </a>
+          </Dropdown>
+        );
+      },
+    },
     {
       title: "Edit",
       dataIndex: "edit",
@@ -242,6 +370,9 @@ const ImportProductView = () => {
           {/* Left Column */}
           <Col span={8}>
             <Card title="Thông tin hóa đơn" style={{ marginBottom: 16 }}>
+              <div className="info-item">
+                <strong>HĐ:</strong> 99
+              </div>
               <div className="info-item">
                 <strong>Ngày:</strong> {currentDateTime}
               </div>
@@ -345,6 +476,8 @@ const ImportProductView = () => {
         onCancel={handlePayCancel}
         oldDebt={oldSupplierDebt}
         totalPrice={totalPrice}
+        importedProducts={importedProducts}
+        onPaymentSubmit={handlePaymentSubmit}
       />
     </div>
   );

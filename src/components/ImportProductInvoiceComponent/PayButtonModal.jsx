@@ -3,7 +3,14 @@ import React, { useEffect, useState } from "react";
 import { Modal, Input, Button } from "antd";
 import "./ImportInvoice.css";
 
-const PayButtonModal = ({ isVisible, onCancel, oldDebt, totalPrice }) => {
+const PayButtonModal = ({
+  isVisible,
+  onCancel,
+  oldDebt,
+  totalPrice,
+  importedProducts,
+  onPaymentSubmit,
+}) => {
   const [modalDetails, setModalDetails] = useState({
     totalPrice: 0,
     oldDebt: 0,
@@ -58,6 +65,7 @@ const PayButtonModal = ({ isVisible, onCancel, oldDebt, totalPrice }) => {
 
   const handleSaveNoPrint = () => {
     console.log("Lưu và không in:", modalDetails);
+    onPaymentSubmit(modalDetails.pricePaid);
     onCancel(); // Đóng modal sau khi xử lý
   };
 
