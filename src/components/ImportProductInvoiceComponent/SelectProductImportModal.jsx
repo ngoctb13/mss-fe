@@ -132,6 +132,20 @@ const SelectProductImportModal = ({ isVisible, onCancel, onAddProduct }) => {
     // Gọi hàm truyền dữ liệu ra ngoài (ví dụ: thông qua callback)
     onAddProduct(productDetail);
     console.log(productDetail);
+    setSelectedProduct({
+      productName: "",
+      importPrice: 0,
+      inventory: 0,
+      bag_packing: 0,
+    });
+    setQuantityKg(null);
+    setQuantityBag(null);
+    setImportPrice(null);
+    setBagError("");
+    setKgError("");
+    setPriceError("");
+    setCanAddProduct(false);
+    setSearchTerm("");
     onCancel();
   };
 

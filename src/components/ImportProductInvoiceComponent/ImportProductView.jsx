@@ -107,6 +107,20 @@ const ImportProductView = () => {
   };
   // handle recieve product
   const handleReceiveProductDetail = (productDetail) => {
+    // Kiểm tra xem sản phẩm đã được thêm vào danh sách chưa
+    const isProductExist = importedProducts.some(
+      (product) => product.id === productDetail.id
+    );
+
+    if (isProductExist) {
+      // Hiển thị thông báo lỗi
+      notification.error({
+        message: "Lỗi",
+        description: "Sản phẩm đã được chọn!",
+      });
+      return; // Ngừng xử lý nếu sản phẩm đã tồn tại trong danh sách
+    }
+
     const newProduct = {
       ...productDetail,
       key: productDetail.id,
