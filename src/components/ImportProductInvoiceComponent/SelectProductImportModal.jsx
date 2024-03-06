@@ -12,19 +12,53 @@ const SelectProductImportModal = ({ isVisible, onCancel, onAddProduct }) => {
     inventory: 0,
     bag_packing: 0,
   });
-  const [quantityKg, setQuantityKg] = useState(0);
-  const [quantityBag, setQuantityBag] = useState(0);
+  const [quantityKg, setQuantityKg] = useState(null);
+  const [quantityBag, setQuantityBag] = useState(null);
   const [tempQuantityKg, setTempQuantityKg] = useState(0);
   const [tempQuantityBag, setTempQuantityBag] = useState(0);
   const [prevQuantityKg, setPrevQuantityKg] = useState(0);
   const [prevQuantityBag, setPrevQuantityBag] = useState(0);
+  const [importPrice, setImportPrice] = useState(null);
+  const [bagError, setBagError] = useState(""); // Lỗi SL bao
+  const [kgError, setKgError] = useState(""); // Lỗi SL Kg
+  const [priceError, setPriceError] = useState(""); // Lỗi Đơn giá
+  const [canAddProduct, setCanAddProduct] = useState(false);
+
+  //
+  useEffect(() => {
+    setCanAddProduct(
+      selectedProduct.productName !== "" && // Có chọn sản phẩm
+        quantityBag != null &&
+        quantityBag > 0 && // Có nhập số lượng bao
+        quantityKg != null &&
+        quantityKg > 0 // Có nhập số lượng kg
+    );
+  }, [selectedProduct, quantityBag, quantityKg]);
+
+  // Hàm kiểm tra số hợp lệ và giới hạn
+  const isValidPositiveNumber = (value) => {
+    return /^[0-9]*\.?[0-9]*$/.test(value);
+  };
+
   //
   const handleQuantityKgChange = (e) => {
-    setQuantityKg(e.target.value);
+    const value = e.target.value;
+    if (isValidPositiveNumber(value)) {
+      setQuantityKg(value);
+      setKgError(""); // Xóa thông báo lỗi
+    } else {
+      setKgError("SL Kg không hợp lệ. Giá trị phải là số không âm.");
+    }
   };
 
   const handleQuantityBagChange = (e) => {
-    setQuantityBag(e.target.value);
+    const value = e.target.value;
+    if (isValidPositiveNumber(value)) {
+      setQuantityBag(value);
+      setBagError(""); // Xóa thông báo lỗi
+    } else {
+      setBagError("SL bao không hợp lệ. Giá trị phải là số không âm.");
+    }
   };
   //
   const handleKgBlur = () => {
@@ -40,6 +74,16 @@ const SelectProductImportModal = ({ isVisible, onCancel, onAddProduct }) => {
       const calculatedKg = quantityBag * selectedProduct.bag_packing;
       setQuantityKg(calculatedKg || 0); // Sử dụng giá trị mặc định nếu phép tính không hợp lệ
       setPrevQuantityBag(quantityBag);
+    }
+  };
+  //handle import price change
+  const handleImportPriceChange = (e) => {
+    const value = e.target.value;
+    if (isValidPositiveNumber(value)) {
+      setImportPrice(value);
+      setPriceError(""); // Xóa thông báo lỗi
+    } else {
+      setPriceError("Đơn giá không hợp lệ. Giá trị phải là số không âm.");
     }
   };
   // fetch product list
@@ -59,25 +103,29 @@ const SelectProductImportModal = ({ isVisible, onCancel, onAddProduct }) => {
     const productDetail = {
       id: selectedProduct.id,
       productName: selectedProduct.productName,
+      bag_packing: selectedProduct.bag_packing,
       quantityBag: quantityBag,
       quantityKg: quantityKg,
-      unitPrice: selectedProduct.importPrice,
-      totalPrice: quantityKg * selectedProduct.importPrice,
+      unitPrice: importPrice,
+      totalPrice: quantityKg * importPrice,
     };
 
     // Gọi hàm truyền dữ liệu ra ngoài (ví dụ: thông qua callback)
     onAddProduct(productDetail);
+    console.log(productDetail);
     onCancel();
   };
 
   const handleProductSelect = (product) => {
+    const bagPackingValue = parseFloat(product.bag_packing);
     setSelectedProduct({
       id: product.id,
       productName: product.productName,
-      importPrice: product.retailPrice,
+      importPrice: product.importPrice,
       inventory: product.inventory,
-      bag_packing: product.bag_packing,
+      bag_packing: bagPackingValue,
     });
+    setImportPrice(product.importPrice);
   };
   const columns = [
     {
@@ -153,6 +201,7 @@ const SelectProductImportModal = ({ isVisible, onCancel, onAddProduct }) => {
               onChange={handleQuantityBagChange}
               onBlur={handleBagBlur}
             />
+            {bagError && <div style={{ color: "red" }}>{bagError}</div>}
           </div>
           <div style={{ marginBottom: 16 }}>
             <label style={{ marginRight: 8, fontWeight: "bold" }}>SL Kg:</label>
@@ -163,6 +212,7 @@ const SelectProductImportModal = ({ isVisible, onCancel, onAddProduct }) => {
               onChange={handleQuantityKgChange}
               onBlur={handleKgBlur}
             />
+            {kgError && <div style={{ color: "red" }}>{kgError}</div>}
           </div>
           <div style={{ marginBottom: 16 }}>
             <label style={{ marginRight: 8, fontWeight: "bold" }}>
@@ -171,8 +221,10 @@ const SelectProductImportModal = ({ isVisible, onCancel, onAddProduct }) => {
             <Input
               style={{ width: "calc(100% - 80px)" }}
               placeholder="Đơn giá"
-              value={selectedProduct.importPrice}
+              value={importPrice}
+              onChange={handleImportPriceChange}
             />
+            {priceError && <div style={{ color: "red" }}>{priceError}</div>}
           </div>
           <div style={{ marginBottom: 16 }}>
             <label style={{ marginRight: 8, fontWeight: "bold" }}>
@@ -182,6 +234,7 @@ const SelectProductImportModal = ({ isVisible, onCancel, onAddProduct }) => {
               style={{ width: "calc(100% - 80px)" }}
               placeholder="Số lượng tồn kho"
               value={selectedProduct.inventory}
+              disabled
             />
           </div>
           <div>
@@ -189,6 +242,7 @@ const SelectProductImportModal = ({ isVisible, onCancel, onAddProduct }) => {
               type="primary"
               onClick={handleAddProduct}
               style={{ marginTop: 16 }}
+              disabled={!canAddProduct}
             >
               Thêm
             </Button>
