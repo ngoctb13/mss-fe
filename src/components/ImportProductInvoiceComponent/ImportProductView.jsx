@@ -201,6 +201,19 @@ const ImportProductView = () => {
 
   const handlePaymentSubmit = (pricePaid) => {
     //
+    // Kiểm tra xem có sản phẩm nào chưa chọn storage location hay không
+    const isAllStorageLocationSelected = importedProducts.every(
+      (product) => product.storageLocationId
+    );
+
+    if (!isAllStorageLocationSelected) {
+      notification.error({
+        message: "Lỗi",
+        description: "Vui lòng chọn vị trí lưu trữ cho tất cả sản phẩm.",
+      });
+      return; // Ngăn chặn gọi API nếu có sản phẩm chưa chọn vị trí lưu trữ
+    }
+    //
     if (importedProducts.length === 0) {
       notification.error({
         message: "Lỗi",
@@ -267,6 +280,26 @@ const ImportProductView = () => {
         : product
     );
     setImportedProducts(newProducts);
+  };
+  //
+  const handleDeleteProduct = (productKey) => {
+    const filteredProducts = importedProducts.filter(
+      (product) => product.key !== productKey
+    );
+    setImportedProducts(filteredProducts);
+  };
+  //
+
+  const handleReset = () => {
+    resetInvoiceData();
+    // Bạn có thể thêm các hành động khác ở đây nếu cần
+  };
+
+  // Function to handle "HĐ gần đây" action
+  const handleRecentInvoices = () => {
+    // Lấy 10 hóa đơn gần đây nhất
+    // Bạn cần thêm logic hoặc gọi API ở đây để lấy dữ liệu
+    // Hiển thị dữ liệu, có thể trong trang mới hoặc modal
   };
 
   const columns = [
@@ -344,8 +377,9 @@ const ImportProductView = () => {
     },
 
     {
-      title: "Storage Location",
+      title: "Vị trí",
       key: "storageLocation",
+      width: "10%",
       editable: true,
       render: (text, record) => {
         const menu = (
@@ -385,7 +419,7 @@ const ImportProductView = () => {
       },
     },
     {
-      title: "Edit",
+      title: "",
       dataIndex: "edit",
       render: (_, record) => {
         const isEditing = editingProduct && record.key === editingProduct.key;
@@ -398,6 +432,7 @@ const ImportProductView = () => {
           </span>
         ) : (
           <Button
+            type="primary"
             disabled={editingProduct !== null}
             onClick={() => edit(record)}
           >
@@ -406,16 +441,45 @@ const ImportProductView = () => {
         );
       },
     },
+    {
+      title: "",
+      key: "delete",
+      render: (_, record) => (
+        <Button
+          style={{ backgroundColor: "red", color: "white" }}
+          onClick={() => handleDeleteProduct(record.key)}
+        >
+          Xóa
+        </Button>
+      ),
+    },
   ];
   return (
     <div>
       <div>
         <Button
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 16, marginRight: 8 }}
           type="primary"
           onClick={showPayModal}
         >
           Thanh toán
+        </Button>
+        <Button
+          style={{
+            marginBottom: 16,
+            marginRight: 8,
+            backgroundColor: "red",
+            color: "white",
+          }}
+          onClick={handleReset}
+        >
+          Thiết lập lại
+        </Button>
+        <Button
+          style={{ marginBottom: 16, backgroundColor: "green", color: "white" }}
+          onClick={handleRecentInvoices}
+        >
+          HĐ gần đây
         </Button>
       </div>
       <div>
