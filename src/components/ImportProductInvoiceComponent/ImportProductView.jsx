@@ -111,8 +111,10 @@ const ImportProductView = () => {
       ...productDetail,
       key: productDetail.id,
       unit: "Kg",
-      storageLocationId: "", // Thêm trường này
+      storageLocationId: "",
       storageLocationName: "",
+      quantityBag: parseFloat(productDetail.quantityBag),
+      bag_packing: parseFloat(productDetail.bag_packing), // Đảm bảo chuyển đổi này
     };
     setImportedProducts([...importedProducts, newProduct]);
   };
@@ -134,7 +136,10 @@ const ImportProductView = () => {
       // Cập nhật sản phẩm trong danh sách
       const updatedProducts = [...importedProducts];
       updatedProducts[index] = {
-        ...editingProduct,
+        ...updatedProducts[index],
+        quantityBag: editingProduct.quantityBag,
+        quantityKg: editingProduct.quantityKg,
+        unitPrice: editingProduct.unitPrice,
         totalPrice: updatedTotalPrice,
       };
       setImportedProducts(updatedProducts);
@@ -147,13 +152,41 @@ const ImportProductView = () => {
   const cancel = () => {
     setEditingProduct(null);
   };
-  //handle edit change
-  const handleEditChange = (e, fieldName) => {
-    setEditingProduct((prevState) => ({
-      ...prevState,
-      [fieldName]: e.target.value,
-    }));
+  //
+  const handleEditChangee = (e, fieldName, recordKey) => {
+    const newValue = parseFloat(e.target.value) || 0; // Sử dụng giá trị mặc định là 0 nếu không phải là số
+
+    const newProducts = importedProducts.map((product) => {
+      if (product.key === recordKey) {
+        const packingRatio = parseFloat(product.bag_packing) || 1; // Sử dụng giá trị mặc định là 1 nếu không phải là số
+        const updatedProduct = { ...product };
+
+        if (fieldName === "quantityBag") {
+          updatedProduct.quantityBag = newValue;
+          updatedProduct.quantityKg = newValue * packingRatio;
+        } else if (fieldName === "quantityKg") {
+          updatedProduct.quantityKg = newValue;
+          updatedProduct.quantityBag = newValue / packingRatio;
+        } else if (fieldName === "unitPrice") {
+          updatedProduct.unitPrice = newValue;
+        }
+
+        updatedProduct.totalPrice =
+          updatedProduct.quantityKg * updatedProduct.unitPrice;
+
+        // Cập nhật editingProduct nếu đang chỉnh sửa sản phẩm này
+        if (editingProduct && editingProduct.key === recordKey) {
+          setEditingProduct(updatedProduct);
+        }
+
+        return updatedProduct;
+      }
+      return product;
+    });
+
+    setImportedProducts(newProducts);
   };
+
   //
   const resetInvoiceData = () => {
     setSelectedSupplier(null);
@@ -167,6 +200,23 @@ const ImportProductView = () => {
   //
 
   const handlePaymentSubmit = (pricePaid) => {
+    //
+    if (importedProducts.length === 0) {
+      notification.error({
+        message: "Lỗi",
+        description: "Vui lòng thêm sản phẩm vào danh sách nhập hàng.",
+      });
+      return; // Ngăn chặn việc thực hiện tiếp theo nếu không có sản phẩm nào
+    }
+
+    // Kiểm tra xem có chọn nhà cung cấp chưa
+    if (!selectedSupplier) {
+      notification.error({
+        message: "Lỗi",
+        description: "Vui lòng chọn nhà cung cấp.",
+      });
+      return; // Ngăn chặn việc thực hiện tiếp theo nếu chưa chọn nhà cung cấp
+    }
     // Tạo danh sách productDetails dựa trên importedProducts
     const productDetails = importedProducts.map((product) => ({
       productId: product.id, // Giả định rằng mỗi sản phẩm có id
@@ -238,13 +288,13 @@ const ImportProductView = () => {
       title: "Bao",
       dataIndex: "quantityBag",
       key: "quantityBag",
-      width: "5%",
+      width: "10%",
       render: (text, record) => {
         const isEditing = editingProduct && record.key === editingProduct.key;
         return isEditing ? (
           <Input
             defaultValue={text} // Sử dụng defaultValue thay vì value
-            onChange={(e) => handleEditChange(e, "quantityBag")}
+            onChange={(e) => handleEditChangee(e, "quantityBag", record.key)}
           />
         ) : (
           text
@@ -255,13 +305,13 @@ const ImportProductView = () => {
       title: "Kg",
       dataIndex: "quantityKg",
       key: "quantityKg",
-      width: "5%",
+      width: "10%",
       render: (text, record) => {
         const isEditing = editingProduct && record.key === editingProduct.key;
         return isEditing ? (
           <Input
             defaultValue={text} // Sử dụng defaultValue thay vì value
-            onChange={(e) => handleEditChange(e, "quantityKg")}
+            onChange={(e) => handleEditChangee(e, "quantityKg", record.key)}
           />
         ) : (
           text
@@ -278,7 +328,7 @@ const ImportProductView = () => {
         return isEditing ? (
           <Input
             defaultValue={text} // Sử dụng defaultValue thay vì value
-            onChange={(e) => handleEditChange(e, "unitPrice")}
+            onChange={(e) => handleEditChangee(e, "unitPrice", record.key)}
           />
         ) : (
           text
@@ -296,7 +346,7 @@ const ImportProductView = () => {
     {
       title: "Storage Location",
       key: "storageLocation",
-      editable: false,
+      editable: true,
       render: (text, record) => {
         const menu = (
           <Menu>
@@ -360,7 +410,11 @@ const ImportProductView = () => {
   return (
     <div>
       <div>
-        <Button type="primary" onClick={showPayModal}>
+        <Button
+          style={{ marginBottom: 16 }}
+          type="primary"
+          onClick={showPayModal}
+        >
           Thanh toán
         </Button>
       </div>
