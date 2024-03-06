@@ -16,6 +16,8 @@ const SelectSupplierModal = ({ isVisible, onCancel, onSupplierSelect }) => {
 
   // State to hold selected customer
   const [selectedSupplier, setSelectedSupplier] = useState(null);
+  const [filteredSupplierList, setFilteredSupplierList] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   //
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,6 +35,23 @@ const SelectSupplierModal = ({ isVisible, onCancel, onSupplierSelect }) => {
         console.error("Error fetching suppliers:", error);
       });
   }, []);
+
+  useEffect(() => {
+    let filtered;
+    if (searchTerm.trim() === "") {
+      filtered = supplierList;
+    } else {
+      filtered = supplierList.filter(
+        (supplier) =>
+          supplier.supplierName
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          supplier.phoneNumber.includes(searchTerm)
+      );
+    }
+
+    setFilteredSupplierList(filtered);
+  }, [searchTerm, supplierList]);
   //
   const handleSubmit = () => {
     // Call API to add customer with formData
@@ -69,6 +88,7 @@ const SelectSupplierModal = ({ isVisible, onCancel, onSupplierSelect }) => {
       address: record.address || "",
       note: record.note || "",
     });
+    setSearchTerm(record.supplierName);
   };
 
   // Function to handle double click on a row
@@ -90,13 +110,22 @@ const SelectSupplierModal = ({ isVisible, onCancel, onSupplierSelect }) => {
       note: "",
     });
     setSelectedSupplier(null);
+    setSearchTerm("");
   };
+
+  const handleModalClose = () => {
+    // Reset selected product and all related states
+    resetFields();
+    // Call the onCancel prop to close the modal
+    onCancel();
+  };
+
   return (
     <Modal
       title="Chọn nhà cung cấp"
       visible={isVisible}
       centered
-      onCancel={onCancel}
+      onCancel={handleModalClose}
       width={1000}
       height={650}
       footer={null}
@@ -104,10 +133,9 @@ const SelectSupplierModal = ({ isVisible, onCancel, onSupplierSelect }) => {
       <div style={{ marginBottom: 16 }}>
         <Search
           placeholder="Tìm kiếm theo tên hoặc số điện thoại"
-          value={formData.search}
+          value={searchTerm}
           name="search"
-          onChange={handleChange}
-          enterButton
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
       <div style={{ display: "flex" }}>
@@ -158,7 +186,7 @@ const SelectSupplierModal = ({ isVisible, onCancel, onSupplierSelect }) => {
         </div>
         <div style={{ flex: "70%" }}>
           <Table
-            dataSource={supplierList}
+            dataSource={filteredSupplierList}
             columns={columns}
             rowKey="id"
             onRow={(record) => ({

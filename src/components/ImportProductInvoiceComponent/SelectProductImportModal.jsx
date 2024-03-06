@@ -23,7 +23,26 @@ const SelectProductImportModal = ({ isVisible, onCancel, onAddProduct }) => {
   const [kgError, setKgError] = useState(""); // Lỗi SL Kg
   const [priceError, setPriceError] = useState(""); // Lỗi Đơn giá
   const [canAddProduct, setCanAddProduct] = useState(false);
-
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredProductList, setFilteredProductList] = useState([]);
+  //
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+  //
+  useEffect(() => {
+    let filtered;
+    if (searchTerm.trim() === "") {
+      // Nếu searchTerm chỉ là khoảng trắng, trả về toàn bộ danh sách
+      filtered = productList;
+    } else {
+      // Nếu không, tiến hành lọc theo searchTerm
+      filtered = productList.filter((product) =>
+        product.productName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    setFilteredProductList(filtered);
+  }, [searchTerm, productList]);
   //
   useEffect(() => {
     setCanAddProduct(
@@ -126,7 +145,29 @@ const SelectProductImportModal = ({ isVisible, onCancel, onAddProduct }) => {
       bag_packing: bagPackingValue,
     });
     setImportPrice(product.importPrice);
+    setSearchTerm(product.productName);
   };
+
+  const handleModalClose = () => {
+    // Reset selected product and all related states
+    setSelectedProduct({
+      productName: "",
+      importPrice: 0,
+      inventory: 0,
+      bag_packing: 0,
+    });
+    setQuantityKg(null);
+    setQuantityBag(null);
+    setImportPrice(null);
+    setBagError("");
+    setKgError("");
+    setPriceError("");
+    setCanAddProduct(false);
+    setSearchTerm("");
+    // Call the onCancel prop to close the modal
+    onCancel();
+  };
+
   const columns = [
     {
       title: "Tên sản phẩm",
@@ -164,23 +205,24 @@ const SelectProductImportModal = ({ isVisible, onCancel, onAddProduct }) => {
       title="Chọn sản phẩm"
       visible={isVisible}
       centered
-      onCancel={onCancel}
+      onCancel={handleModalClose}
       width={1000}
       height={650}
       footer={null}
     >
       <div style={{ marginBottom: 16 }}>
         <Search
-          placeholder="Tìm kiếm theo tên hoặc số điện thoại"
-          value={selectedProduct.productName}
+          placeholder="Nhập tên sản phẩm"
+          // value={selectedProduct.productName}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           name="search"
-          enterButton
         />
       </div>
       <div style={{ display: "flex" }}>
         <div style={{ flex: "70%", marginRight: 16 }}>
           <Table
-            dataSource={productList} // Đổi products thành danh sách sản phẩm
+            dataSource={filteredProductList} // Đổi products thành danh sách sản phẩm
             columns={columns} // Định nghĩa cột cho bảng
             rowKey="id"
             onRow={(record) => ({
