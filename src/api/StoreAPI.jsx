@@ -16,9 +16,20 @@ const StoreAPI = {
       pricePaid,
     };
   },
+  createSaleInvoiceRequest: (customerId, productDetails, pricePaid) => {
+    return {
+      customerId,
+      productDetails,
+      pricePaid,
+    };
+  },
   createImportProductInvoice: (importInvoiceRequest) => {
     const url = `stores/import-invoice`;
     return axiosClient.post(url, importInvoiceRequest);
+  },
+  createSaleInvoice: (saleInvoiceRequest) => {
+    const url = `stores/create-sale-invoice`;
+    return axiosClient.post(url, saleInvoiceRequest);
   },
 };
 export default StoreAPI;

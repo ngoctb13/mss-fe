@@ -1,29 +1,55 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Input, Table, Button } from "antd";
+import CustomerAPI from "../../api/CustomerAPI";
 
 const { Search } = Input;
-const longCustomerList = [];
-for (let i = 1; i <= 100; i++) {
-  longCustomerList.push({
-    id: i,
-    name: `Customer ${i}`,
-    phoneNumber: `12345678${i}`,
-    address: `Address ${i}`,
-  });
-}
-
-const SelectCustomerModal = ({ isVisible, onCancel }) => {
+const SelectCustomerModal = ({ isVisible, onCancel, onCustomerSelect }) => {
   // sample data customer
-  const [customerList, setCustomerList] = useState(longCustomerList);
+  const [customerList, setCustomerList] = useState([]);
   const [formData, setFormData] = useState({
     search: "",
     phoneNumber: "",
     address: "",
     note: "",
   });
+  const [selectedCustomer, setSelectedCustomer] = useState({});
+  const [filteredCustomerList, setFilteredCustomerList] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  //
+  //
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const response = await CustomerAPI.GetAll();
+        setCustomerList(response.data);
+        console.log(response);
+      } catch (error) {
+        console.error("Failed to fetch customers", error);
+      }
+    };
 
-  // State to hold selected customer
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
+    fetchCustomers();
+  }, []);
+
+  //
+  useEffect(() => {
+    let filtered;
+    if (searchTerm.trim() === "") {
+      filtered = customerList;
+      setSelectedCustomer({});
+    } else {
+      filtered = customerList.filter(
+        (customer) =>
+          customer.customerName
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          customer.phoneNumber.includes(searchTerm)
+      );
+    }
+
+    setFilteredCustomerList(filtered);
+  }, [searchTerm, customerList]);
+
   //
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,14 +72,19 @@ const SelectCustomerModal = ({ isVisible, onCancel }) => {
   // Columns for customer table
   const columns = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
+      title: "STT",
+      key: "stt",
+      render: (text, record, index) => index + 1,
     },
     {
       title: "Tên khách hàng",
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "customerName",
+      key: "customerName",
+    },
+    {
+      title: "Số điện thoại",
+      dataIndex: "phoneNumber",
+      key: "phoneNumber",
     },
   ];
 
@@ -65,20 +96,41 @@ const SelectCustomerModal = ({ isVisible, onCancel }) => {
       address: record.address || "",
       note: record.note || "",
     });
+    setSearchTerm(record.customerName);
   };
 
   // Function to handle double click on a row
   const handleDoubleClick = () => {
-    // Send selected customer back to parent component (SaleInvoice.jsx)
-    // You can implement this part as per your requirement
-    console.log("Selected Customer:", selectedCustomer);
+    if (selectedCustomer) {
+      onCustomerSelect(selectedCustomer);
+      resetFields();
+      onCancel();
+    }
+  };
+  //
+  const handleModalClose = () => {
+    // Reset selected product and all related states
+    resetFields();
+    // Call the onCancel prop to close the modal
+    onCancel();
+  };
+  //
+  const resetFields = () => {
+    setFormData({
+      search: "",
+      phoneNumber: "",
+      address: "",
+      note: "",
+    });
+    setSelectedCustomer({});
+    setSearchTerm("");
   };
   return (
     <Modal
       title="Chọn khách hàng"
       visible={isVisible}
       centered
-      onCancel={onCancel}
+      onCancel={handleModalClose}
       width={1000}
       height={650}
       footer={null}
@@ -86,10 +138,9 @@ const SelectCustomerModal = ({ isVisible, onCancel }) => {
       <div style={{ marginBottom: 16 }}>
         <Search
           placeholder="Tìm kiếm theo tên hoặc số điện thoại"
-          value={formData.search}
+          value={searchTerm}
           name="search"
-          onChange={handleChange}
-          enterButton
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
       <div style={{ display: "flex" }}>
@@ -100,7 +151,7 @@ const SelectCustomerModal = ({ isVisible, onCancel }) => {
             </div>
             <Input
               placeholder="Số điện thoại"
-              value={formData.phoneNumber}
+              value={selectedCustomer.phoneNumber}
               name="phoneNumber"
               onChange={handleChange}
             />
@@ -110,7 +161,7 @@ const SelectCustomerModal = ({ isVisible, onCancel }) => {
             <Input.TextArea
               rows={3}
               placeholder="Địa chỉ"
-              value={formData.address}
+              value={selectedCustomer.address}
               name="address"
               onChange={handleChange}
             />
@@ -120,7 +171,7 @@ const SelectCustomerModal = ({ isVisible, onCancel }) => {
             <Input.TextArea
               rows={4}
               placeholder="Ghi chú: "
-              value={formData.note}
+              value={selectedCustomer.note}
               name="note"
               onChange={handleChange}
             />
@@ -140,7 +191,7 @@ const SelectCustomerModal = ({ isVisible, onCancel }) => {
         </div>
         <div style={{ flex: "70%" }}>
           <Table
-            dataSource={customerList}
+            dataSource={filteredCustomerList}
             columns={columns}
             rowKey="id"
             onRow={(record) => ({
