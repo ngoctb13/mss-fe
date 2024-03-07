@@ -8,6 +8,10 @@ const CustomerAPI = {
     const url = `/customer/all`;
     return axiosClient.get(url);
   },
+  GetCustomerHaveDebt: () => {
+    const url = `/customer/all/customer-have-debt`;
+    return axiosClient.get(url);
+  },
   Deactive: async (customerId) => {
     const url = `/customer/change-status/${customerId}`;
     return axiosClient.put(url);
