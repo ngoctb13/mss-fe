@@ -17,6 +17,8 @@ import SaleInvoiceReport from "../pages/StoreOwner/SaleReport/SaleInvoiceReport.
 import StockExportReport from "../pages/StoreOwner/SaleReport/StockExportReport.jsx";
 import ImportProduct from "../pages/StoreOwner/ImportProduct.jsx";
 import RegisterForm from "../pages/common/Register.jsx";
+import ImportInvoiceTabs from "../pages/StoreOwner/ImportInvoiceTabs.jsx";
+import SaleInvoiceTabs from "../pages/StoreOwner/SaleInvoiceTabs.jsx";
 
 const StoreOwnerRouter = [
   { path: "/owner/home", component: Home },
@@ -36,6 +38,8 @@ const StoreOwnerRouter = [
     component: StockExportReport,
   },
   { path: "/owner/sale", component: Sale },
+  { path: "/owner/import-tabs", component: ImportInvoiceTabs },
+  { path: "/owner/sale-tabs", component: SaleInvoiceTabs },
   { path: "/owner/import-product", component: ImportProduct },
 ];
 const StaffRouter = [{ path: "/staff/customers", component: Staff_Customers }];
