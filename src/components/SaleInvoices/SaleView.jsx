@@ -13,6 +13,7 @@ import {
   notification,
   Popconfirm,
   Typography,
+  AutoComplete,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import "./SaleInvoice.css";
@@ -20,19 +21,82 @@ import SelectCustomerModal from "./SelectCustomerModal";
 import SelectProductModal from "./SelectProductModal";
 import PaySaleButtonModal from "./PaySaleButtonModal";
 import StoreAPI from "../../api/StoreAPI";
+import ProductAPI from "../../api/ProductAPI";
 
-const SaleView = ({ curentUser }) => {
+const styles = {
+  smallCardHeader: {
+    fontSize: "13px",
+    padding: "10px 16px",
+  },
+};
+
+const SaleView = ({ tabKey }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isProductModalVisible, setIsProductModalVisible] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [customerOldDebt, setCustomerOldDebt] = useState(0);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [editingKey, setEditingKey] = useState(""); // Trạng thái key của sản phẩm đang được chỉnh sửa
   const [isPayModalVisible, setIsPayModalVisible] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [productInventories, setProductInventories] = useState({});
+  const [editingProduct, setEditingProduct] = useState(null);
 
-  const isEditing = (record) => record.key === editingKey;
   //
+  //
+  const defaultTabState = {
+    selectedCustomer: null,
+    selectedProducts: [],
+    editingProduct: null,
+    customerOldDebt: 0,
+    totalPrice: 0,
+    isPayModalVisible: false,
+  };
+  //
+  // 2. Hàm để lưu trạng thái vào localStorage
+  const saveTabState = (tabKey, state) => {
+    const saleTabStates =
+      JSON.parse(localStorage.getItem("saleTabStates")) || {};
+    saleTabStates[tabKey] = state;
+    localStorage.setItem("saleTabStates", JSON.stringify(saleTabStates));
+  };
+  // 3. Hàm để lấy trạng thái từ localStorage
+  const getTabState = (tabKey) => {
+    const saleTabStates =
+      JSON.parse(localStorage.getItem("saleTabStates")) || {};
+    return saleTabStates[tabKey] || { ...defaultTabState };
+  };
+  //
+  useEffect(() => {
+    const restoredSaleTabState = getTabState(tabKey); // tabKey là key của tab hiện tại
+    // Khôi phục trạng thái cho tab này
+    setSelectedCustomer(restoredSaleTabState.selectedCustomer);
+    setSelectedProducts(restoredSaleTabState.selectedProducts);
+    setEditingProduct(restoredSaleTabState.editingProduct);
+    setCustomerOldDebt(restoredSaleTabState.customerOldDebt);
+    setTotalPrice(restoredSaleTabState.totalPrice);
+    setIsPayModalVisible(restoredSaleTabState.isPayModalVisible);
+  }, [tabKey]);
+  //
+  const handleSearch = (value) => {
+    setSearchValue(value);
+    if (value) {
+      // Assuming you have an API or method to search products by name or other attributes
+      ProductAPI.GetByNameContain(value).then((response) => {
+        setSearchResults(response.data); // Update with actual API response
+      });
+    } else {
+      setSearchResults([]); // Clear search results
+    }
+  };
+  //
+  const onSelectProduct = (value, option) => {
+    // Option contains the selected product's information
+    // Assuming option contains a 'product' object
+    const product = option.product;
+    handleAddProduct(product); // Use your existing function to handle adding the product
+  };
   //// Hiển thị Modal thanh toán
   const showPayModal = () => {
     setIsPayModalVisible(true);
@@ -43,72 +107,53 @@ const SaleView = ({ curentUser }) => {
     setIsPayModalVisible(false);
   };
   //
-  const edit = (record) => {
-    setEditingKey(record.key);
-    // Set các giá trị ban đầu cho form chỉnh sửa nếu cần
-  };
-
   const cancel = () => {
-    setEditingKey("");
+    setEditingProduct(null);
   };
 
-  const save = async (key) => {
+  const save = () => {
     try {
-      // Tiến hành lưu các thay đổi
-      // Đây là nơi bạn gọi API hoặc cập nhật trạng thái với các giá trị mới
-      setEditingKey("");
+      const index = selectedProducts.findIndex(
+        (item) => item.key === editingProduct.key
+      );
+
+      if (editingProduct) {
+        // Check if the quantity exceeds inventory
+        if (editingProduct.quantityKg > productInventories[editingProduct.id]) {
+          notification.error({
+            message: "Lỗi",
+            description: `Số lượng của sản phẩm ${editingProduct.productName} vượt quá số lượng có trong kho!`,
+          });
+          return; // Stop save operation
+        }
+      }
+      if (index > -1) {
+        // Tính toán lại tổng tiền
+        const updatedTotalPrice =
+          editingProduct.quantityKg * editingProduct.retailPrice;
+
+        // Cập nhật sản phẩm trong danh sách
+        const updatedProducts = [...selectedProducts];
+        updatedProducts[index] = {
+          ...updatedProducts[index],
+          quantityKg: editingProduct.quantityKg,
+          quantityBag: editingProduct.quantityBag,
+          retailPrice: editingProduct.retailPrice,
+          totalPrice: updatedTotalPrice,
+        };
+        setSelectedProducts(updatedProducts);
+
+        saveTabState(tabKey, {
+          ...getTabState(tabKey),
+          selectedProducts: updatedProducts,
+          editingProduct: null,
+        });
+      }
+      setEditingProduct(null);
     } catch (err) {
       // Xử lý lỗi nếu có
     }
   };
-
-  // Các hàm xử lý sự kiện onChange cho các ô nhập liệu
-  const handleQuantityBagChange = (quantityBag, recordKey) => {
-    const updatedProducts = selectedProducts.map((product) => {
-      if (product.key === recordKey) {
-        const newQuantityKg = quantityBag * (product.bag_packing || 1); // Giả sử mỗi bao tương đương với 'bag_packing' Kg
-        return {
-          ...product,
-          quantityBag,
-          quantityKg: newQuantityKg,
-          totalPrice: newQuantityKg * product.retailPrice,
-        };
-      }
-      return product;
-    });
-    setSelectedProducts(updatedProducts);
-  };
-
-  const handleQuantityKgChange = (quantityKg, recordKey) => {
-    const updatedProducts = selectedProducts.map((product) => {
-      if (product.key === recordKey) {
-        const newQuantityBag = quantityKg / (product.bag_packing || 1); // Đảo ngược quy tắc tính SL bao
-        return {
-          ...product,
-          quantityKg,
-          quantityBag: newQuantityBag,
-          totalPrice: quantityKg * product.retailPrice,
-        };
-      }
-      return product;
-    });
-    setSelectedProducts(updatedProducts);
-  };
-
-  const handlePriceChange = (retailPrice, recordKey) => {
-    const updatedProducts = selectedProducts.map((product) => {
-      if (product.key === recordKey) {
-        return {
-          ...product,
-          retailPrice,
-          totalPrice: product.quantityKg * retailPrice,
-        };
-      }
-      return product;
-    });
-    setSelectedProducts(updatedProducts);
-  };
-  //
   // Function to handle modal visibility
   const showModal = () => {
     setIsModalVisible(true);
@@ -138,6 +183,11 @@ const SaleView = ({ curentUser }) => {
     setSelectedCustomer(customer);
     setCustomerOldDebt(customer.totalDebt || 0);
     // Handle the selected supplier (e.g., store it in state)
+    saveTabState(tabKey, {
+      ...getTabState(tabKey),
+      selectedCustomer: customer,
+      customerOldDebt: customer.totalDebt || 0,
+    });
   };
   //handle add select product
   const handleAddProduct = (product) => {
@@ -158,11 +208,27 @@ const SaleView = ({ curentUser }) => {
       ...product,
       key: product.id,
       unit: "Kg",
-      storageLocationId: "",
-      storageLocationName: "",
     };
     console.log(newProduct);
+    setProductInventories({
+      ...productInventories,
+      [newProduct.id]: newProduct.inventory,
+    });
+    setEditingProduct(newProduct);
     setSelectedProducts([...selectedProducts, newProduct]);
+
+    saveTabState(tabKey, {
+      ...getTabState(tabKey),
+      selectedProducts: [...selectedProducts, newProduct],
+    });
+  };
+  //
+  const edit = (record) => {
+    setEditingProduct({ ...record });
+    saveTabState(tabKey, {
+      ...getTabState(tabKey),
+      editingProduct: record,
+    });
   };
   //
   const handleDeleteProduct = (productKey) => {
@@ -170,6 +236,10 @@ const SaleView = ({ curentUser }) => {
       (product) => product.key !== productKey
     );
     setSelectedProducts(filteredProducts);
+    saveTabState(tabKey, {
+      ...getTabState(tabKey),
+      selectedProducts: filteredProducts,
+    });
   };
   //
   const handleReset = () => {
@@ -180,11 +250,12 @@ const SaleView = ({ curentUser }) => {
   const resetInvoiceData = () => {
     setSelectedCustomer(null);
     setSelectedProducts([]);
-    setEditingKey("");
+    setEditingProduct(null);
     setCustomerOldDebt(0);
     setTotalPrice(0);
     setIsPayModalVisible(false);
     // Cập nhật thêm các trường khác cần reset nếu có
+    saveTabState(tabKey, { ...defaultTabState });
   };
   //
   const handleRecentInvoices = () => {};
@@ -240,6 +311,41 @@ const SaleView = ({ curentUser }) => {
         });
       });
   };
+
+  const handleEditChangee = (e, fieldName, recordKey) => {
+    const newValue = parseFloat(e.target.value) || 0; // Sử dụng giá trị mặc định là 0 nếu không phải là số
+
+    const newProducts = selectedProducts.map((product) => {
+      if (product.key === recordKey) {
+        const packingRatio = parseFloat(product.bag_packing) || 1; // Sử dụng giá trị mặc định là 1 nếu không phải là số
+        const updatedProduct = { ...product };
+
+        if (fieldName === "quantityKg") {
+          updatedProduct.quantityKg = newValue;
+          updatedProduct.quantityBag = newValue / packingRatio;
+        } else if (fieldName === "quantityBag") {
+          updatedProduct.quantityBag = newValue;
+          updatedProduct.quantityKg = newValue * packingRatio;
+        } else if (fieldName === "retailPrice") {
+          updatedProduct.retailPrice = newValue;
+        }
+
+        updatedProduct.totalPrice =
+          updatedProduct.quantityKg * updatedProduct.retailPrice;
+
+        // Cập nhật editingProduct nếu đang chỉnh sửa sản phẩm này
+        if (editingProduct && editingProduct.key === recordKey) {
+          setEditingProduct(updatedProduct);
+          saveTabState(tabKey, {
+            ...getTabState(tabKey),
+            editingProduct: updatedProduct,
+          });
+        }
+        return updatedProduct;
+      }
+      return product;
+    });
+  };
   //
   const columns = [
     {
@@ -262,16 +368,15 @@ const SaleView = ({ curentUser }) => {
       width: "10%",
       editable: true,
       key: "quantityBag",
-      render: (_, record) => {
-        return isEditing(record) ? (
+      render: (text, record) => {
+        const isEditing = editingProduct && record.key === editingProduct.key;
+        return isEditing ? (
           <Input
-            value={record.quantityBag}
-            onChange={(e) =>
-              handleQuantityBagChange(e.target.value, record.key)
-            }
+            defaultValue={text} // Sử dụng defaultValue thay vì value
+            onChange={(e) => handleEditChangee(e, "quantityBag", record.key)}
           />
         ) : (
-          record.quantityBag
+          text
         );
       },
     },
@@ -281,14 +386,15 @@ const SaleView = ({ curentUser }) => {
       width: "10%",
       editable: true,
       key: "quantityKg",
-      render: (_, record) => {
-        return isEditing(record) ? (
+      render: (text, record) => {
+        const isEditing = editingProduct && record.key === editingProduct.key;
+        return isEditing ? (
           <Input
-            value={record.quantityKg}
-            onChange={(e) => handleQuantityKgChange(e.target.value, record.key)}
+            defaultValue={text} // Sử dụng defaultValue thay vì value
+            onChange={(e) => handleEditChangee(e, "quantityKg", record.key)}
           />
         ) : (
-          record.quantityKg
+          text
         );
       },
     },
@@ -298,14 +404,15 @@ const SaleView = ({ curentUser }) => {
       width: "10%",
       editable: true,
       key: "retailPrice",
-      render: (_, record) => {
-        return isEditing(record) ? (
+      render: (text, record) => {
+        const isEditing = editingProduct && record.key === editingProduct.key;
+        return isEditing ? (
           <Input
-            value={record.retailPrice}
-            onChange={(e) => handlePriceChange(e.target.value, record.key)}
+            defaultValue={text} // Sử dụng defaultValue thay vì value
+            onChange={(e) => handleEditChangee(e, "retailPrice", record.key)}
           />
         ) : (
-          record.retailPrice
+          text
         );
       },
     },
@@ -320,27 +427,25 @@ const SaleView = ({ curentUser }) => {
       title: "",
       dataIndex: "action",
       render: (_, record) => {
-        const editable = isEditing(record);
-        return editable ? (
+        const isEditing = editingProduct && record.key === editingProduct.key;
+        return isEditing ? (
           <span>
-            <a
-              href="#"
-              onClick={() => save(record.key)}
-              style={{ marginRight: 8 }}
-            >
-              Save
-            </a>
-            <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
-              <a>Cancel</a>
-            </Popconfirm>
+            <Button size="small" onClick={save} style={{ marginRight: 8 }}>
+              Lưu
+            </Button>
+            <Button size="small" onClick={cancel}>
+              Hủy
+            </Button>
           </span>
         ) : (
-          <Typography.Link
-            disabled={editingKey !== ""}
+          <Button
+            type="primary"
+            size="small"
+            disabled={editingProduct !== null}
             onClick={() => edit(record)}
           >
             Edit
-          </Typography.Link>
+          </Button>
         );
       },
     },
@@ -360,53 +465,70 @@ const SaleView = ({ curentUser }) => {
   return (
     <div>
       <div>
-        <Button
-          style={{ marginBottom: 16, marginRight: 8 }}
-          type="primary"
-          onClick={showPayModal}
-        >
-          Thanh toán
-        </Button>
-        <Button
-          style={{
-            marginBottom: 16,
-            marginRight: 8,
-            backgroundColor: "red",
-            color: "white",
-          }}
-          onClick={handleReset}
-        >
-          Thiết lập lại
-        </Button>
-        <Button
-          style={{ marginBottom: 16, backgroundColor: "green", color: "white" }}
-          onClick={handleRecentInvoices}
-        >
-          HĐ gần đây
-        </Button>
-      </div>
-      <div>
         {/* Row 1 */}
         <Row gutter={[16, 16]}>
-          {/* Left Column */}
-          <Col span={8}>
-            <Card title="Thông tin hóa đơn" style={{ marginBottom: 16 }}>
-              <div className="info-item">
-                <strong>HĐ:</strong> 23
-              </div>
-              <div className="info-item">
-                <strong>CreatedAt:</strong> 2024-02-28
-              </div>
-              <div className="info-item">
-                <strong>CreatedBy:</strong> ngoctb13
-              </div>
-            </Card>
+          {/* 70% Column: Table */}
+          <Col span={18}>
+            <AutoComplete
+              style={{ width: "100%", marginBottom: 8 }}
+              value={searchValue}
+              onSearch={handleSearch}
+              onSelect={onSelectProduct}
+              placeholder="Search for products..."
+              options={searchResults.map((product) => ({
+                value: product.id,
+                label: product.productName,
+                product: product, // Pass the whole product object to use when selected
+              }))}
+            />
+            {/* <Card style={{ padding: 0, marginBottom: 16 }}> */}
+            <Table dataSource={selectedProducts} columns={columns} />
+            {/* </Card> */}
           </Col>
-          {/* Middle Column */}
-          <Col span={8}>
-            <Card title="Tổng mặt hàng" style={{ marginBottom: 16 }}>
+
+          {/* 30% Column: Divided into three parts */}
+          <Col span={6}>
+            <div>
+              <Button
+                style={{ marginBottom: 16, marginRight: 8 }}
+                type="primary"
+                onClick={showPayModal}
+              >
+                Thanh toán
+              </Button>
+              <Button
+                style={{
+                  marginBottom: 16,
+                  marginRight: 8,
+                  backgroundColor: "red",
+                  color: "white",
+                }}
+                onClick={handleReset}
+              >
+                Thiết lập lại
+              </Button>
+              <Button
+                style={{
+                  marginBottom: 16,
+                  backgroundColor: "green",
+                  color: "white",
+                }}
+                onClick={handleRecentInvoices}
+              >
+                HĐ gần đây
+              </Button>
+            </div>
+            <Card
+              title="Tổng mặt hàng"
+              headStyle={{
+                backgroundColor: "#1890ff",
+                color: "white",
+                ...styles.smallCardHeader,
+              }}
+              style={{ marginBottom: 0 }}
+            >
               <div className="info-item">
-                <strong>Tổng mặt hàng:</strong> 0
+                <strong>Tổng mặt hàng:</strong> {selectedProducts.length}
               </div>
               <div className="info-item">
                 <strong>Nợ cũ:</strong> {customerOldDebt}
@@ -415,13 +537,12 @@ const SaleView = ({ curentUser }) => {
                 <strong>Tổng tiền:</strong> {totalPrice}
               </div>
             </Card>
-          </Col>
-          {/* Right Column */}
-          <Col span={8}>
+
+            {/* Thông tin nhà cung cấp Card */}
             <Card
               title={
                 <div>
-                  <span style={{ marginRight: 8 }}>Thông tin khách hàng</span>
+                  <span style={{ marginRight: 8 }}>Nhà cung cấp</span>
                   <Button
                     type="primary"
                     icon={<PlusOutlined />}
@@ -429,6 +550,11 @@ const SaleView = ({ curentUser }) => {
                   ></Button>
                 </div>
               }
+              headStyle={{
+                backgroundColor: "#1890ff",
+                color: "white",
+                ...styles.smallCardHeader,
+              }}
               style={{ marginBottom: 16 }}
             >
               {selectedCustomer ? (
@@ -443,39 +569,11 @@ const SaleView = ({ curentUser }) => {
                   <div className="info-item">
                     <strong>Địa chỉ:</strong> {selectedCustomer.address}
                   </div>
-                  {/* Add other fields as needed */}
+                  {/* Other supplier details */}
                 </div>
               ) : (
-                <div>
-                  <div className="info-item">
-                    <strong>Nhà cung cấp:</strong>
-                  </div>
-                  <div className="info-item">
-                    <strong>Điện thoại:</strong>
-                  </div>
-                  <div className="info-item">
-                    <strong>Địa chỉ:</strong>
-                  </div>
-                </div>
+                <div>Chọn nhà cung cấp</div>
               )}
-            </Card>
-          </Col>
-        </Row>
-        {/* Row 2 */}
-        <Row>
-          <Col span={24}>
-            <Card style={{ padding: 0 }}>
-              {/* Table grid for item list */}
-              {/* Example: */}
-              <Table dataSource={selectedProducts} columns={columns} />
-              <Button
-                style={{ marginTop: 10 }}
-                type="primary"
-                // icon={<PlusOutlined />}
-                onClick={showProductModal}
-              >
-                Thêm sản phẩm
-              </Button>
             </Card>
           </Col>
         </Row>
@@ -502,5 +600,4 @@ const SaleView = ({ curentUser }) => {
     </div>
   );
 };
-
 export default SaleView;

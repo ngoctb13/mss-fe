@@ -1,6 +1,6 @@
 .info-item {
   border-bottom: 1px solid #e8e8e8;
-  padding: 8px 0;
+  padding: 2px 0;
 }
 
 .bold-text-input {
@@ -10,4 +10,27 @@
 .modal-input-red {
   font-weight: bold;
   color: red;
+}
+
+.card-title-bg {
+  background-color: #1890ff; /* Blue background */
+  color: white; /* White text */
+  padding: 4px 8px; /* Some padding around the text */
+  border-radius: 4px; /* Optional: rounded corners */
+  display: inline-block; /* Keeps the background tight around the text */
+}
+
+/* Optional: Different colors for each card title */
+.card-title-bg:nth-of-type(1) {
+  background-color: #1890ff; /* Blue */
+}
+.card-title-bg:nth-of-type(2) {
+  background-color: #52c41a; /* Green */
+}
+.card-title-bg:nth-of-type(3) {
+  background-color: #f5222d; /* Red */
+}
+.small-card-header {
+  font-size: 14px; /* Smaller font size for card headers */
+  padding: 10px 16px; /* Reduced padding for card headers */
 }

@@ -14,6 +14,7 @@ import {
   Menu,
   Tag,
   notification,
+  AutoComplete,
 } from "antd";
 import { PlusOutlined, DownOutlined } from "@ant-design/icons";
 import "./ImportInvoice.css";
@@ -22,8 +23,16 @@ import SelectProductImportModal from "./SelectProductImportModal";
 import PayButtonModal from "./PayButtonModal";
 import StorageLocationAPI from "../../api/StorageLocationAPI";
 import StoreAPI from "../../api/StoreAPI";
+import ProductAPI from "../../api/ProductAPI";
 
-const ImportProductView = () => {
+const styles = {
+  smallCardHeader: {
+    fontSize: "13px",
+    padding: "10px 16px",
+  },
+};
+
+const ImportProductView = ({ tabKey }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isProductModalVisible, setIsProductModalVisible] = useState(false);
   const [isPayModalVisible, setIsPayModalVisible] = useState(false);
@@ -32,9 +41,60 @@ const ImportProductView = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [oldSupplierDebt, setOldSupplierDebt] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [currentDateTime, setCurrentDateTime] = useState("");
   const [storageLocations, setStorageLocations] = useState([]);
+  const [searchValue, setSearchValue] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
 
+  //
+  const defaultTabState = {
+    selectedSupplier: null,
+    importedProducts: [],
+    editingProduct: null,
+    oldSupplierDebt: 0,
+    totalPrice: 0,
+    isPayModalVisible: false,
+  };
+  // 2. Hàm để lưu trạng thái vào localStorage
+  const saveTabState = (tabKey, state) => {
+    const tabStates = JSON.parse(localStorage.getItem("tabStates")) || {};
+    tabStates[tabKey] = state;
+    localStorage.setItem("tabStates", JSON.stringify(tabStates));
+  };
+  // 3. Hàm để lấy trạng thái từ localStorage
+  const getTabState = (tabKey) => {
+    const tabStates = JSON.parse(localStorage.getItem("tabStates")) || {};
+    return tabStates[tabKey] || { ...defaultTabState };
+  };
+  useEffect(() => {
+    const restoredTabState = getTabState(tabKey); // tabKey là key của tab hiện tại
+    // Khôi phục trạng thái cho tab này
+    setSelectedSupplier(restoredTabState.selectedSupplier);
+    setImportedProducts(restoredTabState.importedProducts);
+    setEditingProduct(restoredTabState.editingProduct);
+    setOldSupplierDebt(restoredTabState.oldSupplierDebt);
+    setTotalPrice(restoredTabState.totalPrice);
+    setIsPayModalVisible(restoredTabState.isPayModalVisible);
+  }, [tabKey]);
+
+  //
+  const handleSearch = (value) => {
+    setSearchValue(value);
+    if (value) {
+      // Assuming you have an API or method to search products by name or other attributes
+      ProductAPI.GetByNameContain(value).then((response) => {
+        setSearchResults(response.data); // Update with actual API response
+      });
+    } else {
+      setSearchResults([]); // Clear search results
+    }
+  };
+  //
+  const onSelectProduct = (value, option) => {
+    // Option contains the selected product's information
+    // Assuming option contains a 'product' object
+    const product = option.product;
+    handleReceiveProductDetail(product); // Use your existing function to handle adding the product
+  };
   // fetch storage list
   useEffect(() => {
     StorageLocationAPI.GetAll()
@@ -47,22 +107,6 @@ const ImportProductView = () => {
         console.error("Error fetching products:", error);
       });
     console.log(storageLocations);
-  }, []);
-
-  //
-  useEffect(() => {
-    // Cập nhật thời gian hiện tại
-    const now = new Date();
-    const vietnamTime = now.toLocaleString("vi-VN", {
-      hour12: false, // Sử dụng định dạng 24 giờ
-      day: "2-digit", // Ngày với 2 chữ số
-      month: "2-digit", // Tháng với 2 chữ số
-      year: "numeric", // Năm
-      hour: "2-digit", // Giờ
-      minute: "2-digit", // Phút
-      second: "2-digit", // Giây
-    });
-    setCurrentDateTime(vietnamTime);
   }, []);
   //
   useEffect(() => {
@@ -104,6 +148,11 @@ const ImportProductView = () => {
     setSelectedSupplier(supplier);
     setOldSupplierDebt(supplier.totalDebt || 0);
     // Handle the selected supplier (e.g., store it in state)
+    saveTabState(tabKey, {
+      ...getTabState(tabKey),
+      selectedSupplier: supplier,
+      oldSupplierDebt: supplier.totalDebt || 0,
+    });
   };
   // handle recieve product
   const handleReceiveProductDetail = (productDetail) => {
@@ -127,14 +176,23 @@ const ImportProductView = () => {
       unit: "Kg",
       storageLocationId: "",
       storageLocationName: "",
-      quantityBag: parseFloat(productDetail.quantityBag),
       bag_packing: parseFloat(productDetail.bag_packing), // Đảm bảo chuyển đổi này
     };
+    setEditingProduct(newProduct);
     setImportedProducts([...importedProducts, newProduct]);
+
+    saveTabState(tabKey, {
+      ...getTabState(tabKey),
+      importedProducts: [...importedProducts, newProduct],
+    });
   };
   //edit
   const edit = (record) => {
     setEditingProduct({ ...record });
+    saveTabState(tabKey, {
+      ...getTabState(tabKey),
+      editingProduct: record,
+    });
   };
   //save
   const save = () => {
@@ -151,7 +209,6 @@ const ImportProductView = () => {
       const updatedProducts = [...importedProducts];
       updatedProducts[index] = {
         ...updatedProducts[index],
-        quantityBag: editingProduct.quantityBag,
         quantityKg: editingProduct.quantityKg,
         unitPrice: editingProduct.unitPrice,
         totalPrice: updatedTotalPrice,
@@ -161,10 +218,17 @@ const ImportProductView = () => {
 
     // Đặt lại trạng thái chỉnh sửa
     setEditingProduct(null);
+
+    saveTabState(tabKey, {
+      ...getTabState(tabKey),
+      importedProducts,
+      editingProduct: null,
+    });
   };
   // cancel
   const cancel = () => {
     setEditingProduct(null);
+    saveTabState(tabKey, { ...getTabState(tabKey), editingProduct: null });
   };
   //
   const handleEditChangee = (e, fieldName, recordKey) => {
@@ -175,10 +239,7 @@ const ImportProductView = () => {
         const packingRatio = parseFloat(product.bag_packing) || 1; // Sử dụng giá trị mặc định là 1 nếu không phải là số
         const updatedProduct = { ...product };
 
-        if (fieldName === "quantityBag") {
-          updatedProduct.quantityBag = newValue;
-          updatedProduct.quantityKg = newValue * packingRatio;
-        } else if (fieldName === "quantityKg") {
+        if (fieldName === "quantityKg") {
           updatedProduct.quantityKg = newValue;
           updatedProduct.quantityBag = newValue / packingRatio;
         } else if (fieldName === "unitPrice") {
@@ -191,14 +252,16 @@ const ImportProductView = () => {
         // Cập nhật editingProduct nếu đang chỉnh sửa sản phẩm này
         if (editingProduct && editingProduct.key === recordKey) {
           setEditingProduct(updatedProduct);
+          saveTabState(tabKey, {
+            ...getTabState(tabKey),
+            editingProduct: updatedProduct,
+          });
         }
 
         return updatedProduct;
       }
       return product;
     });
-
-    setImportedProducts(newProducts);
   };
 
   //
@@ -210,6 +273,8 @@ const ImportProductView = () => {
     setTotalPrice(0);
     setIsPayModalVisible(false);
     // Cập nhật thêm các trường khác cần reset nếu có
+
+    saveTabState(tabKey, { ...defaultTabState });
   };
   //
 
@@ -294,6 +359,10 @@ const ImportProductView = () => {
         : product
     );
     setImportedProducts(newProducts);
+    saveTabState(tabKey, {
+      ...getTabState(tabKey),
+      importedProducts: newProducts,
+    });
   };
   //
   const handleDeleteProduct = (productKey) => {
@@ -301,6 +370,10 @@ const ImportProductView = () => {
       (product) => product.key !== productKey
     );
     setImportedProducts(filteredProducts);
+    saveTabState(tabKey, {
+      ...getTabState(tabKey),
+      importedProducts: filteredProducts,
+    });
   };
   //
 
@@ -332,27 +405,10 @@ const ImportProductView = () => {
       key: "unit",
     },
     {
-      title: "Bao",
-      dataIndex: "quantityBag",
-      key: "quantityBag",
-      width: "10%",
-      render: (text, record) => {
-        const isEditing = editingProduct && record.key === editingProduct.key;
-        return isEditing ? (
-          <Input
-            defaultValue={text} // Sử dụng defaultValue thay vì value
-            onChange={(e) => handleEditChangee(e, "quantityBag", record.key)}
-          />
-        ) : (
-          text
-        );
-      },
-    },
-    {
       title: "Kg",
       dataIndex: "quantityKg",
       key: "quantityKg",
-      width: "10%",
+      width: "15%",
       render: (text, record) => {
         const isEditing = editingProduct && record.key === editingProduct.key;
         return isEditing ? (
@@ -369,7 +425,7 @@ const ImportProductView = () => {
       title: "Đơn giá",
       dataIndex: "unitPrice",
       key: "unitPrice",
-      width: "10%",
+      width: "15%",
       render: (text, record) => {
         const isEditing = editingProduct && record.key === editingProduct.key;
         return isEditing ? (
@@ -385,7 +441,7 @@ const ImportProductView = () => {
     {
       title: "Thành tiền",
       dataIndex: "totalPrice",
-      width: "10%",
+      width: "15%",
       editable: false,
       key: "totalPrice",
     },
@@ -393,7 +449,7 @@ const ImportProductView = () => {
     {
       title: "Vị trí",
       key: "storageLocation",
-      width: "10%",
+      width: "12%",
       editable: true,
       render: (text, record) => {
         const menu = (
@@ -439,14 +495,17 @@ const ImportProductView = () => {
         const isEditing = editingProduct && record.key === editingProduct.key;
         return isEditing ? (
           <span>
-            <Button onClick={save} style={{ marginRight: 8 }}>
-              Save
+            <Button size="small" onClick={save} style={{ marginRight: 8 }}>
+              Lưu
             </Button>
-            <Button onClick={cancel}>Cancel</Button>
+            <Button size="small" onClick={cancel}>
+              Hủy
+            </Button>
           </span>
         ) : (
           <Button
             type="primary"
+            size="small"
             disabled={editingProduct !== null}
             onClick={() => edit(record)}
           >
@@ -460,6 +519,7 @@ const ImportProductView = () => {
       key: "delete",
       render: (_, record) => (
         <Button
+          size="small"
           style={{ backgroundColor: "red", color: "white" }}
           onClick={() => handleDeleteProduct(record.key)}
         >
@@ -471,68 +531,86 @@ const ImportProductView = () => {
   return (
     <div>
       <div>
-        <Button
-          style={{ marginBottom: 16, marginRight: 8 }}
-          type="primary"
-          onClick={showPayModal}
-        >
-          Thanh toán
-        </Button>
-        <Button
-          style={{
-            marginBottom: 16,
-            marginRight: 8,
-            backgroundColor: "red",
-            color: "white",
-          }}
-          onClick={handleReset}
-        >
-          Thiết lập lại
-        </Button>
-        <Button
-          style={{ marginBottom: 16, backgroundColor: "green", color: "white" }}
-          onClick={handleRecentInvoices}
-        >
-          HĐ gần đây
-        </Button>
-      </div>
-      <div>
         {/* Row 1 */}
         <Row gutter={[16, 16]}>
-          {/* Left Column */}
-          <Col span={8}>
-            <Card title="Thông tin hóa đơn" style={{ marginBottom: 16 }}>
-              <div className="info-item">
-                <strong>HĐ:</strong> 99
-              </div>
-              <div className="info-item">
-                <strong>Ngày:</strong> {currentDateTime}
-              </div>
-              <div className="info-item">
-                <strong>NV (Nhân viên):</strong> John Doe
-              </div>
-            </Card>
+          {/* 70% Column: Table */}
+          <Col span={18}>
+            <AutoComplete
+              style={{ width: "100%", marginBottom: 8 }}
+              value={searchValue}
+              onSearch={handleSearch}
+              onSelect={onSelectProduct}
+              placeholder="Search for products..."
+              options={searchResults.map((product) => ({
+                value: product.id,
+                label: product.productName,
+                product: product, // Pass the whole product object to use when selected
+              }))}
+            />
+            {/* <Card style={{ padding: 0, marginBottom: 16 }}> */}
+            <Table dataSource={importedProducts} columns={columns} />
+            {/* </Card> */}
           </Col>
-          {/* Middle Column */}
-          <Col span={8}>
-            <Card title="Tổng mặt hàng" style={{ marginBottom: 16 }}>
+
+          {/* 30% Column: Divided into three parts */}
+          <Col span={6}>
+            <div>
+              <Button
+                style={{ marginBottom: 10 }}
+                type="primary"
+                size="small"
+                onClick={showPayModal}
+              >
+                Thanh toán
+              </Button>
+              <Button
+                style={{
+                  marginBottom: 10,
+                  backgroundColor: "red",
+                  color: "white",
+                }}
+                size="small"
+                onClick={handleReset}
+              >
+                Thiết lập lại
+              </Button>
+              <Button
+                style={{
+                  marginBottom: 10,
+                  backgroundColor: "green",
+                  color: "white",
+                }}
+                size="small"
+                onClick={handleRecentInvoices}
+              >
+                HĐ gần đây
+              </Button>
+            </div>
+            <Card
+              title="Tổng mặt hàng"
+              headStyle={{
+                backgroundColor: "#1890ff",
+                color: "white",
+                ...styles.smallCardHeader,
+              }}
+              style={{ marginBottom: 0 }}
+            >
               <div className="info-item">
-                <strong>Tổng mặt hàng:</strong> 0
+                <strong>Tổng mặt hàng:</strong> {importedProducts.length}
               </div>
               <div className="info-item">
-                <strong>Nợ cũ: </strong> {oldSupplierDebt}
+                <strong>Nợ cũ:</strong> {oldSupplierDebt}
               </div>
               <div className="info-item">
                 <strong>Tổng tiền:</strong> {totalPrice}
               </div>
             </Card>
-          </Col>
-          {/* Right Column */}
-          <Col span={8}>
+
+            {/* Thông tin nhà cung cấp Card */}
             <Card
               title={
                 <div>
-                  <span style={{ marginRight: 8 }}>Thông tin nhà cung cấp</span>
+                  <span style={{ marginRight: 8 }}>Nhà cung cấp</span>
                   <Button
                     type="primary"
                     icon={<PlusOutlined />}
@@ -540,6 +618,11 @@ const ImportProductView = () => {
                   ></Button>
                 </div>
               }
+              headStyle={{
+                backgroundColor: "#1890ff",
+                color: "white",
+                ...styles.smallCardHeader,
+              }}
               style={{ marginBottom: 16 }}
             >
               {selectedSupplier ? (
@@ -554,39 +637,11 @@ const ImportProductView = () => {
                   <div className="info-item">
                     <strong>Địa chỉ:</strong> {selectedSupplier.address}
                   </div>
-                  {/* Add other fields as needed */}
+                  {/* Other supplier details */}
                 </div>
               ) : (
-                <div>
-                  <div className="info-item">
-                    <strong>Nhà cung cấp:</strong>
-                  </div>
-                  <div className="info-item">
-                    <strong>Điện thoại:</strong>
-                  </div>
-                  <div className="info-item">
-                    <strong>Địa chỉ:</strong>
-                  </div>
-                </div>
+                <div>Chọn nhà cung cấp</div>
               )}
-            </Card>
-          </Col>
-        </Row>
-        {/* Row 2 */}
-        <Row>
-          <Col span={24}>
-            <Card style={{ padding: 0 }}>
-              {/* Table grid for item list */}
-              {/* Example: */}
-              <Table dataSource={importedProducts} columns={columns} />
-              <Button
-                style={{ marginTop: 10 }}
-                type="primary"
-                // icon={<PlusOutlined />}
-                onClick={showProductModal}
-              >
-                Thêm sản phẩm
-              </Button>
             </Card>
           </Col>
         </Row>

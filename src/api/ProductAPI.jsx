@@ -12,5 +12,9 @@ const ProductAPI = {
     const url = `/products/update/${product.id}`;
     return axiosClient.put(url, product);
   },
+  GetByNameContain: (nameInput) => {
+    const url = `/products/by-name/${nameInput}`;
+    return axiosClient.get(url);
+  },
 };
 export default ProductAPI;
