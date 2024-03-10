@@ -50,6 +50,12 @@ class App extends Component {
     localStorage.removeItem(ACCESS_TOKEN);
     localStorage.removeItem(USER_ROLE);
     localStorage.removeItem('token_expiry');
+    localStorage.removeItem('tabStates');
+    localStorage.removeItem('invoiceActiveKey');
+    localStorage.removeItem('invoiceTabKeys');
+    localStorage.removeItem('saleTabStates');
+    localStorage.removeItem('saleInvoiceActiveKey');
+    localStorage.removeItem('saleInvoiceTabKeys');
     this.setState({
         authenticated: false,
         currentUser: null

@@ -16,5 +16,9 @@ const CustomerAPI = {
     const url = `/customer/change-status/${customerId}`;
     return axiosClient.put(url);
   },
+  GetAllByStore: () => {
+    const url = `/customer/all/by-store`;
+    return axiosClient.get(url);
+  },
 };
 export default CustomerAPI;

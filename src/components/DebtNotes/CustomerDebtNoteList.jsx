@@ -100,16 +100,6 @@ const CustomerDebtNoteList = () => {
           </span>
         ),
       },
-      {
-        title: "Action",
-        dataIndex: "operation",
-        key: "operation",
-        render: () => (
-          <Space size="middle">
-            <a>Xem chi tiết</a>
-          </Space>
-        ),
-      },
     ];
     return (
       <Table

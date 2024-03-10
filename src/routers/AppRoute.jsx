@@ -1,5 +1,5 @@
 import React from "react";
-import { Route } from "react-router-dom";
+import { Navigate, Route } from "react-router-dom";
 import LoginForm from "../pages/common/Login.jsx";
 import Page404 from "../pages/ErrorPage/Page404";
 import ProtectedRoute from "./ProtectedRoute.jsx";
@@ -19,6 +19,12 @@ import ImportProduct from "../pages/StoreOwner/ImportProduct.jsx";
 import RegisterForm from "../pages/common/Register.jsx";
 import ImportInvoiceTabs from "../pages/StoreOwner/ImportInvoiceTabs.jsx";
 import SaleInvoiceTabs from "../pages/StoreOwner/SaleInvoiceTabs.jsx";
+
+const checkTokenValidity = () => {
+  const token = localStorage.getItem("accessToken");
+  const expiryTime = localStorage.getItem("token_expiry");
+  return token && expiryTime && new Date().getTime() < expiryTime;
+};
 
 const StoreOwnerRouter = [
   { path: "/owner/home", component: Home },
@@ -45,6 +51,8 @@ const StoreOwnerRouter = [
 const StaffRouter = [{ path: "/staff/customers", component: Staff_Customers }];
 const AdminRouter = [];
 const AppRoute = () => {
+  const tokenValid = checkTokenValidity();
+
   const OwnerRoutes = StoreOwnerRouter.map((route) => (
     <Route
       key={route.path}
@@ -67,14 +75,27 @@ const AppRoute = () => {
       }
     />
   ));
+
   return [
     ...OwnerRoutes,
     ...StaffRoutes,
     <Route key="/logout" path="/logout" element={<LoginForm />} />,
     <Route key="*" path="*" element={<Page404 />} />,
-    <Route key="/login" path="/login" element={<LoginForm />} />,
-    <Route key="/" path="/" element={<LoginForm />} />,
-    <Route key="/register" path="/register" element={<RegisterForm />} />,
+    <Route
+      key="/login"
+      path="/login"
+      element={tokenValid ? <Navigate to="/owner/home" /> : <LoginForm />}
+    />,
+    <Route
+      key="/"
+      path="/"
+      element={tokenValid ? <Navigate to="/owner/home" /> : <LoginForm />}
+    />,
+    <Route
+      key="/register"
+      path="/register"
+      element={tokenValid ? <Navigate to="/owner/home" /> : <RegisterForm />}
+    />,
   ];
 };
 
