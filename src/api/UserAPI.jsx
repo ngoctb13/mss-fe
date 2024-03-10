@@ -12,5 +12,9 @@ const UserAPI = {
     const url = `/users/createStaff`;
     return axiosClient.post(url, staff);
   },
+  GetAllOfStore: () => {
+    const url = `/users/all/by-store`;
+    return axiosClient.get(url);
+  },
 };
 export default UserAPI;

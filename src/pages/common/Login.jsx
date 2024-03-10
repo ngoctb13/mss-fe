@@ -16,6 +16,12 @@ import { Link, Navigate, Redirect } from "react-router-dom";
 import UserAPI from "../../api/UserAPI";
 import { TOKEN_EXPITY_TIME } from "../../constant/constant";
 
+const checkTokenValidity = () => {
+  const token = localStorage.getItem("accessToken");
+  const expiryTime = localStorage.getItem("token_expiry");
+  return token && expiryTime && new Date().getTime() < expiryTime;
+};
+
 const LoginForm = () => {
   const [loading, setLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState();
@@ -25,6 +31,10 @@ const LoginForm = () => {
   const onFinish = async (values) => {
     setLoading(true);
     try {
+      const tokenValid = checkTokenValidity();
+      if (tokenValid) {
+        return <Navigate to="/owner/home" />;
+      }
       // Call the login API function from LoginAPI
       const response = await AuthAPI.Login(values.username, values.password);
       localStorage.setItem("accessToken", response.data.accessToken);

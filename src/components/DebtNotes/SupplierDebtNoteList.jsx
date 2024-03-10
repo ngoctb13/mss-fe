@@ -78,16 +78,6 @@ const SupplierDebtNoteList = () => {
         dataIndex: "newDebt",
         key: "newDebt",
       },
-      {
-        title: "Action",
-        dataIndex: "operation",
-        key: "operation",
-        render: () => (
-          <Space size="middle">
-            <a>Xem chi tiết</a>
-          </Space>
-        ),
-      },
     ];
     return (
       <Table
