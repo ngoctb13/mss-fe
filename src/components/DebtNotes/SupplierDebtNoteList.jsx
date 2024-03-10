@@ -1,9 +1,53 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { DownOutlined } from "@ant-design/icons";
 import { Badge, Dropdown, Space, Table } from "antd";
+import ImportInvoiceAPI from "../../api/ImportInvoiceAPI";
+import SupplierAPI from "../../api/SupplierAPI";
 const SupplierDebtNoteList = () => {
-  const expandedRowRender = () => {
+  const [supplierData, setSupplierData] = useState([]);
+  const [invoiceData, setInvoiceData] = useState({});
+
+  const fetchInvoiceData = async (supplierId) => {
+    try {
+      const response = await ImportInvoiceAPI.GetBySupplier(supplierId);
+      setInvoiceData((prevInvoiceData) => ({
+        ...prevInvoiceData,
+        [supplierId]: response.data,
+      }));
+    } catch (error) {
+      console.error("Error fetching invoice data:", error);
+      // Handle error here
+    }
+  };
+
+  useEffect(() => {
+    const fetchSupplierDebtData = async () => {
+      try {
+        const response = await SupplierAPI.GetSupplierHaveDebt();
+        const suppliers = response.data;
+        setSupplierData(suppliers);
+
+        suppliers.forEach((supplier) => {
+          fetchInvoiceData(supplier.id);
+        });
+      } catch (error) {
+        console.error("Error fetching supplier debt data:", error);
+      }
+    };
+
+    fetchSupplierDebtData();
+  }, []);
+  const expandedRowRender = (record) => {
+    const invoiceOfSupplierData = invoiceData[record.id] || [];
+    console.log(invoiceData[record.id]);
+
     const columns = [
+      {
+        title: "",
+        key: "stt",
+        width: "1%",
+        render: (text, record, index) => index + 1,
+      },
       {
         title: "Ngày tạo",
         dataIndex: "createdAt",
@@ -45,21 +89,21 @@ const SupplierDebtNoteList = () => {
         ),
       },
     ];
-    const data = [];
-    for (let i = 0; i < 3; ++i) {
-      data.push({
-        id: i.toString(),
-        createdAt: "2014-12-24 23:12:00",
-        totalPrice: "333333",
-        oldDebt: "222222",
-        totalPayment: "555555",
-        pricePaid: "444444",
-        newDebt: "111111",
-      });
-    }
-    return <Table columns={columns} dataSource={data} pagination={false} />;
+    return (
+      <Table
+        columns={columns}
+        dataSource={invoiceOfSupplierData}
+        pagination={false}
+      />
+    );
   };
   const columns = [
+    {
+      title: "",
+      key: "stt",
+      width: "1%",
+      render: (text, record, index) => index + 1,
+    },
     {
       title: "Nhà cùng cấp",
       dataIndex: "supplierName",
@@ -79,6 +123,11 @@ const SupplierDebtNoteList = () => {
       title: "Công nợ",
       dataIndex: "totalDebt",
       key: "totalDebt",
+      render: (text) => (
+        <span style={{ color: "red", fontWeight: "bold" }}>
+          {text.toLocaleString("vi-VN")}
+        </span>
+      ),
     },
     {
       title: "Action",
@@ -86,25 +135,15 @@ const SupplierDebtNoteList = () => {
       render: () => <a>Trả nợ</a>,
     },
   ];
-  const data = [];
-  for (let i = 0; i < 3; ++i) {
-    data.push({
-      key: i.toString(),
-      supplierName: `Supplier ${i}`,
-      phoneNumber: "0988888888",
-      address: `Address supplier ${i}`,
-      totalDebt: `12345${i}`,
-    });
-  }
   return (
     <>
       <Table
         columns={columns}
         expandable={{
-          expandedRowRender,
+          expandedRowRender: (record) => expandedRowRender(record),
           // defaultExpandedRowKeys: ["0"],
         }}
-        dataSource={data}
+        dataSource={supplierData}
         size="small"
       />
     </>

@@ -8,20 +8,6 @@ const CustomerDebtNoteList = () => {
   const [customerData, setCustomerData] = useState([]);
   const [invoiceData, setInvoiceData] = useState({});
 
-  // useEffect(() => {
-  //   const fetchCustomerDebtData = async () => {
-  //     try {
-  //       const response = await CustomerAPI.GetCustomerHaveDebt();
-  //       setCustomerData(response.data);
-  //     } catch (error) {
-  //       console.error("Error fetching customer debt data:", error);
-  //       // Handle error here
-  //     }
-  //   };
-
-  //   fetchCustomerDebtData();
-  // }, []);
-
   const fetchInvoiceData = async (customerId) => {
     try {
       const response = await SaleInvoiceAPI.GetByCustomer(customerId);

@@ -16,5 +16,9 @@ const SupplierAPI = {
     const url = `/suppliers/update/${supplier.id}`;
     return axiosClient.put(url);
   },
+  GetSupplierHaveDebt: () => {
+    const url = `/suppliers/all/supplier-have-debt`;
+    return axiosClient.get(url);
+  },
 };
 export default SupplierAPI;

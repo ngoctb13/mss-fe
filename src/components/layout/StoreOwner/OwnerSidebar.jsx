@@ -29,8 +29,8 @@ const OwnerSidebar = () => {
       "/owner/staff-list": { open: "2", selected: "2-4" },
       "/owner/debt-note/customer": { open: "3", selected: "3-1" },
       "/owner/debt-note/supplier": { open: "3", selected: "3-2" },
-      "/owner/sale": { selected: "4" },
-      "/owner/import-product": { selected: "5" },
+      "/owner/sale-tabs": { selected: "4" },
+      "/owner/import-tabs": { selected: "5" },
       "/owner/sale-report/sale-invoice-report": { open: "6", selected: "6-1" },
       "/owner/sale-report/sale-invoice-detail-report": {
         open: "6",
@@ -124,10 +124,10 @@ const OwnerSidebar = () => {
           </Menu.Item>
         </SubMenu>
         <Menu.Item key="4" icon={<DollarOutlined />}>
-          <Link to="/owner/sale">Bán hàng</Link>
+          <Link to="/owner/sale-tabs">Bán hàng</Link>
         </Menu.Item>
         <Menu.Item key="5" icon={<EditOutlined />}>
-          <Link to="/owner/import-product">Nhập hàng</Link>
+          <Link to="/owner/import-tabs">Nhập hàng</Link>
         </Menu.Item>
         <SubMenu key="6" icon={<PieChartOutlined />} title="Báo cáo bán hàng">
           <Menu.Item key="6-1">
