@@ -542,7 +542,7 @@ const SaleView = ({ tabKey }) => {
             <Card
               title={
                 <div>
-                  <span style={{ marginRight: 8 }}>Nhà cung cấp</span>
+                  <span style={{ marginRight: 8 }}>Khách hàng</span>
                   <Button
                     type="primary"
                     icon={<PlusOutlined />}
@@ -560,8 +560,7 @@ const SaleView = ({ tabKey }) => {
               {selectedCustomer ? (
                 <div>
                   <div className="info-item">
-                    <strong>Nhà cung cấp:</strong>{" "}
-                    {selectedCustomer.customerName}
+                    <strong>Khách hàng:</strong> {selectedCustomer.customerName}
                   </div>
                   <div className="info-item">
                     <strong>Điện thoại:</strong> {selectedCustomer.phoneNumber}
@@ -572,7 +571,7 @@ const SaleView = ({ tabKey }) => {
                   {/* Other supplier details */}
                 </div>
               ) : (
-                <div>Chọn nhà cung cấp</div>
+                <div>Chọn khách hàng</div>
               )}
             </Card>
           </Col>
