@@ -1,0 +1,30 @@
+name: Deploy React App (mss-fe)
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t ngoctb136/mss-fe:${{ github.sha }} .
+          echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push ngoctb136/mss-fe:${{ github.sha }}
+
+      - name: Deploy to DigitalOcean
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          password: ${{ secrets.DO_PASSWORD }}
+          script: |
+            docker pull ngoctb136/mss-fe:${{ github.sha }}
+            docker stop mss-fe || true
+            docker rm mss-fe || true
+            docker run -d --name mss-fe -p 80:80 ngoctb136/mss-fe:${{ github.sha }}
