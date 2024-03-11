@@ -159,6 +159,7 @@ const CustomerDebtNoteList = () => {
         }}
         dataSource={customerData}
         size="small"
+        rowKey="id"
       />
     </>
   );
