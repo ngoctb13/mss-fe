@@ -117,13 +117,14 @@ const SaleInvoiceReportList = () => {
       <div style={{ marginBottom: 10 }}>
         {/* div 1: Filters */}
         <RangePicker
+          style={{ width: 150 }}
           format="DD/MM/YYYY HH:mm:ss"
           showTime
           onChange={(dates) => handleFilterChange("dateRange", dates)}
         />
         <Select
           placeholder="Chọn nhân viên"
-          style={{ width: 200 }}
+          style={{ width: 100 }}
           onChange={(value) => handleFilterChange("createdBy", value)}
         >
           {usersOfStore.map((us) => (
@@ -134,7 +135,7 @@ const SaleInvoiceReportList = () => {
         </Select>
         <Select
           placeholder="Chọn khách hàng"
-          style={{ width: 200 }}
+          style={{ width: 100 }}
           onChange={(value) => handleFilterChange("customerId", value)}
         >
           {customersOfStore.map((cus) => (
