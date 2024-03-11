@@ -148,7 +148,7 @@ const OwnerSidebar = () => {
         </SubMenu>
         <SubMenu key="7" icon={<PieChartOutlined />} title="Báo cáo nhập hàng">
           <Menu.Item key="7-1">
-            <Link to="#">Báo cáo nhập hàng</Link>
+          <Link to="/owner/import-report/import-invoice-report">Báo cáo nhập hàng</Link>
           </Menu.Item>
           <Menu.Item key="7-2">
             <Link to="#">Chi tiết nhập hàng</Link>

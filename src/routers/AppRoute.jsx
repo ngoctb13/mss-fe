@@ -19,6 +19,8 @@ import ImportProduct from "../pages/StoreOwner/ImportProduct.jsx";
 import RegisterForm from "../pages/common/Register.jsx";
 import ImportInvoiceTabs from "../pages/StoreOwner/ImportInvoiceTabs.jsx";
 import SaleInvoiceTabs from "../pages/StoreOwner/SaleInvoiceTabs.jsx";
+import ImportInvoiceReport from "../pages/StoreOwner/ImportReport/ImportInvoiceReport.jsx";
+import ImportInvoiceDetailReport from "../pages/StoreOwner/ImportReport/ImportInvoiceDetailReport.jsx";
 
 const checkTokenValidity = () => {
   const token = localStorage.getItem("accessToken");
@@ -47,6 +49,14 @@ const StoreOwnerRouter = [
   { path: "/owner/import-tabs", component: ImportInvoiceTabs },
   { path: "/owner/sale-tabs", component: SaleInvoiceTabs },
   { path: "/owner/import-product", component: ImportProduct },
+  {
+    path: "/owner/import-report/import-invoice-report",
+    component: ImportInvoiceReport,
+  },
+  {
+    path: "/owner/import-report/sale-invoice-detail-report",
+    component: ImportInvoiceDetailReport,
+  },
 ];
 const StaffRouter = [{ path: "/staff/customers", component: Staff_Customers }];
 const AdminRouter = [];
