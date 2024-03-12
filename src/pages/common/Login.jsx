@@ -27,21 +27,21 @@ const LoginForm = () => {
   const [currentUser, setCurrentUser] = useState();
   const [redirectToHome, setRedirectToHome] = useState(false);
   const [redirectToCreateStore, setRedirectToCreateStore] = useState(false);
+  const [redirectToStaffHome, setRedirectToStaffHome] = useState(false);
 
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      const tokenValid = checkTokenValidity();
-      if (tokenValid) {
-        return <Navigate to="/owner/home" />;
-      }
       // Call the login API function from LoginAPI
       const response = await AuthAPI.Login(values.username, values.password);
       localStorage.setItem("accessToken", response.data.accessToken);
       localStorage.setItem("userRole", response.data.role);
       const expiryTime = new Date().getTime() + TOKEN_EXPITY_TIME;
       localStorage.setItem("token_expiry", expiryTime);
-      if (
+
+      if (response.data.role === "STAFF") {
+        setRedirectToStaffHome(true);
+      } else if (
         response.data.role === "STORE_OWNER" ||
         response.data.role === "STAFF"
       ) {
@@ -52,6 +52,18 @@ const LoginForm = () => {
           setRedirectToHome(true);
         }
       }
+
+      // if (
+      //   response.data.role === "STORE_OWNER" ||
+      //   response.data.role === "STAFF"
+      // ) {
+      //   const userResponse = await UserAPI.GetUserById(response.data.id);
+      //   if (userResponse.data.storeId === null) {
+      //     setRedirectToCreateStore(true);
+      //   } else {
+      //     setRedirectToHome(true);
+      //   }
+      // }
       setLoading(false);
     } catch (error) {
       console.error("Login failed:", error);
@@ -64,6 +76,10 @@ const LoginForm = () => {
     console.log("Failed:", errorInfo);
     message.error("Login failed. Please check your inputs.");
   };
+
+  if (redirectToStaffHome) {
+    return <Navigate to="/staff/home" />;
+  }
 
   if (redirectToHome) {
     return <Navigate to="/owner/home" />;
