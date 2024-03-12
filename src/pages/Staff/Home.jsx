@@ -1,37 +1,25 @@
 import React, { useState } from "react";
-import StoreAPI from "../../api/StoreAPI";
-import {
-  Form,
-  Input,
-  Button,
-  Checkbox,
-  Card,
-  Row,
-  Col,
-  Spin,
-  message,
-  Layout,
-} from "antd";
 
+import { Layout, Card } from "antd";
 import AppHeader from "../../components/layout/Header";
 import AppFooter from "../../components/layout/Footer";
-import CustomerList from "../../components/Customers/CustomerList";
 import StaffSidebar from "../../components/layout/Staff/StaffSidebar";
 const { Content } = Layout;
 
-const Customers = () => {
+const { Meta } = Card;
+const Home = () => {
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <StaffSidebar />
       <Layout>
         <AppHeader />
         <Content style={{ padding: "0px 20px", marginTop: 20 }}>
-          <CustomerList />
+          <div></div>
         </Content>
         <AppFooter />
       </Layout>
     </Layout>
   );
 };
-// danh sach khach hang
-export default Customers;
+
+export default Home;

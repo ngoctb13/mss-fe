@@ -13,7 +13,7 @@ import { Link, useLocation } from "react-router-dom";
 const { Sider } = Layout;
 const { SubMenu } = Menu;
 
-const OwnerSidebar = () => {
+const StaffSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: {},
@@ -22,22 +22,22 @@ const OwnerSidebar = () => {
 
   const findKeysForLocation = (path) => {
     const map = {
-      "/owner/home": { selected: "1" },
-      "/owner/products": { open: "2", selected: "2-1" },
-      "/owner/customers": { open: "2", selected: "2-2" },
-      "/owner/suppliers": { open: "2", selected: "2-3" },
-      "/owner/staff-list": { open: "2", selected: "2-4" },
-      "/owner/debt-note/customer": { open: "3", selected: "3-1" },
-      "/owner/debt-note/supplier": { open: "3", selected: "3-2" },
-      "/owner/sale-tabs": { selected: "4" },
-      "/owner/import-tabs": { selected: "5" },
-      "/owner/sale-report/sale-invoice-report": { open: "6", selected: "6-1" },
-      "/owner/sale-report/sale-invoice-detail-report": {
+      "/staff/home": { selected: "1" },
+      "/staff/products": { open: "2", selected: "2-1" },
+      "/staff/customers": { open: "2", selected: "2-2" },
+      "/staff/suppliers": { open: "2", selected: "2-3" },
+      //   "/owner/staff-list": { open: "2", selected: "2-4" },
+      //   "/owner/debt-note/customer": { open: "3", selected: "3-1" },
+      //   "/owner/debt-note/supplier": { open: "3", selected: "3-2" },
+      "/staff/sale-tabs": { selected: "4" },
+      "/staff/import-tabs": { selected: "5" },
+      "/staff/sale-report/sale-invoice-report": { open: "6", selected: "6-1" },
+      "/staff/sale-report/sale-invoice-detail-report": {
         open: "6",
         selected: "6-2",
       },
-      "/owner/sale-report/stock-export-report": { open: "6", selected: "6-3" },
-      "/owner/import-report/import-invoice-report": {
+      //   "/owner/sale-report/stock-export-report": { open: "6", selected: "6-3" },
+      "/staff/import-report/import-invoice-report": {
         open: "7",
         selected: "7-1",
       },
@@ -103,72 +103,69 @@ const OwnerSidebar = () => {
         onOpenChange={onOpenChange}
       >
         <Menu.Item key="1" icon={<HomeOutlined />}>
-          <Link to="/owner/home">Trang chủ</Link>
+          <Link to="/staff/home">Trang chủ</Link>
         </Menu.Item>
         <SubMenu key="2" icon={<MenuOutlined />} title="Danh mục">
           <Menu.Item key="2-1">
-            <Link to="/owner/products">Hàng hóa</Link>
+            <Link to="/staff/products">Hàng hóa</Link>
           </Menu.Item>
           <Menu.Item key="2-2">
-            <Link to="/owner/customers">Khách hàng</Link>
+            <Link to="/staff/customers">Khách hàng</Link>
           </Menu.Item>
           <Menu.Item key="2-3">
-            <Link to="/owner/suppliers">Nhà cung cấp</Link>
+            <Link to="/staff/suppliers">Nhà cung cấp</Link>
           </Menu.Item>
-          <Menu.Item key="2-4">
+          {/* <Menu.Item key="2-4">
             <Link to="/owner/staff-list">Nhân viên</Link>
-          </Menu.Item>
+          </Menu.Item> */}
         </SubMenu>
-        <SubMenu key="3" icon={<MenuOutlined />} title="Sổ nợ">
+        {/* <SubMenu key="3" icon={<MenuOutlined />} title="Sổ nợ">
           <Menu.Item key="3-1">
             <Link to="/owner/debt-note/customer">Khách hàng</Link>
           </Menu.Item>
           <Menu.Item key="3-2">
             <Link to="/owner/debt-note/supplier">Nhà cung cấp</Link>
           </Menu.Item>
-        </SubMenu>
+        </SubMenu> */}
         <Menu.Item key="4" icon={<DollarOutlined />}>
-          <Link to="/owner/sale-tabs">Bán hàng</Link>
+          <Link to="/staff/sale-tabs">Bán hàng</Link>
         </Menu.Item>
         <Menu.Item key="5" icon={<EditOutlined />}>
-          <Link to="/owner/import-tabs">Nhập hàng</Link>
+          <Link to="/staff/import-tabs">Nhập hàng</Link>
         </Menu.Item>
         <SubMenu key="6" icon={<PieChartOutlined />} title="Báo cáo bán hàng">
           <Menu.Item key="6-1">
-            <Link to="/owner/sale-report/sale-invoice-report">
+            <Link to="/staff/sale-report/sale-invoice-report">
               Báo cáo bán hàng
             </Link>
           </Menu.Item>
           <Menu.Item key="6-2">
-            <Link to="/owner/sale-report/sale-invoice-detail-report">
+            <Link to="/staff/sale-report/sale-invoice-detail-report">
               Chi tiết bán hàng
             </Link>
           </Menu.Item>
-          <Menu.Item key="6-3">
+          {/* <Menu.Item key="6-3">
             <Link to="/owner/sale-report/stock-export-report">
               Xuất kho, lợi nhuận
             </Link>
-          </Menu.Item>
+          </Menu.Item> */}
         </SubMenu>
         <SubMenu key="7" icon={<PieChartOutlined />} title="Báo cáo nhập hàng">
           <Menu.Item key="7-1">
-            <Link to="/owner/import-report/import-invoice-report">
+            <Link to="/staff/import-report/import-invoice-report">
               Báo cáo nhập hàng
             </Link>
           </Menu.Item>
           <Menu.Item key="7-2">
             <Link to="#">Chi tiết nhập hàng</Link>
           </Menu.Item>
-          <Menu.Item key="7-3">
+          {/* <Menu.Item key="7-3">
             <Link to="#">Nhập kho</Link>
-          </Menu.Item>
+          </Menu.Item> */}
         </SubMenu>
-        <Menu.Item key="8" icon={<CalculatorOutlined />}>
-          <Link to="#">Thu chi</Link>
-        </Menu.Item>
       </Menu>
     </Sider>
   );
 };
 
-export default OwnerSidebar;
+export default StaffSidebar;
