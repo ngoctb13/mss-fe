@@ -13,3 +13,11 @@
     transform: scale(1); /* And shrinks back */
   }
 }
+.header-title {
+  font-size: 20px;
+  font-weight: bold;
+  background-color: #96f6ff;
+  text-align: center;
+  height: 40px; /* Đặt chiều cao cố định cho thanh tiêu đề */
+  line-height: 40px;
+}

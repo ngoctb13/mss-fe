@@ -22,6 +22,7 @@ import SelectProductModal from "./SelectProductModal";
 import PaySaleButtonModal from "./PaySaleButtonModal";
 import StoreAPI from "../../api/StoreAPI";
 import ProductAPI from "../../api/ProductAPI";
+import { Helmet } from "react-helmet";
 
 const styles = {
   smallCardHeader: {
@@ -464,6 +465,9 @@ const SaleView = ({ tabKey }) => {
   ];
   return (
     <div>
+      <Helmet>
+        <title>Bán hàng</title>
+      </Helmet>
       <div>
         {/* Row 1 */}
         <Row gutter={[16, 16]}>

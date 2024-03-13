@@ -16,6 +16,7 @@ import {
 import { PlusOutlined } from "@ant-design/icons";
 import CreateCustomerModal from "./CreateCustomerModal";
 import CustomerAPI from "../../api/CustomerAPI";
+import { Helmet } from "react-helmet";
 
 const EditableCell = ({
   editing,
@@ -58,6 +59,8 @@ const CustomerList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isCustomerModalVisible, setIsCustomerModalVisible] = useState(false);
+
+  const userRole = localStorage.getItem("userRole");
 
   const showCreateCustomerModal = () => {
     setIsCustomerModalVisible(true);
@@ -120,7 +123,7 @@ const CustomerList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await CustomerAPI.GetAll();
+        const response = await CustomerAPI.GetAllByStore();
         setCustomers(response.data);
         setLoading(false);
       } catch (error) {
@@ -184,77 +187,93 @@ const CustomerList = () => {
     }
   };
 
-  const columns = [
-    {
-      title: "Tên khách hàng",
-      dataIndex: "customerName",
-      width: "20%",
-      editable: true,
-      key: "customerName",
-    },
-    {
-      title: "Số điện thoại",
-      dataIndex: "phoneNumber",
-      width: "15%",
-      editable: true,
-      key: "phoneNumber",
-    },
-    {
-      title: "Địa chị",
-      dataIndex: "address",
-      width: "25%",
-      editable: true,
-      key: "address",
-    },
-    {
-      title: "Ghi chú",
-      dataIndex: "note",
-      width: "15%",
-      editable: true,
-      key: "note",
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      editable: false,
-      key: "status",
-      render: (_, record) => (
-        <Switch
-          checked={record.status === "ACTIVE"}
-          onChange={(checked) => handleStatusChange(checked, record)}
-        />
-      ),
-    },
-    {
-      title: "Action",
-      dataIndex: "operation",
-      render: (_, record) => {
-        const editable = isEditing(record);
-        return editable ? (
-          <span>
-            <Typography.Link
-              onClick={() => save(record.id)}
-              style={{
-                marginRight: 8,
-              }}
-            >
-              Save
-            </Typography.Link>
-            <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
-              <a>Cancel</a>
-            </Popconfirm>
-          </span>
-        ) : (
-          <Typography.Link
-            disabled={editingKey !== ""}
-            onClick={() => edit(record)}
-          >
-            Edit
-          </Typography.Link>
-        );
+  const createColumns = () => {
+    // Các cột cơ bản
+    let cols = [
+      {
+        title: "Tên khách hàng",
+        dataIndex: "customerName",
+        width: "20%",
+        editable: true,
+        key: "customerName",
       },
-    },
-  ];
+      {
+        title: "Số điện thoại",
+        dataIndex: "phoneNumber",
+        width: "15%",
+        editable: true,
+        key: "phoneNumber",
+      },
+      {
+        title: "Địa chị",
+        dataIndex: "address",
+        width: "25%",
+        editable: true,
+        key: "address",
+      },
+      {
+        title: "Ghi chú",
+        dataIndex: "note",
+        width: "15%",
+        editable: true,
+        key: "note",
+      },
+      {
+        title: "Trạng thái",
+        dataIndex: "status",
+        editable: false,
+        key: "status",
+        render: (_, record) => (
+          <Switch
+            checked={record.status === "ACTIVE"}
+            onChange={
+              userRole === "STORE_OWNER"
+                ? (checked) => handleStatusChange(checked, record)
+                : null
+            }
+            disabled={userRole !== "STORE_OWNER"}
+          />
+        ),
+      },
+    ];
+
+    // Thêm cột Action nếu userRole là STORE_OWNER
+    if (userRole === "STORE_OWNER") {
+      cols.push({
+        title: "Action",
+        dataIndex: "operation",
+        render: (_, record) => {
+          const editable = isEditing(record);
+          return editable ? (
+            <span>
+              <Typography.Link
+                onClick={() => save(record.id)}
+                style={{
+                  marginRight: 8,
+                }}
+              >
+                Save
+              </Typography.Link>
+              <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
+                <a>Cancel</a>
+              </Popconfirm>
+            </span>
+          ) : (
+            <Typography.Link
+              disabled={editingKey !== ""}
+              onClick={() => edit(record)}
+            >
+              Edit
+            </Typography.Link>
+          );
+        },
+      });
+    }
+
+    return cols;
+  };
+
+  const columns = createColumns();
 
   const mergedColumns = columns.map((col) => {
     if (!col.editable) {
@@ -282,14 +301,19 @@ const CustomerList = () => {
 
   return (
     <div>
-      <Button
-        style={{ marginBottom: 10 }}
-        type="primary"
-        icon={<PlusOutlined />}
-        onClick={showCreateCustomerModal}
-      >
-        Thêm khách hàng
-      </Button>
+      <Helmet>
+        <title>Danh Sách Khách Hàng</title>
+      </Helmet>
+      {userRole === "STORE_OWNER" && (
+        <Button
+          style={{ marginBottom: 10 }}
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={showCreateCustomerModal}
+        >
+          Thêm khách hàng
+        </Button>
+      )}
       <Form form={form} component={false}>
         <Table
           components={{

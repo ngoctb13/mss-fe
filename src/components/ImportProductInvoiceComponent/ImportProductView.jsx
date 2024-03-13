@@ -24,6 +24,7 @@ import PayButtonModal from "./PayButtonModal";
 import StorageLocationAPI from "../../api/StorageLocationAPI";
 import StoreAPI from "../../api/StoreAPI";
 import ProductAPI from "../../api/ProductAPI";
+import { Helmet } from "react-helmet";
 
 const styles = {
   smallCardHeader: {
@@ -214,16 +215,16 @@ const ImportProductView = ({ tabKey }) => {
         totalPrice: updatedTotalPrice,
       };
       setImportedProducts(updatedProducts);
+
+      saveTabState(tabKey, {
+        ...getTabState(tabKey),
+        importedProducts: updatedProducts,
+        editingProduct: null,
+      });
     }
 
     // Đặt lại trạng thái chỉnh sửa
     setEditingProduct(null);
-
-    saveTabState(tabKey, {
-      ...getTabState(tabKey),
-      importedProducts,
-      editingProduct: null,
-    });
   };
   // cancel
   const cancel = () => {
@@ -530,6 +531,9 @@ const ImportProductView = ({ tabKey }) => {
   ];
   return (
     <div>
+      <Helmet>
+        <title>Nhập hàng</title>
+      </Helmet>
       <div>
         {/* Row 1 */}
         <Row gutter={[16, 16]}>

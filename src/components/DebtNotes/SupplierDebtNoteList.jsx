@@ -3,6 +3,7 @@ import { DownOutlined } from "@ant-design/icons";
 import { Badge, Dropdown, Space, Table } from "antd";
 import ImportInvoiceAPI from "../../api/ImportInvoiceAPI";
 import SupplierAPI from "../../api/SupplierAPI";
+import { Helmet } from "react-helmet";
 const SupplierDebtNoteList = () => {
   const [supplierData, setSupplierData] = useState([]);
   const [invoiceData, setInvoiceData] = useState({});
@@ -127,6 +128,9 @@ const SupplierDebtNoteList = () => {
   ];
   return (
     <>
+      <Helmet>
+        <title>Sổ nợ - Nhà cung cấp</title>
+      </Helmet>
       <Table
         columns={columns}
         expandable={{
