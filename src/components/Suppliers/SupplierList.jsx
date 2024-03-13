@@ -155,24 +155,28 @@ const SupplierList = () => {
         dataIndex: "supplierName",
         width: "20%",
         editable: true,
+        key: "supplierName",
       },
       {
         title: "Số điện thoại",
         dataIndex: "phoneNumber",
         width: "15%",
         editable: true,
+        key: "phoneNumber",
       },
       {
         title: "Địa chỉ",
         dataIndex: "address",
         width: "15%",
         editable: true,
+        key: "address",
       },
       {
         title: "Ghi chú",
         dataIndex: "note",
         width: "20%",
         editable: true,
+        key: "note",
       },
       {
         title: "Trạng thái",

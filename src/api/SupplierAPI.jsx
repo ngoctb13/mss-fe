@@ -14,7 +14,7 @@ const SupplierAPI = {
   },
   Update: (supplier) => {
     const url = `/suppliers/update/${supplier.id}`;
-    return axiosClient.put(url);
+    return axiosClient.put(url, supplier);
   },
   GetSupplierHaveDebt: () => {
     const url = `/suppliers/all/supplier-have-debt`;

@@ -252,10 +252,10 @@ const CustomerList = () => {
                   marginRight: 8,
                 }}
               >
-                Save
+                Lưu
               </Typography.Link>
-              <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
-                <a>Cancel</a>
+              <Popconfirm title="Xác nhận hủy?" onConfirm={cancel}>
+                <a>Hủy</a>
               </Popconfirm>
             </span>
           ) : (
@@ -263,7 +263,7 @@ const CustomerList = () => {
               disabled={editingKey !== ""}
               onClick={() => edit(record)}
             >
-              Edit
+              Sửa
             </Typography.Link>
           );
         },
