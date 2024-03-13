@@ -4,6 +4,10 @@ const CustomerAPI = {
     const url = `/customer/create`;
     return axiosClient.post(url, customer);
   },
+  Update: (customer) => {
+    const url = `/customer/update/${customer.id}`;
+    return axiosClient.put(url, customer);
+  },
   GetAll: () => {
     const url = `/customer/all`;
     return axiosClient.get(url);

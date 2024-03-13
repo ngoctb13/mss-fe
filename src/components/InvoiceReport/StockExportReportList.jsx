@@ -68,7 +68,7 @@ const StockExportReportList = () => {
     {
       title: "",
       key: "stt",
-      width: "2%",
+      width: "4%",
       render: (text, record, index) => index + 1,
     },
     {
