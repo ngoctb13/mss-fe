@@ -16,6 +16,23 @@ const StockExportReportList = () => {
   const [customersOfStore, setCustomersOfStore] = useState([]);
   const [productExportData, setProductExportData] = useState([]);
 
+  const totalQuantity = productExportData.reduce(
+    (sum, record) => sum + parseFloat(record.totalExportQuantity || 0),
+    0
+  );
+  const totalPrice = productExportData.reduce(
+    (sum, record) => sum + parseFloat(record.totalExportPrice || 0),
+    0
+  );
+  const funds = productExportData.reduce(
+    (sum, record) => sum + parseFloat(record.totalFunds || 0),
+    0
+  );
+  const profits = productExportData.reduce(
+    (sum, record) => sum + parseFloat(record.totalProfit || 0),
+    0
+  );
+
   useEffect(() => {
     // Tải danh sách khách hàng
     const fetchCustomersOfStore = async () => {
@@ -82,40 +99,120 @@ const StockExportReportList = () => {
       title: "SL/Kg",
       dataIndex: "totalExportQuantity",
       key: "totalExportQuantity",
+      render: (text) => (
+        <span style={{ fontWeight: "bold", color: "green" }}>
+          {parseFloat(text).toLocaleString()}
+        </span>
+      ),
     },
     {
       title: "Thành tiền",
       dataIndex: "totalExportPrice",
       key: "totalExportPrice",
+      render: (text) => (
+        <span style={{ fontWeight: "bold", color: "green" }}>
+          {parseFloat(text).toLocaleString()}
+        </span>
+      ),
     },
-    { title: "Tiền vốn", dataIndex: "totalFunds", key: "totalFunds" },
-    { title: "Lợi nhuận", dataIndex: "totalProfit", key: "totalProfit" },
+    {
+      title: "Tiền vốn",
+      dataIndex: "totalFunds",
+      key: "totalFunds",
+      render: (text) => (
+        <span style={{ fontWeight: "bold", color: "green" }}>
+          {parseFloat(text).toLocaleString()}
+        </span>
+      ),
+    },
+    {
+      title: "Lợi nhuận",
+      dataIndex: "totalProfit",
+      key: "totalProfit",
+      render: (text) => (
+        <span style={{ fontWeight: "bold", color: "green" }}>
+          {parseFloat(text).toLocaleString()}
+        </span>
+      ),
+    },
   ];
   return (
     <div>
-      <div>
-        {/* Filter section */}
-        <RangePicker
-          format="DD/MM/YYYY HH:mm:ss"
-          showTime
-          onChange={(dates) => handleFilterChange("dateRange", dates)}
-        />
-        <Select
-          placeholder="Khách hàng"
-          style={{ width: 200, marginLeft: 8 }}
-          onChange={(value) => handleFilterChange("customerId", value)}
-          defaultValue="Tất cả"
+      <div
+        style={{
+          marginBottom: 0,
+          display: "flex",
+        }}
+      >
+        <div style={{ marginRight: 120 }}>
+          {/* Filter section */}
+          <RangePicker
+            format="DD/MM/YYYY HH:mm:ss"
+            style={{ width: 150 }}
+            showTime
+            onChange={(dates) => handleFilterChange("dateRange", dates)}
+          />
+          <Select
+            placeholder="Khách hàng"
+            style={{ width: 100, marginLeft: 8 }}
+            onChange={(value) => handleFilterChange("customerId", value)}
+            defaultValue="Tất cả"
+          >
+            <Option value={"Tất cả"}>Tất cả</Option>
+            {customersOfStore.map((cus) => (
+              <Option key={cus.id} value={cus.id}>
+                {cus.customerName}
+              </Option> // Giả sử `cus.name` là tên của khách hàng
+            ))}
+          </Select>
+          <Button
+            type="primary"
+            onClick={handleFilter}
+            style={{ marginLeft: 8 }}
+          >
+            Xem
+          </Button>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            marginTop: 10,
+          }}
         >
-          <Option value={"Tất cả"}>Tất cả</Option>
-          {customersOfStore.map((cus) => (
-            <Option key={cus.id} value={cus.id}>
-              {cus.customerName}
-            </Option> // Giả sử `cus.name` là tên của khách hàng
-          ))}
-        </Select>
-        <Button type="primary" onClick={handleFilter} style={{ marginLeft: 8 }}>
-          Xem
-        </Button>
+          <span
+            style={{
+              fontWeight: "bold",
+              color: "red",
+              fontSize: "18px",
+              marginRight: 90,
+            }}
+          >
+            {parseFloat(totalQuantity).toLocaleString()}
+          </span>
+          <span
+            style={{
+              fontWeight: "bold",
+              color: "red",
+              fontSize: "18px",
+              marginRight: 90,
+            }}
+          >
+            {parseFloat(totalPrice).toLocaleString()}
+          </span>
+          <span
+            style={{
+              fontWeight: "bold",
+              color: "red",
+              fontSize: "18px",
+              marginRight: 90,
+            }}
+          >
+            {parseFloat(funds).toLocaleString()}
+          </span>
+          <span style={{ fontWeight: "bold", color: "red", fontSize: "18px" }}>
+            {parseFloat(profits).toLocaleString()}
+          </span>
+        </div>
       </div>
       <div>
         {/* Table section */}
@@ -125,6 +222,7 @@ const StockExportReportList = () => {
           bordered
           pagination={{ pageSize: 10 }}
           scroll={{ y: 240 }}
+          size="small"
         />
       </div>
     </div>
