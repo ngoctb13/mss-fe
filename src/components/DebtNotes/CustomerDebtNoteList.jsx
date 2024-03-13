@@ -4,6 +4,7 @@ import { Badge, Dropdown, Space, Table } from "antd";
 import CustomerAPI from "../../api/CustomerAPI";
 import SaleInvoiceAPI from "../../api/SaleInvoiceAPI";
 import "./DebtNote.css";
+import { Helmet } from "react-helmet";
 const CustomerDebtNoteList = () => {
   const [customerData, setCustomerData] = useState([]);
   const [invoiceData, setInvoiceData] = useState({});
@@ -150,6 +151,9 @@ const CustomerDebtNoteList = () => {
   ];
   return (
     <>
+      <Helmet>
+        <title>Sổ nợ - Khách hàng</title>
+      </Helmet>
       <Table
         bordered
         columns={columns}

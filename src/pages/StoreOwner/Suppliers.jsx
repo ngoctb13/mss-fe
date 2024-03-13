@@ -17,15 +17,18 @@ import AppHeader from "../../components/layout/Header";
 import AppFooter from "../../components/layout/Footer";
 import OwnerSidebar from "../../components/layout/StoreOwner/OwnerSidebar";
 import SupplierList from "../../components/Suppliers/SupplierList";
+import PageTitle from "../../components/layout/PageTitle";
 const { Content } = Layout;
 
 const Suppliers = () => {
+  const pageTitle = "Nhà cung cấp";
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <OwnerSidebar />
       <Layout>
         <AppHeader />
-        <Content style={{ padding: "0px 20px", marginTop: 20 }}>
+        <PageTitle pageTitle={pageTitle} />
+        <Content style={{ padding: "0px 20px", marginTop: 5 }}>
           <SupplierList />
         </Content>
         <AppFooter />

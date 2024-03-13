@@ -133,36 +133,6 @@ const StaffSidebar = () => {
         <Menu.Item key="5" icon={<EditOutlined />}>
           <Link to="/staff/import-tabs">Nhập hàng</Link>
         </Menu.Item>
-        <SubMenu key="6" icon={<PieChartOutlined />} title="Báo cáo bán hàng">
-          <Menu.Item key="6-1">
-            <Link to="/staff/sale-report/sale-invoice-report">
-              Báo cáo bán hàng
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="6-2">
-            <Link to="/staff/sale-report/sale-invoice-detail-report">
-              Chi tiết bán hàng
-            </Link>
-          </Menu.Item>
-          {/* <Menu.Item key="6-3">
-            <Link to="/owner/sale-report/stock-export-report">
-              Xuất kho, lợi nhuận
-            </Link>
-          </Menu.Item> */}
-        </SubMenu>
-        <SubMenu key="7" icon={<PieChartOutlined />} title="Báo cáo nhập hàng">
-          <Menu.Item key="7-1">
-            <Link to="/staff/import-report/import-invoice-report">
-              Báo cáo nhập hàng
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="7-2">
-            <Link to="#">Chi tiết nhập hàng</Link>
-          </Menu.Item>
-          {/* <Menu.Item key="7-3">
-            <Link to="#">Nhập kho</Link>
-          </Menu.Item> */}
-        </SubMenu>
       </Menu>
     </Sider>
   );

@@ -14,6 +14,7 @@ import {
 import { PlusOutlined } from "@ant-design/icons";
 import CreateProductModal from "./CreateProductModal";
 import ProductAPI from "../../api/ProductAPI";
+import { Helmet } from "react-helmet";
 const EditableCell = ({
   editing,
   dataIndex,
@@ -53,6 +54,8 @@ const ProductList = () => {
   const [data, setData] = useState();
   const [editingKey, setEditingKey] = useState("");
   const [isCreateModalVisble, setIsCreateModalVisible] = useState(false);
+
+  const userRole = localStorage.getItem("userRole");
 
   const showCreateModal = () => {
     setIsCreateModalVisible(true);
@@ -110,79 +113,96 @@ const ProductList = () => {
     }
   };
 
-  const columns = [
-    {
-      title: "STT",
-      dataIndex: "id",
-      width: "3%",
-      editable: false,
-    },
-    {
-      title: "Tên hàng",
-      dataIndex: "productName",
-      width: "20%",
-      editable: true,
-    },
-    {
-      title: "ĐVT",
-      dataIndex: "unit",
-      width: "5%",
-      editable: false,
-    },
-    {
-      title: "Quy cách (Kg/Bao)",
-      dataIndex: "bag_packing",
-      width: "5%",
-      editable: true,
-    },
-    {
-      title: "Giá bán",
-      dataIndex: "retailPrice",
-      width: "10%",
-      editable: true,
-    },
-    {
-      title: "Mô tả",
-      dataIndex: "description",
-      width: "15%",
-      editable: true,
-    },
-    {
-      title: "Giá nhập",
-      dataIndex: "importPrice",
-      width: "10%",
-      editable: false,
-    },
-    {
-      title: "Action",
-      dataIndex: "operation",
-      render: (_, record) => {
-        const editable = isEditing(record);
-        return editable ? (
-          <span>
-            <Typography.Link
-              onClick={() => save(record.id)}
-              style={{
-                marginRight: 8,
-              }}
-            >
-              Lưu
-            </Typography.Link>
-            <Popconfirm title="Xác nhận hủy?" onConfirm={cancel}>
-              <a>Hủy</a>
-            </Popconfirm>
-          </span>
-        ) : (
-          <Typography.Link
-            disabled={editingKey !== ""}
-            onClick={() => edit(record)}
-          >
-            Sửa
-          </Typography.Link>
-        );
+  const createColumns = () => {
+    // Các cột cơ bản
+    let cols = [
+      {
+        title: "",
+        key: "stt",
+        width: "3%",
+        render: (text, record, index) => index + 1,
+        editable: false,
       },
-    },
-  ];
+      {
+        title: "Tên hàng",
+        dataIndex: "productName",
+        width: "20%",
+        editable: true,
+      },
+      {
+        title: "ĐVT",
+        dataIndex: "unit",
+        width: "5%",
+        editable: false,
+      },
+      {
+        title: "Quy cách (Kg/Bao)",
+        dataIndex: "bag_packing",
+        width: "5%",
+        editable: true,
+      },
+      {
+        title: "Giá bán",
+        dataIndex: "retailPrice",
+        width: "10%",
+        editable: true,
+      },
+      {
+        title: "Mô tả",
+        dataIndex: "description",
+        width: "15%",
+        editable: true,
+      },
+      {
+        title: "Giá nhập",
+        dataIndex: "importPrice",
+        width: "10%",
+        editable: false,
+      },
+      {
+        title: "Còn tồn",
+        dataIndex: "inventory",
+        width: "9%",
+        editable: false,
+      },
+    ];
+    // Thêm cột Action nếu userRole là STORE_OWNER
+    if (userRole === "STORE_OWNER") {
+      cols.push({
+        title: "Action",
+        dataIndex: "operation",
+        render: (_, record) => {
+          const editable = isEditing(record);
+          return editable ? (
+            <span>
+              <Typography.Link
+                onClick={() => save(record.id)}
+                style={{
+                  marginRight: 8,
+                }}
+              >
+                Lưu
+              </Typography.Link>
+              <Popconfirm title="Xác nhận hủy?" onConfirm={cancel}>
+                <a>Hủy</a>
+              </Popconfirm>
+            </span>
+          ) : (
+            <Typography.Link
+              disabled={editingKey !== ""}
+              onClick={() => edit(record)}
+            >
+              Sửa
+            </Typography.Link>
+          );
+        },
+      });
+    }
+
+    return cols;
+  };
+
+  const columns = createColumns();
   const mergedColumns = columns.map((col) => {
     if (!col.editable) {
       return col;
@@ -237,14 +257,19 @@ const ProductList = () => {
   };
   return (
     <div>
-      <Button
-        style={{ marginBottom: 10 }}
-        type="primary"
-        icon={<PlusOutlined />}
-        onClick={showCreateModal}
-      >
-        Tạo sản phẩm
-      </Button>
+      <Helmet>
+        <title>Danh Sách Sản Phẩm</title>
+      </Helmet>
+      {userRole === "STORE_OWNER" && (
+        <Button
+          style={{ marginBottom: 10 }}
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={showCreateModal}
+        >
+          Tạo sản phẩm
+        </Button>
+      )}
       <Form form={form} component={false}>
         <Table
           components={{

@@ -41,15 +41,10 @@ const SelectSupplierModal = ({ isVisible, onCancel, onSupplierSelect }) => {
     if (searchTerm.trim() === "") {
       filtered = supplierList;
     } else {
-      filtered = supplierList.filter(
-        (supplier) =>
-          supplier.supplierName
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          supplier.phoneNumber.includes(searchTerm)
+      filtered = supplierList.filter((supplier) =>
+        supplier.supplierName.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-
     setFilteredSupplierList(filtered);
   }, [searchTerm, supplierList]);
   //

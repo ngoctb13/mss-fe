@@ -4,6 +4,7 @@ import ImportProductView from "../../components/ImportProductInvoiceComponent/Im
 import OwnerSidebar from "../../components/layout/StoreOwner/OwnerSidebar";
 import AppHeader from "../../components/layout/Header";
 import AppFooter from "../../components/layout/Footer";
+import StaffSidebar from "../../components/layout/Staff/StaffSidebar";
 import PageTitle from "../../components/layout/PageTitle";
 const { Content } = Layout;
 
@@ -11,7 +12,7 @@ const ImportInvoiceTabs = () => {
   const [activeKey, setActiveKey] = useState("1");
   const [panes, setPanes] = useState([
     {
-      title: "Hóa đơn 1",
+      title: "Invoice 1",
       content: <ImportProductView tabKey="1" />,
       key: "1",
       closable: false,
@@ -24,7 +25,7 @@ const ImportInvoiceTabs = () => {
     if (savedTabKeys && savedActiveKey) {
       const parsedTabKeys = JSON.parse(savedTabKeys);
       const restoredPanes = parsedTabKeys.map((key, index) => ({
-        title: `Hóa đơn ${index + 1}`,
+        title: `Invoice ${index + 1}`,
         content: <ImportProductView tabKey={key} />,
         key: key,
         closable: true,
@@ -45,7 +46,7 @@ const ImportInvoiceTabs = () => {
     const newPanes = [
       ...panes,
       {
-        title: `Hóa đơn ${panes.length + 1}`,
+        title: `Invoice ${panes.length + 1}`,
         content: <ImportProductView tabKey={newTabKey} />,
         key: newTabKey,
         closable: true,
@@ -113,11 +114,11 @@ const ImportInvoiceTabs = () => {
   return (
     <>
       <Layout style={{ minHeight: "100vh" }}>
-        <OwnerSidebar />
+        <StaffSidebar />
         <Layout>
           <AppHeader />
           <PageTitle pageTitle={pageTitle} />
-          <Content style={{ padding: "0px 20px", marginTop: 5 }}>
+          <Content style={{ padding: "0px 20px", marginTop: 20 }}>
             <Tabs
               hideAdd
               onChange={onChange}

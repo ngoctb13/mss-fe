@@ -20,7 +20,7 @@ const SelectCustomerModal = ({ isVisible, onCancel, onCustomerSelect }) => {
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const response = await CustomerAPI.GetAll();
+        const response = await CustomerAPI.GetAllByStore();
         setCustomerList(response.data);
         console.log(response);
       } catch (error) {
