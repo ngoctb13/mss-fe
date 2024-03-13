@@ -99,7 +99,6 @@ const StockExportReportList = () => {
           format="DD/MM/YYYY HH:mm:ss"
           showTime
           onChange={(dates) => handleFilterChange("dateRange", dates)}
-          // defaultValue={[moment().startOf("month"), moment().endOf("month")]}
         />
         <Select
           placeholder="Khách hàng"
