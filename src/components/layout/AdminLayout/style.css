@@ -1,0 +1,23 @@
+.avatar-clicked {
+  animation: clickEffect 0.2s ease;
+}
+
+@keyframes clickEffect {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2); /* Avatar grows */
+  }
+  100% {
+    transform: scale(1); /* And shrinks back */
+  }
+}
+.header-title {
+  font-size: 20px;
+  font-weight: bold;
+  background-color: #96f6ff;
+  text-align: center;
+  height: 40px; /* Đặt chiều cao cố định cho thanh tiêu đề */
+  line-height: 40px;
+}
