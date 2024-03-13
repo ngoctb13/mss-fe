@@ -28,6 +28,7 @@ const LoginForm = () => {
   const [redirectToHome, setRedirectToHome] = useState(false);
   const [redirectToCreateStore, setRedirectToCreateStore] = useState(false);
   const [redirectToStaffHome, setRedirectToStaffHome] = useState(false);
+  const [redirectToAdminHome, setRedirectToAdminHome] = useState(false);
 
   const onFinish = async (values) => {
     setLoading(true);
@@ -39,7 +40,9 @@ const LoginForm = () => {
       const expiryTime = new Date().getTime() + TOKEN_EXPITY_TIME;
       localStorage.setItem("token_expiry", expiryTime);
 
-      if (response.data.role === "STAFF") {
+      if (response.data.role === "SYSTEM_ADMIN") {
+        setRedirectToAdminHome(true);
+      } else if (response.data.role === "STAFF") {
         setRedirectToStaffHome(true);
       } else if (
         response.data.role === "STORE_OWNER" ||
@@ -76,6 +79,10 @@ const LoginForm = () => {
     console.log("Failed:", errorInfo);
     message.error("Login failed. Please check your inputs.");
   };
+
+  if (redirectToAdminHome) {
+    return <Navigate to="/admin/home" />;
+  }
 
   if (redirectToStaffHome) {
     return <Navigate to="/staff/home" />;

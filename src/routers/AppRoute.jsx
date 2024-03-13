@@ -27,6 +27,7 @@ import Staff_Products from "../pages/Staff/Products.jsx";
 import Staff_Suppliers from "../pages/Staff/Suppliers.jsx";
 import Staff_SaleTabs from "../pages/Staff/SaleInvoiceTabs.jsx";
 import Staff_ImportTabs from "../pages/Staff/ImportInvoiceTabs.jsx";
+import AdminHome from "../pages/SystemAdmin/Home.jsx";
 
 const checkTokenValidity = () => {
   const token = localStorage.getItem("accessToken");
@@ -72,7 +73,7 @@ const StaffRouter = [
   { path: "/staff/import-tabs", component: Staff_ImportTabs },
   { path: "/staff/sale-tabs", component: Staff_SaleTabs },
 ];
-const AdminRouter = [];
+const AdminRouter = [{ path: "/admin/home", component: AdminHome }];
 const AppRoute = () => {
   const tokenValid = checkTokenValidity();
 
@@ -99,9 +100,23 @@ const AppRoute = () => {
     />
   ));
 
+  const AdminRoutes = AdminRouter.map((route) => (
+    <Route
+      key={route.path}
+      path={route.path}
+      element={
+        <ProtectedRoute
+          component={route.component}
+          requiredRole={["SYSTEM_ADMIN"]}
+        />
+      }
+    />
+  ));
+
   return [
     ...OwnerRoutes,
     ...StaffRoutes,
+    ...AdminRoutes,
     <Route key="/logout" path="/logout" element={<LoginForm />} />,
     <Route key="*" path="*" element={<Page404 />} />,
     <Route
