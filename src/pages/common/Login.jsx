@@ -55,18 +55,6 @@ const LoginForm = () => {
           setRedirectToHome(true);
         }
       }
-
-      // if (
-      //   response.data.role === "STORE_OWNER" ||
-      //   response.data.role === "STAFF"
-      // ) {
-      //   const userResponse = await UserAPI.GetUserById(response.data.id);
-      //   if (userResponse.data.storeId === null) {
-      //     setRedirectToCreateStore(true);
-      //   } else {
-      //     setRedirectToHome(true);
-      //   }
-      // }
       setLoading(false);
     } catch (error) {
       console.error("Login failed:", error);

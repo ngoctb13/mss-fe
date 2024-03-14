@@ -13,6 +13,7 @@ const AdHeader = () => {
     setTimeout(() => {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("userRole");
+      localStorage.removeItem("token_expiry");
       window.location.href = "/login";
     }, 1000);
   };
