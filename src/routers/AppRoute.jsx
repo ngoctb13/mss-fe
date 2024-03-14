@@ -76,6 +76,22 @@ const StaffRouter = [
 const AdminRouter = [{ path: "/admin/home", component: AdminHome }];
 const AppRoute = () => {
   const tokenValid = checkTokenValidity();
+  let role = null;
+  if (tokenValid) {
+    role = localStorage.getItem("userRole");
+  }
+  const redirectToHome = () => {
+    switch (role) {
+      case "STORE_OWNER":
+        return <Navigate to="/owner/home" />;
+      case "STAFF":
+        return <Navigate to="/staff/home" />;
+      case "SYSTEM_ADMIN":
+        return <Navigate to="/admin/home" />;
+      default:
+        return <LoginForm />;
+    }
+  };
 
   const OwnerRoutes = StoreOwnerRouter.map((route) => (
     <Route
@@ -119,20 +135,12 @@ const AppRoute = () => {
     ...AdminRoutes,
     <Route key="/logout" path="/logout" element={<LoginForm />} />,
     <Route key="*" path="*" element={<Page404 />} />,
-    <Route
-      key="/login"
-      path="/login"
-      element={tokenValid ? <Navigate to="/owner/home" /> : <LoginForm />}
-    />,
-    <Route
-      key="/"
-      path="/"
-      element={tokenValid ? <Navigate to="/owner/home" /> : <LoginForm />}
-    />,
+    <Route key="/login" path="/login" element={redirectToHome()} />,
+    <Route key="/" path="/" element={redirectToHome()} />,
     <Route
       key="/register"
       path="/register"
-      element={tokenValid ? <Navigate to="/owner/home" /> : <RegisterForm />}
+      element={tokenValid ? redirectToHome() : <RegisterForm />}
     />,
   ];
 };
