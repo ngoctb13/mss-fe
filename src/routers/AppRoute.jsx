@@ -111,7 +111,7 @@ const AppRoute = () => {
       key={route.path}
       path={route.path}
       element={
-        <ProtectedRoute component={route.component} requiredRole={["STAFF"]} />
+        <ProtectedRoute component={route.component} requiredRole={"STAFF"} />
       }
     />
   ));
@@ -123,7 +123,7 @@ const AppRoute = () => {
       element={
         <ProtectedRoute
           component={route.component}
-          requiredRole={["SYSTEM_ADMIN"]}
+          requiredRole={"SYSTEM_ADMIN"}
         />
       }
     />
