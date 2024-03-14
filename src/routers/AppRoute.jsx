@@ -76,11 +76,12 @@ const StaffRouter = [
 const AdminRouter = [{ path: "/admin/home", component: AdminHome }];
 const AppRoute = () => {
   const tokenValid = checkTokenValidity();
-  let role = null;
-  if (tokenValid) {
-    role = localStorage.getItem("userRole");
-  }
+
   const redirectToHome = () => {
+    let role = "";
+    if (tokenValid) {
+      role = localStorage.getItem("userRole");
+    }
     switch (role) {
       case "STORE_OWNER":
         return <Navigate to="/owner/home" />;
