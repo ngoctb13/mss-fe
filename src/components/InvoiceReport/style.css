@@ -1,0 +1,4 @@
+.scrollable-column {
+  overflow-x: auto;
+  white-space: nowrap;
+}
