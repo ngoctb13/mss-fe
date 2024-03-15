@@ -2,7 +2,7 @@ import axios from "axios";
 import queryString from "query-string";
 import { ACCESS_TOKEN } from "../constant/constant";
 const axiosClient = axios.create({
-  baseURL: "http://178.128.89.58:8080/api",
+  baseURL: "http://152.42.200.77:8080/api",
   // baseURL: "http://localhost:8080/api",
   headers: {
     "content-type": "application/json",
