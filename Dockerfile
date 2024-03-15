@@ -22,7 +22,7 @@ FROM nginx:stable-alpine as production-stage
 # Copy the built assets from the build-stage
 COPY --from=build-stage /app/build /usr/share/nginx/html
 
-# Expose port 80
+# Expose port 81
 EXPOSE 81
 
 # Start Nginx
