@@ -27,4 +27,4 @@ jobs:
             docker pull ngoctb136/mss-fe:${{ github.sha }}
             docker stop mss-fe || true
             docker rm mss-fe || true
-            docker run -d --name mss-fe -p 3000:3000 ngoctb136/mss-fe:${{ github.sha }}
+            docker run -d --name mss-fe -p 3000:81 ngoctb136/mss-fe:${{ github.sha }}
