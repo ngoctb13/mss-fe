@@ -3,6 +3,7 @@ import { Form, Input, Button, Card, Row, Col, Spin, message } from "antd";
 import AuthAPI from "../../api/AuthAPI";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { Link, Navigate, useLocation } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 const ResetPassword = () => {
   const [form] = Form.useForm();
