@@ -13,8 +13,10 @@ import {
 import AuthAPI from "../../api/AuthAPI";
 import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
 import { Link, Navigate } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 const RegisterForm = () => {
+  const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
   const onFinish = async (values) => {
@@ -23,25 +25,23 @@ const RegisterForm = () => {
       // Call the registration API function from AuthAPI
       const response = await AuthAPI.Register(
         values.username,
-        values.password,
-        values.storeName,
-        values.storeAddress
+        values.email,
+        values.password
       );
       console.log("Registration successful:", response);
-      message.success("Registration successful!");
-      // You can perform additional actions here, such as redirecting to a login page
+      message.success("Đăng ký thành công!");
+      form.resetFields();
       setLoading(false);
-      <Navigate to="/login" />;
     } catch (error) {
       console.error("Registration failed:", error);
-      message.error("Registration failed. Please check your inputs.");
+      message.error("Đăng ký thất bại! Vui lòng thử lại");
       setLoading(false);
     }
   };
 
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
-    message.error("Registration failed. Please check your inputs.");
+    message.error("Đăng ký thất bại! Vui lòng thử lại");
   };
   const tailFormItemLayout = {
     wrapperCol: {
@@ -58,6 +58,9 @@ const RegisterForm = () => {
 
   return (
     <Row justify="center" align="middle" style={{ minHeight: "100vh" }}>
+      <Helmet>
+        <title>Đăng ký tài khoản</title>
+      </Helmet>
       <Col>
         <Card title="Đăng ký tài khoản" bordered={false}>
           <Spin spinning={loading}>
@@ -73,9 +76,50 @@ const RegisterForm = () => {
                 rules={[
                   { required: true, message: "Vui lòng nhập tên tài khoản!" },
                   { type: "text", message: "Tên tên khoản không hợp lệ!" },
+                  () => ({
+                    async validator(_, value) {
+                      if (!value) {
+                        return Promise.resolve();
+                      }
+                      const response = await AuthAPI.CheckUsername(value);
+                      console.log(response);
+                      if (response.data) {
+                        // Giả sử phản hồi có một trường 'exists' cho biết sự tồn tại
+                        return Promise.reject(
+                          new Error("Tên tài khoản đã được sử dụng!")
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
                 ]}
               >
-                <Input prefix={<MailOutlined />} placeholder="Tên đăng nhập" />
+                <Input prefix={<UserOutlined />} placeholder="Tên đăng nhập" />
+              </Form.Item>
+
+              <Form.Item
+                name="email"
+                rules={[
+                  { required: true, message: "Vui lòng nhập email của bạn!" },
+                  { type: "email", message: "Email không hợp lệ!" },
+                  () => ({
+                    async validator(_, value) {
+                      if (!value) {
+                        return Promise.resolve();
+                      }
+                      const response = await AuthAPI.CheckEmail(value);
+                      console.log(response);
+                      if (response.data) {
+                        return Promise.reject(
+                          new Error("Email đã được sử dụng!")
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
+                ]}
+              >
+                <Input prefix={<MailOutlined />} placeholder="Địa chỉ email" />
               </Form.Item>
 
               <Form.Item
@@ -121,54 +165,6 @@ const RegisterForm = () => {
                   placeholder="Nhập lại mật khẩu"
                 />
               </Form.Item>
-
-              {/* <Form.Item
-                name="storeName"
-                hasFeedback
-                rules={[
-                  {
-                    required: true,
-                    message: "Please enter your store name!",
-                  },
-                ]}
-              >
-                <Input prefix={<MailOutlined />} placeholder="Store name" />
-              </Form.Item>
-
-              <Form.Item
-                name="storeAddress"
-                hasFeedback
-                rules={[
-                  {
-                    required: true,
-                    message: "Please enter your store address!",
-                  },
-                ]}
-              >
-                <Input prefix={<MailOutlined />} placeholder="Store address" />
-              </Form.Item> */}
-
-              {/* <Form.Item
-                name="agreement"
-                valuePropName="checked"
-                rules={[
-                  {
-                    validator: (_, value) =>
-                      value
-                        ? Promise.resolve()
-                        : Promise.reject(
-                            new Error(
-                              "You must agree to the terms and conditions"
-                            )
-                          ),
-                  },
-                ]}
-                // {...tailFormItemLayout}
-              >
-                <Checkbox>
-                  I have read the <a href="">agreement</a>
-                </Checkbox>
-              </Form.Item> */}
 
               <Form.Item>
                 <Button type="primary" htmlType="submit" block>
