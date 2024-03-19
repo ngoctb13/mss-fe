@@ -28,7 +28,9 @@ import Staff_Suppliers from "../pages/Staff/Suppliers.jsx";
 import Staff_SaleTabs from "../pages/Staff/SaleInvoiceTabs.jsx";
 import Staff_ImportTabs from "../pages/Staff/ImportInvoiceTabs.jsx";
 import AdminHome from "../pages/SystemAdmin/Home.jsx";
-
+import {compose} from "redux";
+import UserList from "../components/Admins/AdminUserList";
+import AdminUserList from "../components/Admins/AdminUserList";
 const checkTokenValidity = () => {
   const token = localStorage.getItem("accessToken");
   const expiryTime = localStorage.getItem("token_expiry");
@@ -73,7 +75,9 @@ const StaffRouter = [
   { path: "/staff/import-tabs", component: Staff_ImportTabs },
   { path: "/staff/sale-tabs", component: Staff_SaleTabs },
 ];
-const AdminRouter = [{ path: "/admin/home", component: AdminHome }];
+const AdminRouter = [
+    { path: "/admin/home", component: AdminHome },
+    { path: "/admin/users", component: AdminUserList }];
 const AppRoute = () => {
   const tokenValid = checkTokenValidity();
 
