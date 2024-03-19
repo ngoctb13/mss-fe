@@ -28,6 +28,9 @@ import Staff_Suppliers from "../pages/Staff/Suppliers.jsx";
 import Staff_SaleTabs from "../pages/Staff/SaleInvoiceTabs.jsx";
 import Staff_ImportTabs from "../pages/Staff/ImportInvoiceTabs.jsx";
 import AdminHome from "../pages/SystemAdmin/Home.jsx";
+
+import UserList from "../components/Admins/AdminUserList";
+import AdminUserList from "../components/Admins/AdminUserList";
 import ForgotPasswordEmail from "../pages/common/ForgotPasswordEmail.jsx";
 import ResetPassword from "../pages/common/ResetPassord.jsx";
 
@@ -75,7 +78,9 @@ const StaffRouter = [
   { path: "/staff/import-tabs", component: Staff_ImportTabs },
   { path: "/staff/sale-tabs", component: Staff_SaleTabs },
 ];
-const AdminRouter = [{ path: "/admin/home", component: AdminHome }];
+const AdminRouter = [
+    { path: "/admin/home", component: AdminHome },
+    { path: "/admin/users", component: AdminUserList }];
 const AppRoute = () => {
   const tokenValid = checkTokenValidity();
 
