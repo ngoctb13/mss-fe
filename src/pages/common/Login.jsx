@@ -15,6 +15,7 @@ import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { Link, Navigate, Redirect } from "react-router-dom";
 import UserAPI from "../../api/UserAPI";
 import { TOKEN_EXPITY_TIME } from "../../constant/constant";
+import { Helmet } from "react-helmet";
 
 const checkTokenValidity = () => {
   const token = localStorage.getItem("accessToken");
@@ -85,6 +86,9 @@ const LoginForm = () => {
   }
   return (
     <Row justify="center" align="middle" style={{ minHeight: "100vh" }}>
+      <Helmet>
+        <title>Đăng nhập tài khoản</title>
+      </Helmet>
       <Col>
         <Card
           title="Đăng nhập tài khoản"
@@ -127,10 +131,16 @@ const LoginForm = () => {
                   Đăng nhập
                 </Button>
               </Form.Item>
-              <div>
+              <div style={{ marginBottom: 5 }}>
                 <span>
                   Bạn chưa có tài khoản?{" "}
                   <Link to={"/register"}>Đăng ký ngay!</Link>
+                </span>
+              </div>
+              <div>
+                <span>
+                  Quên mật khẩu?{" "}
+                  <Link to={"/forgot-password"}>Ấn vào đây!</Link>
                 </span>
               </div>
             </Form>

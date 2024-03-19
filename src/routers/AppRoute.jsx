@@ -28,9 +28,12 @@ import Staff_Suppliers from "../pages/Staff/Suppliers.jsx";
 import Staff_SaleTabs from "../pages/Staff/SaleInvoiceTabs.jsx";
 import Staff_ImportTabs from "../pages/Staff/ImportInvoiceTabs.jsx";
 import AdminHome from "../pages/SystemAdmin/Home.jsx";
-import {compose} from "redux";
+
 import UserList from "../components/Admins/AdminUserList";
 import AdminUserList from "../components/Admins/AdminUserList";
+import ForgotPasswordEmail from "../pages/common/ForgotPasswordEmail.jsx";
+import ResetPassword from "../pages/common/ResetPassord.jsx";
+
 const checkTokenValidity = () => {
   const token = localStorage.getItem("accessToken");
   const expiryTime = localStorage.getItem("token_expiry");
@@ -146,6 +149,16 @@ const AppRoute = () => {
       key="/register"
       path="/register"
       element={tokenValid ? redirectToHome() : <RegisterForm />}
+    />,
+    <Route
+      key="/forgot-password"
+      path="/forgot-password"
+      element={<ForgotPasswordEmail />}
+    />,
+    <Route
+      key="/reset-password"
+      path="/reset-password"
+      element={<ResetPassword />}
     />,
   ];
 };
