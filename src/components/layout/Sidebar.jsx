@@ -143,6 +143,15 @@ const AppSidebar = () => {
               </Link>
             ),
           },
+          {
+            key: "7",
+            icon: <DollarOutlined />,
+            label: (
+                <Link to="../storageproduct">
+                  <span style={{ float: "left" }}>Quản lý mặt hàng</span>
+                </Link>
+            ),
+          },
         ]}
       />
     </Sider>

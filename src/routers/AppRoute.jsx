@@ -33,7 +33,7 @@ import UserList from "../components/Admins/AdminUserList";
 import AdminUserList from "../components/Admins/AdminUserList";
 import ForgotPasswordEmail from "../pages/common/ForgotPasswordEmail.jsx";
 import ResetPassword from "../pages/common/ResetPassord.jsx";
-
+import ListProductOnLocation from "../components/StorageLocation/ListProductOnLocation"
 const checkTokenValidity = () => {
   const token = localStorage.getItem("accessToken");
   const expiryTime = localStorage.getItem("token_expiry");
@@ -69,6 +69,10 @@ const StoreOwnerRouter = [
     path: "/owner/sale-report/sale-invoice-detail-report",
     component: SaleInvoiceDetailReport,
   },
+  {
+    path: "/owner/product-location",
+    component: ListProductOnLocation,
+  }
 ];
 const StaffRouter = [
   { path: "/staff/home", component: StaffHome },
