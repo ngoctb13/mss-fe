@@ -9,6 +9,7 @@ const PaySaleButtonModal = ({
   oldDebt,
   totalPrice,
   onPaymentSubmit,
+  onPaymentAndExportPdf,
 }) => {
   const [modalDetails, setModalDetails] = useState({
     totalPrice: 0,
@@ -63,6 +64,7 @@ const PaySaleButtonModal = ({
 
   const handleSaveAndPrint = () => {
     console.log("Lưu và in:", modalDetails);
+    onPaymentAndExportPdf(modalDetails.pricePaid);
     onCancel(); // Đóng modal sau khi xử lý
   };
 

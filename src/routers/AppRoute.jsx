@@ -30,6 +30,8 @@ import Staff_ImportTabs from "../pages/Staff/ImportInvoiceTabs.jsx";
 import AdminHome from "../pages/SystemAdmin/Home.jsx";
 import ForgotPasswordEmail from "../pages/common/ForgotPasswordEmail.jsx";
 import ResetPassword from "../pages/common/ResetPassord.jsx";
+import StorageZone from "../pages/StoreOwner/Storage/StorageZone.jsx";
+import StaffStorageZone from "../pages/Staff/Storage/StorageZone.jsx";
 
 const checkTokenValidity = () => {
   const token = localStorage.getItem("accessToken");
@@ -39,6 +41,7 @@ const checkTokenValidity = () => {
 
 const StoreOwnerRouter = [
   { path: "/owner/home", component: Home },
+  { path: "/owner/storage-zone", component: StorageZone },
   { path: "/owner/create-store", component: CreateStore },
   { path: "/owner/customers", component: Customers },
   { path: "/owner/products", component: Products },
@@ -69,6 +72,7 @@ const StoreOwnerRouter = [
 ];
 const StaffRouter = [
   { path: "/staff/home", component: StaffHome },
+  { path: "/staff/storage-zone", component: StaffStorageZone },
   { path: "/staff/products", component: Staff_Products },
   { path: "/staff/customers", component: Staff_Customers },
   { path: "/staff/suppliers", component: Staff_Suppliers },
