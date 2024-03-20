@@ -23,6 +23,7 @@ import PaySaleButtonModal from "./PaySaleButtonModal";
 import StoreAPI from "../../api/StoreAPI";
 import ProductAPI from "../../api/ProductAPI";
 import { Helmet } from "react-helmet";
+import PdfAPI from "../../api/PdfAPI";
 
 const styles = {
   smallCardHeader: {
@@ -261,7 +262,71 @@ const SaleView = ({ tabKey }) => {
   //
   const handleRecentInvoices = () => {};
   //
+  const handleDownloadPdf = async (invoiceId) => {
+    try {
+      const response = await PdfAPI.DownloadSaleInvoicePdf(invoiceId);
+      const file = new Blob([response.data], { type: "application/pdf" });
+      const fileURL = URL.createObjectURL(file);
+      window.open(fileURL);
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+      alert("Failed to download PDF. Please try again.");
+    }
+  };
+  //
+  const handlePaymentAndExportPDF = (pricePaid) => {
+    if (selectedProducts.length === 0) {
+      notification.error({
+        message: "Lỗi",
+        description: "Vui lòng thêm sản phẩm vào danh sách mua hàng.",
+      });
+      return; // Ngăn chặn việc thực hiện tiếp theo nếu không có sản phẩm nào
+    }
 
+    // Kiểm tra xem có chọn nhà cung cấp chưa
+    if (!selectedCustomer) {
+      notification.error({
+        message: "Lỗi",
+        description: "Vui lòng chọn khách hàng.",
+      });
+      return; // Ngăn chặn việc thực hiện tiếp theo nếu chưa chọn nhà cung cấp
+    }
+    // Tạo danh sách productDetails dựa trên importedProducts
+    const productDetails = selectedProducts.map((product) => ({
+      productId: product.id, // Giả định rằng mỗi sản phẩm có id
+      quantity: product.quantityKg,
+      unitPrice: product.retailPrice,
+    }));
+
+    // Tạo request cho API
+    // TODO: TẠO DỮ LIỆU ĐẦU VÀO CHO API TẠO HÓA ĐƠN
+    const importInvoiceRequest = StoreAPI.createSaleInvoiceRequest(
+      selectedCustomer.id, // Giả định rằng selectedSupplier có id
+      productDetails,
+      pricePaid
+    );
+
+    // TODO: THỰC HIỆN API TẠO HÓA ĐƠN MUA HÀNG
+    // Gửi request tạo hóa đơn nhập hàng
+    StoreAPI.createSaleInvoice(importInvoiceRequest)
+      .then((response) => {
+        console.log("Invoice created successfully:", response);
+        const invoiceId = response.data.id;
+        handleDownloadPdf(invoiceId);
+        resetInvoiceData(); // Reset dữ liệu khi thành công
+        notification.success({
+          message: "Hóa đơn mua hàng đã được tạo và tải xuống thành công!",
+        });
+        // Xử lý thêm nếu cần (ví dụ: thông báo thành công, làm mới trang, v.v.)
+      })
+      .catch((error) => {
+        console.error("Error creating invoice:", error);
+        notification.error({
+          message: "Có lỗi xảy ra khi tạo hóa đơn mua hàng!",
+        });
+      });
+  };
+  //
   const handlePaymentSubmit = (pricePaid) => {
     if (selectedProducts.length === 0) {
       notification.error({
@@ -599,6 +664,7 @@ const SaleView = ({ tabKey }) => {
         oldDebt={customerOldDebt}
         totalPrice={totalPrice}
         onPaymentSubmit={handlePaymentSubmit}
+        onPaymentAndExportPdf={handlePaymentAndExportPDF}
       />
     </div>
   );
