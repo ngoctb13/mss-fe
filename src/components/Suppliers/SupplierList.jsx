@@ -12,8 +12,9 @@ import {
   Button,
   Switch,
   notification,
+  Space,
 } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import SupplierAPI from "../../api/SupplierAPI";
 import CreateSupplierModal from "./CreateSupplierModal";
 import { Helmet } from "react-helmet";
@@ -57,6 +58,15 @@ const SupplierList = () => {
   const [editingKey, setEditingKey] = useState("");
   const [isCreateModalVisble, setIsCreateModalVisible] = useState(false);
   const userRole = localStorage.getItem("userRole");
+  const [searchText, setSearchText] = useState("");
+
+  const filterData = (data, searchText) => {
+    return data.filter(
+      (item) =>
+        item.supplierName.toLowerCase().includes(searchText.toLowerCase()) ||
+        item.phoneNumber.toLowerCase().includes(searchText.toLowerCase())
+    );
+  };
 
   const showCreateModal = () => {
     setIsCreateModalVisible(true);
@@ -144,7 +154,7 @@ const SupplierList = () => {
     // Các cột cơ bản
     let cols = [
       {
-        title: "",
+        title: "TT",
         key: "stt",
         width: "3%",
         render: (text, record, index) => index + 1,
@@ -252,22 +262,21 @@ const SupplierList = () => {
   useEffect(() => {
     const fetchData = async () => {
       const response = await SupplierAPI.GetAll();
-      setData(response.data);
+      setData(filterData(response.data, searchText));
     };
 
     fetchData();
-
-    return () => {
-      // Cleanup if needed
-    };
-  }, []);
+  }, [searchText]);
 
   const onCreate = async (supplier) => {
     // Gọi API để thêm sản phẩm mới
     try {
       const response = await SupplierAPI.Create(supplier);
       // Cập nhật dữ liệu trên UI
-      setData([...data, { ...supplier, id: response.data.id }]);
+      setData([
+        ...data,
+        { ...supplier, id: response.data.id, status: "ACTIVE" },
+      ]);
       setIsCreateModalVisible(false); // Đóng modal sau khi thêm thành công
 
       openNotificationWithIcon(
@@ -290,18 +299,26 @@ const SupplierList = () => {
       <Helmet>
         <title>Nhà cung cấp</title>
       </Helmet>
-      {userRole === "STORE_OWNER" && (
-        <Button
-          style={{ marginBottom: 10 }}
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={showCreateModal}
-        >
-          Tạo nhà cung cấp
-        </Button>
-      )}
+      <Space style={{ marginBottom: 16, marginTop: 20 }}>
+        {userRole === "STORE_OWNER" && (
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={showCreateModal}
+          >
+            Tạo nhà cung cấp
+          </Button>
+        )}
+        <Input
+          placeholder="Tìm kiếm theo tên hoặc mô tả"
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ width: 200 }}
+          suffix={<SearchOutlined />}
+        />
+      </Space>
       <Form form={form} component={false}>
         <Table
+          className="custom-table-header"
           components={{
             body: {
               cell: EditableCell,

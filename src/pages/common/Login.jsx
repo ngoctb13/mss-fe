@@ -16,6 +16,7 @@ import { Link, Navigate, Redirect } from "react-router-dom";
 import UserAPI from "../../api/UserAPI";
 import { TOKEN_EXPITY_TIME } from "../../constant/constant";
 import { Helmet } from "react-helmet";
+import "./style.css";
 
 const checkTokenValidity = () => {
   const token = localStorage.getItem("accessToken");
@@ -36,6 +37,16 @@ const LoginForm = () => {
     try {
       // Call the login API function from LoginAPI
       const response = await AuthAPI.Login(values.username, values.password);
+
+      // Kiểm tra trạng thái tài khoản
+      if (response.data.status === "INACTIVE") {
+        message.error(
+          "Tài khoản của bạn đã bị khóa, vui lòng liên hệ admin hoặc chủ cửa hàng!"
+        );
+        setLoading(false);
+        return; // Ngừng xử lý và không lưu thông tin vào localStorage
+      }
+
       localStorage.setItem("accessToken", response.data.accessToken);
       localStorage.setItem("userRole", response.data.role);
       const expiryTime = new Date().getTime() + TOKEN_EXPITY_TIME;
@@ -91,9 +102,10 @@ const LoginForm = () => {
       </Helmet>
       <Col>
         <Card
+          className="login-card"
           title="Đăng nhập tài khoản"
-          bordered={false}
-          style={{ width: 300 }}
+          // bordered={false}
+          style={{ width: 400 }}
         >
           <Spin spinning={loading}>
             <Form
@@ -102,6 +114,7 @@ const LoginForm = () => {
               onFinish={onFinish}
               onFinishFailed={onFinishFailed}
               autoComplete="off"
+              style={{ marginTop: 15 }}
             >
               <Form.Item
                 name="username"

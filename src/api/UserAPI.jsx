@@ -16,5 +16,9 @@ const UserAPI = {
     const url = `/users/all/by-store`;
     return axiosClient.get(url);
   },
+  UpdateStatus: (userId) => {
+    const url = `/users/deactivate/${userId}`;
+    return axiosClient.post(url);
+  },
 };
 export default UserAPI;

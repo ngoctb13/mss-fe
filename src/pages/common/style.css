@@ -1,0 +1,10 @@
+.login-card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); /* Hiệu ứng đổ bóng */
+  transition: 0.3s; /* Tạo hiệu ứng chuyển đổi mượt mà khi di chuột qua */
+  height: auto; /* Điều chỉnh chiều cao tự động dựa vào nội dung, hoặc bạn có thể đặt một giá trị cụ thể */
+  min-height: 400px; /* Đặt chiều cao tối thiểu cho Card */
+}
+
+.login-card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2); /* Tăng đổ bóng khi di chuột qua */
+}

@@ -4,6 +4,7 @@ import AuthAPI from "../../api/AuthAPI";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import "./style.css";
 
 const ResetPassword = () => {
   const [form] = Form.useForm();
@@ -90,7 +91,11 @@ const ResetPassword = () => {
         <title>Đặt lại mật khẩu</title>
       </Helmet>
       <Col>
-        <Card title="Đặt lại mật khẩu" bordered={false}>
+        <Card
+          title="Đặt lại mật khẩu"
+          className="login-card"
+          style={{ width: 400 }}
+        >
           <Spin spinning={loading}>
             <Form
               name="registerForm"
@@ -98,6 +103,7 @@ const ResetPassword = () => {
               onFinish={onFinish}
               onFinishFailed={onFinishFailed}
               autoComplete="off"
+              style={{ marginTop: 15 }}
             >
               <Form.Item
                 name="password"

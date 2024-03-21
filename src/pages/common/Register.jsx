@@ -14,10 +14,12 @@ import AuthAPI from "../../api/AuthAPI";
 import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
 import { Link, Navigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import "./style.css";
 
 const RegisterForm = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [isRegistered, setIsRegistered] = useState(false);
 
   const onFinish = async (values) => {
     setLoading(true);
@@ -32,6 +34,7 @@ const RegisterForm = () => {
       message.success("Đăng ký thành công!");
       form.resetFields();
       setLoading(false);
+      setIsRegistered(true);
     } catch (error) {
       console.error("Registration failed:", error);
       message.error("Đăng ký thất bại! Vui lòng thử lại");
@@ -43,6 +46,11 @@ const RegisterForm = () => {
     console.log("Failed:", errorInfo);
     message.error("Đăng ký thất bại! Vui lòng thử lại");
   };
+
+  if (isRegistered) {
+    return <Navigate to="/login" />;
+  }
+
   const tailFormItemLayout = {
     wrapperCol: {
       xs: {
@@ -62,7 +70,11 @@ const RegisterForm = () => {
         <title>Đăng ký tài khoản</title>
       </Helmet>
       <Col>
-        <Card title="Đăng ký tài khoản" bordered={false}>
+        <Card
+          className="login-card"
+          title="Đăng ký tài khoản"
+          style={{ width: 400 }}
+        >
           <Spin spinning={loading}>
             <Form
               name="registerForm"
