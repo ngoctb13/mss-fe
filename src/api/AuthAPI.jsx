@@ -5,9 +5,9 @@ const AuthAPI = {
     const data = { username, password };
     return axiosClient.post(url, data);
   },
-  Register: (username, password, email) => {
+  Register: (username, email, password) => {
     const url = `/auth/register`;
-    const data = { username, password, email };
+    const data = { username, email, password };
     return axiosClient.post(url, data);
   },
   ForgotPassword: (email) => {

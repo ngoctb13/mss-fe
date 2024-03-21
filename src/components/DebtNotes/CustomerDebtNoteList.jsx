@@ -1,13 +1,38 @@
 import React, { useEffect, useState } from "react";
 import { DownOutlined } from "@ant-design/icons";
-import { Badge, Dropdown, Space, Table } from "antd";
+import { Badge, Button, Dropdown, Space, Table } from "antd";
+import { EyeOutlined, DollarCircleOutlined } from "@ant-design/icons";
 import CustomerAPI from "../../api/CustomerAPI";
 import SaleInvoiceAPI from "../../api/SaleInvoiceAPI";
 import "./DebtNote.css";
 import { Helmet } from "react-helmet";
+import CustomerTransactionsModal from "./CustomerTransactionsModal";
+import CustomerPayDebtModal from "./CustomerPayDebtModal";
 const CustomerDebtNoteList = () => {
   const [customerData, setCustomerData] = useState([]);
   const [invoiceData, setInvoiceData] = useState({});
+  const [isTransactionModalVisible, setIsTransactionModalVisible] =
+    useState(false);
+  const [isPayDebtModalVisible, setIsPayDebtModalVisible] = useState(false);
+  const [currentCustomerId, setCurrentCustomerId] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+
+  const showPayDebtModal = (customer) => {
+    setSelectedCustomer(customer);
+    setIsPayDebtModalVisible(true);
+  };
+  const handlePayDebtModalClose = () => {
+    setIsPayDebtModalVisible(false);
+  };
+
+  const showTransactionModal = (customerId) => {
+    setCurrentCustomerId(customerId);
+    setIsTransactionModalVisible(true);
+  };
+
+  const handleTransactionModalClose = () => {
+    setIsTransactionModalVisible(false);
+  };
 
   const fetchInvoiceData = async (customerId) => {
     try {
@@ -40,82 +65,26 @@ const CustomerDebtNoteList = () => {
     fetchCustomerDebtData();
   }, []);
 
-  const expandedRowRender = (record) => {
-    const invoiceOfCustomerData = invoiceData[record.id] || [];
-    console.log(invoiceData[record.id]);
+  const updateCustomerDataAfterPayment = () => {
+    // Gọi lại API để lấy dữ liệu mới nhất của khách hàng và cập nhật state
+    const fetchCustomerDebtData = async () => {
+      try {
+        const response = await CustomerAPI.GetCustomerHaveDebt();
+        const customers = response.data;
+        setCustomerData(customers);
+      } catch (error) {
+        console.error("Error fetching customer debt data:", error);
+      }
+    };
 
-    const columns = [
-      {
-        title: "",
-        key: "stt",
-        width: "1%",
-        render: (text, record, index) => index + 1,
-      },
-      {
-        title: "Ngày tạo",
-        dataIndex: "createdAt",
-        key: "createdAt",
-      },
-      {
-        title: "Tiền hàng",
-        dataIndex: "totalPrice",
-        key: "totalPrice",
-      },
-      {
-        title: "Nợ cũ",
-        dataIndex: "oldDebt",
-        key: "oldDebt",
-        render: (text) => (
-          <span style={{ color: "red", fontWeight: "bold" }}>
-            {text.toLocaleString("vi-VN")}
-          </span>
-        ),
-      },
-      {
-        title: "Tổng trả",
-        dataIndex: "totalPayment",
-        key: "totalPayment",
-        render: (text) => (
-          <span style={{ fontWeight: "bold" }}>
-            {text.toLocaleString("vi-VN")}
-          </span>
-        ),
-      },
-      {
-        title: "Đã trả",
-        dataIndex: "pricePaid",
-        key: "pricePaid",
-        render: (text) => (
-          <span style={{ color: "green", fontWeight: "bold" }}>
-            {text.toLocaleString("vi-VN")}
-          </span>
-        ),
-      },
-      {
-        title: "Còn nợ",
-        dataIndex: "newDebt",
-        key: "newDebt",
-        render: (text) => (
-          <span style={{ color: "red", fontWeight: "bold" }}>
-            {text.toLocaleString("vi-VN")}
-          </span>
-        ),
-      },
-    ];
-    return (
-      <Table
-        columns={columns}
-        bordered
-        dataSource={invoiceOfCustomerData}
-        pagination={false}
-      />
-    );
+    fetchCustomerDebtData();
   };
+
   const columns = [
     {
       title: "",
       key: "stt",
-      width: "1%",
+      width: "3%",
       render: (text, record, index) => index + 1,
     },
     {
@@ -146,7 +115,32 @@ const CustomerDebtNoteList = () => {
     {
       title: "Action",
       key: "operation",
-      render: () => <a>Trả nợ</a>,
+      render: (text, record) => (
+        <Space size="middle">
+          <Button
+            onClick={() => showTransactionModal(record.id)}
+            icon={<EyeOutlined />}
+            style={{
+              backgroundColor: "#1890ff",
+              borderColor: "#1890ff",
+              color: "#fff",
+            }}
+          >
+            Chi tiết
+          </Button>
+          <Button
+            onClick={() => showPayDebtModal(record)}
+            icon={<DollarCircleOutlined />}
+            style={{
+              backgroundColor: "#52c41a",
+              borderColor: "#52c41a",
+              color: "#fff",
+            }}
+          >
+            Trả nợ
+          </Button>
+        </Space>
+      ),
     },
   ];
   return (
@@ -157,14 +151,23 @@ const CustomerDebtNoteList = () => {
       <Table
         bordered
         columns={columns}
-        expandable={{
-          expandedRowRender: (record) => expandedRowRender(record),
-          // defaultExpandedRowKeys: ["0"],
-        }}
         dataSource={customerData}
         size="small"
         rowKey="id"
       />
+      <CustomerTransactionsModal
+        customerId={currentCustomerId}
+        isVisible={isTransactionModalVisible}
+        onClose={handleTransactionModalClose}
+      />
+      {selectedCustomer && (
+        <CustomerPayDebtModal
+          isVisible={isPayDebtModalVisible}
+          onClose={handlePayDebtModalClose}
+          customer={selectedCustomer}
+          onUpdate={updateCustomerDataAfterPayment}
+        />
+      )}
     </>
   );
 };
