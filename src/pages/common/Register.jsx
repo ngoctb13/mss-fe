@@ -82,6 +82,7 @@ const RegisterForm = () => {
               onFinish={onFinish}
               onFinishFailed={onFinishFailed}
               autoComplete="off"
+              style={{ marginTop: 15 }}
             >
               <Form.Item
                 name="username"

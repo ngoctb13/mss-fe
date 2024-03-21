@@ -63,12 +63,13 @@ const ForgotPasswordEmail = () => {
               onFinish={onFinish}
               onFinishFailed={onFinishFailed}
               autoComplete="off"
+              style={{ marginTop: 15 }}
             >
               <Form.Item
                 name="email"
                 rules={[
                   { required: true, message: "Vui lòng nhập email của bạn!" },
-                  { type: "text", message: "Email không hợp lệ!" },
+                  { type: "email", message: "Email không hợp lệ!" },
                 ]}
               >
                 <Input
