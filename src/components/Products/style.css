@@ -2,3 +2,10 @@
   background-color: #1890ff; /* Màu nền cho tiêu đề */
   color: rgb(255, 255, 255); /* Màu chữ cho tiêu đề */
 }
+
+.custom-table-container {
+  min-height: 500px; /* Hoặc bất kỳ giá trị nào phù hợp */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}

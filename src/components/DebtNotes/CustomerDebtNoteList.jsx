@@ -25,8 +25,8 @@ const CustomerDebtNoteList = () => {
     setIsPayDebtModalVisible(false);
   };
 
-  const showTransactionModal = (customerId) => {
-    setCurrentCustomerId(customerId);
+  const showTransactionModal = (customer) => {
+    setSelectedCustomer(customer);
     setIsTransactionModalVisible(true);
   };
 
@@ -118,7 +118,7 @@ const CustomerDebtNoteList = () => {
       render: (text, record) => (
         <Space size="middle">
           <Button
-            onClick={() => showTransactionModal(record.id)}
+            onClick={() => showTransactionModal(record)}
             icon={<EyeOutlined />}
             style={{
               backgroundColor: "#1890ff",
@@ -156,7 +156,7 @@ const CustomerDebtNoteList = () => {
         rowKey="id"
       />
       <CustomerTransactionsModal
-        customerId={currentCustomerId}
+        customer={selectedCustomer}
         isVisible={isTransactionModalVisible}
         onClose={handleTransactionModalClose}
       />

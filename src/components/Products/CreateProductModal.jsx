@@ -65,12 +65,12 @@ const CreateProductModal = ({ isVisible, onCreate, onCancel }) => {
           name="bag_packing"
           label="Quy cách"
           rules={[
-            { required: true, message: "Vui lòng nhập giá bán của sản phẩm!" },
+            { required: true, message: "Vui lòng nhập quy cách của sản phẩm!" },
             {
-              type: "number",
+              type: "text",
               min: 1,
-              max: 1000000,
-              message: "Giá bán phải là một số dương và không quá 1,000,000!",
+              max: 1000,
+              message: "Quy cách phải là một số dương và không quá 1,000!",
             },
           ]}
         >
@@ -82,7 +82,7 @@ const CreateProductModal = ({ isVisible, onCreate, onCancel }) => {
           rules={[
             { required: true, message: "Vui lòng nhập giá bán của sản phẩm!" },
             {
-              type: "number",
+              type: "text",
               min: 1,
               max: 1000000,
               message: "Giá bán phải là một số dương và không quá 1,000,000!",

@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import DebtPaymentHistoryAPI from "../../api/DebtPaymentHistoryAPI";
-import { Button, Modal, Table, Tag } from "antd";
+import { Button, Descriptions, Modal, Table, Tag } from "antd";
 
-const CustomerTransactionsModal = ({ customerId, isVisible, onClose }) => {
+const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
   const [transactionData, setTransactionData] = useState([]);
 
   useEffect(() => {
-    if (isVisible && customerId) {
-      fetchTransactionData(customerId);
+    if (isVisible && customer) {
+      fetchTransactionData(customer.id);
       console.log(transactionData);
     }
-  }, [customerId, isVisible]);
+  }, [customer, isVisible]);
 
   const fetchTransactionData = async (customerId) => {
     try {
@@ -58,6 +58,21 @@ const CustomerTransactionsModal = ({ customerId, isVisible, onClose }) => {
         </Button>,
       ]}
     >
+      <Descriptions style={{ marginTop: 10, marginBottom: 10 }} bordered>
+        <Descriptions.Item label="Tên">
+          {customer?.customerName}
+        </Descriptions.Item>
+        <Descriptions.Item label="Số Điện Thoại">
+          {customer?.phoneNumber}
+        </Descriptions.Item>
+        <Descriptions.Item label="Địa Chỉ">
+            
+          {customer?.address}
+        </Descriptions.Item>
+        <Descriptions.Item label="Tổng Nợ">
+          {customer?.totalDebt?.toLocaleString("vi-VN")}
+        </Descriptions.Item>
+      </Descriptions>
       <Table
         dataSource={transactionData}
         columns={columns}
