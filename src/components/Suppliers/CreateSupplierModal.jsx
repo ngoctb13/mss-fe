@@ -39,6 +39,8 @@ const CreateSupplierModal = ({ isVisible, onCreate, onCancel }) => {
           label="Tên nhà cung cấp"
           rules={[
             { required: true, message: "Vui lòng nhập tên nhà cung cấp!" },
+            { min: 2, message: "Tên nhà cung cấp phải có ít nhất 2 ký tự!" },
+            { max: 50, message: "Tên nhà cung cấp không được quá 50 ký tự!" },
           ]}
         >
           <Input />
@@ -46,14 +48,24 @@ const CreateSupplierModal = ({ isVisible, onCreate, onCancel }) => {
         <Form.Item
           name="phoneNumber"
           label="Số điện thoại"
-          rules={[{ required: true, message: "Vui lòng nhập số điện thoại!" }]}
+          rules={[
+            { required: true, message: "Vui lòng nhập số điện thoại!" },
+            {
+              pattern: /^[0-9]{10,11}$/,
+              message: "Số điện thoại không hợp lệ!",
+            },
+          ]}
         >
           <Input />
         </Form.Item>
         <Form.Item
           name="address"
           label="Địa chỉ"
-          rules={[{ required: true, message: "Vui lòng nhập địa chỉ!" }]}
+          rules={[
+            { required: true, message: "Vui lòng nhập địa chỉ!" },
+            { min: 5, message: "Địa chỉ phải có ít nhất 5 ký tự!" },
+            { max: 100, message: "Địa chỉ không được quá 100 ký tự!" },
+          ]}
         >
           <Input />
         </Form.Item>

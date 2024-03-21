@@ -43,14 +43,24 @@ const CreateStaffModal = ({ isVisible, onCreate, onCancel }) => {
         <Form.Item
           name="username"
           label="Tên tài khoản"
-          rules={[{ required: true, message: "Vui lòng nhập tên tài khoản!" }]}
+          rules={[
+            { required: true, message: "Vui lòng nhập tên tài khoản!" },
+            { min: 4, message: "Tên tài khoản phải có ít nhất 4 ký tự." },
+            {
+              pattern: /^[A-Za-z0-9_]+$/,
+              message: "Tên tài khoản chỉ chứa chữ cái, số và dấu gạch dưới.",
+            },
+          ]}
         >
           <Input />
         </Form.Item>
         <Form.Item
           name="password"
           label="Mật khẩu"
-          rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
+          rules={[
+            { required: true, message: "Vui lòng nhập mật khẩu!" },
+            { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự." },
+          ]}
         >
           <Input.Password />
         </Form.Item>

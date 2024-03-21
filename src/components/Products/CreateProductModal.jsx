@@ -32,12 +32,24 @@ const CreateProductModal = ({ isVisible, onCreate, onCancel }) => {
           Thêm
         </Button>,
       ]}
+      modalRender={(modal) => (
+        <div style={{ border: "2px solid #0066CC" }}>{modal}</div>
+      )}
     >
-      <Form form={form} layout="vertical" onFinish={onFinish}>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        style={{ marginTop: 15 }}
+      >
         <Form.Item
           name="productName"
           label="Tên sản phẩm"
-          rules={[{ required: true, message: "Vui lòng nhập tên sản phẩm!" }]}
+          rules={[
+            { required: true, message: "Vui lòng nhập tên sản phẩm!" },
+            { min: 5, message: "Tên sản phẩm phải có ít nhất 5 ký tự!" },
+            { max: 100, message: "Tên sản phẩm không được quá 100 ký tự!" },
+          ]}
         >
           <Input />
         </Form.Item>
@@ -53,7 +65,13 @@ const CreateProductModal = ({ isVisible, onCreate, onCancel }) => {
           name="bag_packing"
           label="Quy cách"
           rules={[
-            { required: true, message: "Vui lòng nhập quy cách của sản phẩm!" },
+            { required: true, message: "Vui lòng nhập giá bán của sản phẩm!" },
+            {
+              type: "number",
+              min: 1,
+              max: 1000000,
+              message: "Giá bán phải là một số dương và không quá 1,000,000!",
+            },
           ]}
         >
           <Input />
@@ -63,6 +81,12 @@ const CreateProductModal = ({ isVisible, onCreate, onCancel }) => {
           label="Giá bán"
           rules={[
             { required: true, message: "Vui lòng nhập giá bán của sản phẩm!" },
+            {
+              type: "number",
+              min: 1,
+              max: 1000000,
+              message: "Giá bán phải là một số dương và không quá 1,000,000!",
+            },
           ]}
         >
           <Input />
@@ -71,7 +95,7 @@ const CreateProductModal = ({ isVisible, onCreate, onCancel }) => {
           name="description"
           label="Mô tả sản phẩm"
           rules={[
-            { required: false, message: "Vui lòng nhập giá bán của sản phẩm!" },
+            { max: 500, message: "Mô tả sản phẩm không được quá 500 ký tự!" },
           ]}
         >
           <Input />

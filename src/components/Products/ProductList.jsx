@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import openNotificationWithIcon from "../notification";
+import "./style.css";
 
 import {
   Form,
@@ -10,8 +11,9 @@ import {
   Typography,
   Layout,
   Button,
+  Space,
 } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import CreateProductModal from "./CreateProductModal";
 import ProductAPI from "../../api/ProductAPI";
 import { Helmet } from "react-helmet";
@@ -54,6 +56,7 @@ const ProductList = () => {
   const [data, setData] = useState();
   const [editingKey, setEditingKey] = useState("");
   const [isCreateModalVisble, setIsCreateModalVisible] = useState(false);
+  const [searchText, setSearchText] = useState("");
 
   const userRole = localStorage.getItem("userRole");
 
@@ -65,6 +68,13 @@ const ProductList = () => {
   };
 
   const isEditing = (record) => record.id === editingKey;
+  const filterData = (data, searchText) => {
+    return data.filter(
+      (item) =>
+        item.productName.toLowerCase().includes(searchText.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchText.toLowerCase())
+    );
+  };
 
   const edit = (record) => {
     form.setFieldsValue({
@@ -117,9 +127,9 @@ const ProductList = () => {
     // Các cột cơ bản
     let cols = [
       {
-        title: "",
+        title: "TT",
         key: "stt",
-        width: "3%",
+        width: "5%",
         render: (text, record, index) => index + 1,
         editable: false,
       },
@@ -153,24 +163,25 @@ const ProductList = () => {
         width: "15%",
         editable: true,
       },
-      {
-        title: "Giá nhập",
-        dataIndex: "importPrice",
-        width: "10%",
-        editable: false,
-      },
-      {
-        title: "Còn tồn",
-        dataIndex: "inventory",
-        width: "9%",
-        editable: false,
-      },
+      // {
+      //   title: "Giá nhập",
+      //   dataIndex: "importPrice",
+      //   width: "10%",
+      //   editable: false,
+      // },
+      // {
+      //   title: "Còn tồn",
+      //   dataIndex: "inventory",
+      //   width: "9%",
+      //   editable: false,
+      // },
     ];
     // Thêm cột Action nếu userRole là STORE_OWNER
     if (userRole === "STORE_OWNER") {
       cols.push({
         title: "Action",
         dataIndex: "operation",
+        width: "10%",
         render: (_, record) => {
           const editable = isEditing(record);
           return editable ? (
@@ -222,15 +233,11 @@ const ProductList = () => {
   useEffect(() => {
     const fetchData = async () => {
       const response = await ProductAPI.GetAll();
-      setData(response.data);
+      setData(filterData(response.data, searchText));
     };
 
     fetchData();
-
-    return () => {
-      // Cleanup if needed
-    };
-  }, []);
+  }, [searchText]);
 
   const onCreate = async (product) => {
     // Gọi API để thêm sản phẩm mới
@@ -260,18 +267,27 @@ const ProductList = () => {
       <Helmet>
         <title>Danh Sách Sản Phẩm</title>
       </Helmet>
-      {userRole === "STORE_OWNER" && (
-        <Button
-          style={{ marginBottom: 10 }}
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={showCreateModal}
-        >
-          Tạo sản phẩm
-        </Button>
-      )}
+      <Space style={{ marginBottom: 16, marginTop: 20 }}>
+        {userRole === "STORE_OWNER" && (
+          <Button
+            // style={{ marginBottom: 10 }}
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={showCreateModal}
+          >
+            Tạo sản phẩm
+          </Button>
+        )}
+        <Input
+          placeholder="Tìm kiếm theo tên hoặc mô tả"
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ width: 200 }}
+          suffix={<SearchOutlined />}
+        />
+      </Space>
       <Form form={form} component={false}>
         <Table
+          className="custom-table-header"
           components={{
             body: {
               cell: EditableCell,

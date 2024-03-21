@@ -4,6 +4,7 @@ import AuthAPI from "../../api/AuthAPI";
 import { MailOutlined } from "@ant-design/icons";
 import { Link, Navigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import "./style.css";
 
 const ForgotPasswordEmail = () => {
   const [loading, setLoading] = useState(false);
@@ -50,7 +51,11 @@ const ForgotPasswordEmail = () => {
         <title>Quên mật khẩu</title>
       </Helmet>
       <Col>
-        <Card title="Quên mật khẩu" bordered={false}>
+        <Card
+          title="Quên mật khẩu"
+          className="login-card"
+          style={{ width: 400 }}
+        >
           <Spin spinning={loading}>
             <Form
               name="registerForm"

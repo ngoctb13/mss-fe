@@ -12,11 +12,13 @@ import {
   Button,
   Switch,
   notification,
+  Space,
 } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import CreateCustomerModal from "./CreateCustomerModal";
 import CustomerAPI from "../../api/CustomerAPI";
 import { Helmet } from "react-helmet";
+import "./style.css";
 
 const EditableCell = ({
   editing,
@@ -59,6 +61,15 @@ const CustomerList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isCustomerModalVisible, setIsCustomerModalVisible] = useState(false);
+  const [searchText, setSearchText] = useState("");
+
+  const filterData = (data, searchText) => {
+    return data.filter(
+      (item) =>
+        item.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
+        item.phoneNumber.toLowerCase().includes(searchText.toLowerCase())
+    );
+  };
 
   const userRole = localStorage.getItem("userRole");
 
@@ -124,7 +135,7 @@ const CustomerList = () => {
     const fetchData = async () => {
       try {
         const response = await CustomerAPI.GetAllByStore();
-        setCustomers(response.data);
+        setCustomers(filterData(response.data, searchText));
         setLoading(false);
       } catch (error) {
         setError(error.message);
@@ -137,7 +148,7 @@ const CustomerList = () => {
     return () => {
       // Cleanup if needed
     };
-  }, []);
+  }, [searchText]);
 
   const onCreate = async (customer) => {
     setLoading(true);
@@ -145,7 +156,10 @@ const CustomerList = () => {
       const response = await CustomerAPI.Create(customer); // Gọi API để thêm khách hàng
       setLoading(false);
       if (response && response.data) {
-        setCustomers([...customers, { ...customer, id: response.data.id }]);
+        setCustomers([
+          ...customers,
+          { ...customer, id: response.data.id, status: "ACTIVE" },
+        ]);
         setIsCustomerModalVisible(false); // Đóng modal
         notification.success({
           message: "Thêm khách hàng thành công",
@@ -190,6 +204,13 @@ const CustomerList = () => {
   const createColumns = () => {
     // Các cột cơ bản
     let cols = [
+      {
+        title: "TT",
+        key: "stt",
+        width: "5%",
+        render: (text, record, index) => index + 1,
+        editable: false,
+      },
       {
         title: "Tên khách hàng",
         dataIndex: "customerName",
@@ -292,7 +313,18 @@ const CustomerList = () => {
   });
 
   if (loading) {
-    return <Spin size="large" />;
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+        }}
+      >
+        <Spin size="large" />
+      </div>
+    );
   }
 
   if (error) {
@@ -304,18 +336,26 @@ const CustomerList = () => {
       <Helmet>
         <title>Danh Sách Khách Hàng</title>
       </Helmet>
-      {userRole === "STORE_OWNER" && (
-        <Button
-          style={{ marginBottom: 10 }}
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={showCreateCustomerModal}
-        >
-          Thêm khách hàng
-        </Button>
-      )}
+      <Space style={{ marginBottom: 16, marginTop: 20 }}>
+        {userRole === "STORE_OWNER" && (
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={showCreateCustomerModal}
+          >
+            Thêm khách hàng
+          </Button>
+        )}
+        <Input
+          placeholder="Tìm kiếm theo tên hoặc mô tả"
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ width: 200 }}
+          suffix={<SearchOutlined />}
+        />
+      </Space>
       <Form form={form} component={false}>
         <Table
+          className="custom-table-header"
           components={{
             body: {
               cell: EditableCell,

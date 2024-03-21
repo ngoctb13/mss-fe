@@ -11,11 +11,13 @@ import {
   Button,
   notification,
   Switch,
+  Space,
 } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, SearchOutlined, LockOutlined } from "@ant-design/icons";
 import UserAPI from "../../api/UserAPI";
 import CreateStaffModal from "./CreateStaffModal";
 import ResetPasswordStaffModal from "./ResetPasswordStaffModal";
+import "./style.css";
 
 const EditableCell = ({
   editing,
@@ -57,6 +59,13 @@ const StaffList = () => {
   const [isResetPasswordModalVisible, setIsResetPasswordModalVisible] =
     useState(false);
   const [selectedStaff, setSelectedStaff] = useState(null);
+  const [searchText, setSearchText] = useState("");
+
+  const filterData = (data, searchText) => {
+    return data.filter((item) =>
+      item.username.toLowerCase().includes(searchText.toLowerCase())
+    );
+  };
 
   const showResetPasswordModal = (record) => {
     setSelectedStaff(record);
@@ -103,7 +112,7 @@ const StaffList = () => {
     const fetchData = async () => {
       try {
         const response = await UserAPI.GetAllStaffs();
-        setStaffs(response.data);
+        setStaffs(filterData(response.data, searchText));
         setLoading(false);
       } catch (error) {
         setError(error.message);
@@ -139,13 +148,21 @@ const StaffList = () => {
   const handleToggleStatus = async (record) => {
     // Gọi API để cập nhật trạng thái
     try {
-      const updatedStatus = record.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
-      await UserAPI.UpdateStatus(record.id, updatedStatus);
+      const response = await UserAPI.UpdateStatus(record.id);
       // Cập nhật trạng thái trong danh sách staffs
-      const updatedStaffs = staffs.map((staff) =>
-        staff.id === record.id ? { ...staff, status: updatedStatus } : staff
-      );
-      setStaffs(updatedStaffs);
+      if (response && response.data) {
+        const updatedStaffs = staffs.map((staff) =>
+          staff.id === record.id
+            ? { ...staff, status: response.data.status }
+            : staff
+        );
+        setStaffs(updatedStaffs);
+
+        notification.success({
+          message: "Cập nhật trạng thái thành công",
+          description: `Trạng thái đã được cập nhật thành ${response.data.status}.`,
+        });
+      }
     } catch (error) {
       // Hiển thị thông báo lỗi
       notification.error({
@@ -161,6 +178,13 @@ const StaffList = () => {
   };
 
   const columns = [
+    {
+      title: "TT",
+      key: "stt",
+      width: "5%",
+      render: (text, record, index) => index + 1,
+      editable: false,
+    },
     {
       title: "Tên tài khoản",
       dataIndex: "username",
@@ -188,7 +212,15 @@ const StaffList = () => {
     {
       title: "Action",
       render: (_, record) => (
-        <Button type="link" onClick={() => showResetPasswordModal(record)}>
+        <Button
+          icon={<LockOutlined />}
+          onClick={() => showResetPasswordModal(record)}
+          style={{
+            backgroundColor: "#1890ff",
+            borderColor: "#1890ff",
+            color: "#fff",
+          }}
+        >
           Đặt lại mật khẩu
         </Button>
       ),
@@ -212,7 +244,18 @@ const StaffList = () => {
   });
 
   if (loading) {
-    return <Spin size="large" />;
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+        }}
+      >
+        <Spin size="large" />
+      </div>
+    );
   }
 
   if (error) {
@@ -220,17 +263,25 @@ const StaffList = () => {
   }
 
   return (
-    <div>
-      <Button
-        style={{ marginBottom: 10 }}
-        type="primary"
-        icon={<PlusOutlined />}
-        onClick={showCreateStaffModal}
-      >
-        Thêm nhân viên
-      </Button>
+    <div style={{ padding: 20 }}>
+      <Space style={{ marginBottom: 16, marginTop: 20 }}>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={showCreateStaffModal}
+        >
+          Thêm nhân viên
+        </Button>
+        <Input
+          placeholder="Tìm kiếm theo tên hoặc mô tả"
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ width: 200 }}
+          suffix={<SearchOutlined />}
+        />
+      </Space>
       <Form form={form} component={false}>
         <Table
+          className="custom-table-header"
           components={{ body: { cell: EditableCell } }}
           bordered
           dataSource={staffs}
