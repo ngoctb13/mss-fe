@@ -40,13 +40,18 @@ const CustomerPayDebtModal = ({ isVisible, onClose, customer, onUpdate }) => {
       centered
     >
       <Form form={form} layout="vertical" onFinish={handleSubmit}>
-        <Form.Item
-          name="customerName"
-          label="Tên khách hàng"
-          initialValue={customer?.customerName}
-        >
-          <Input disabled />
-        </Form.Item>
+        <p style={{ marginRight: 10 }}>
+          <strong>Tên khách hàng:</strong>{" "}
+          <span style={{ fontSize: "16px", fontWeight: "bold" }}>
+            {customer?.customerName}
+          </span>
+        </p>
+        <p>
+          <strong>Tổng nợ:</strong>{" "}
+          <span style={{ color: "red", fontSize: "16px" }}>
+            {customer?.totalDebt?.toLocaleString("vi-VN")} ₫
+          </span>
+        </p>
 
         <Form.Item
           name="amount"
