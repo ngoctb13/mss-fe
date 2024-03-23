@@ -15,7 +15,13 @@ import {
   Typography,
   AutoComplete,
 } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  EditOutlined,
+  SaveOutlined,
+  CloseOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import "./SaleInvoice.css";
 import SelectCustomerModal from "./SelectCustomerModal";
 import SelectProductModal from "./SelectProductModal";
@@ -415,6 +421,13 @@ const SaleView = ({ tabKey }) => {
   //
   const columns = [
     {
+      title: "TT",
+      key: "stt",
+      width: "5%",
+      render: (text, record, index) => index + 1,
+      editable: false,
+    },
+    {
       title: "Tên sản phẩm",
       dataIndex: "productName",
       width: "20%",
@@ -490,41 +503,43 @@ const SaleView = ({ tabKey }) => {
       key: "totalPrice",
     },
     {
-      title: "",
+      title: " ",
       dataIndex: "action",
       render: (_, record) => {
         const isEditing = editingProduct && record.key === editingProduct.key;
         return isEditing ? (
           <span>
-            <Button size="small" onClick={save} style={{ marginRight: 8 }}>
-              Lưu
-            </Button>
-            <Button size="small" onClick={cancel}>
-              Hủy
-            </Button>
+            <Button
+              icon={<SaveOutlined />}
+              onClick={save}
+              style={{ marginRight: 8, color: "green" }}
+            />
+
+            <Button
+              icon={<CloseOutlined />}
+              onClick={cancel}
+              style={{ color: "red" }}
+            />
           </span>
         ) : (
           <Button
-            type="primary"
-            size="small"
+            icon={<EditOutlined />}
             disabled={editingProduct !== null}
             onClick={() => edit(record)}
-          >
-            Edit
-          </Button>
+            style={{ color: "orange" }}
+          />
         );
       },
     },
     {
-      title: "",
+      title: " ",
       key: "delete",
       render: (_, record) => (
         <Button
-          style={{ backgroundColor: "red", color: "white" }}
+          icon={<DeleteOutlined />}
+          style={{ color: "red", border: "none" }}
           onClick={() => handleDeleteProduct(record.key)}
-        >
-          Xóa
-        </Button>
+        />
       ),
     },
   ];
@@ -550,24 +565,24 @@ const SaleView = ({ tabKey }) => {
                 product: product, // Pass the whole product object to use when selected
               }))}
             />
-            {/* <Card style={{ padding: 0, marginBottom: 16 }}> */}
-            <Table dataSource={selectedProducts} columns={columns} />
-            {/* </Card> */}
+            <Table
+              className="custom-table-header"
+              dataSource={selectedProducts}
+              columns={columns}
+            />
           </Col>
 
           {/* 30% Column: Divided into three parts */}
           <Col span={6}>
-            <div>
-              <Button
-                style={{ marginBottom: 16, marginRight: 8 }}
-                type="primary"
-                onClick={showPayModal}
-              >
-                Thanh toán
-              </Button>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginBottom: 8,
+              }}
+            >
               <Button
                 style={{
-                  marginBottom: 16,
                   marginRight: 8,
                   backgroundColor: "red",
                   color: "white",
@@ -578,7 +593,6 @@ const SaleView = ({ tabKey }) => {
               </Button>
               <Button
                 style={{
-                  marginBottom: 16,
                   backgroundColor: "green",
                   color: "white",
                 }}
@@ -587,51 +601,37 @@ const SaleView = ({ tabKey }) => {
                 HĐ gần đây
               </Button>
             </div>
-            <Card
-              title="Tổng mặt hàng"
-              headStyle={{
-                backgroundColor: "#1890ff",
-                color: "white",
-                ...styles.smallCardHeader,
-              }}
-              style={{ marginBottom: 0 }}
-            >
-              <div className="info-item">
+            <Card title style={{ marginBottom: 16, height: "250px" }}>
+              <div className="info-item" style={{ marginBottom: 20 }}>
                 <strong>Tổng mặt hàng:</strong> {selectedProducts.length}
               </div>
-              <div className="info-item">
-                <strong>Nợ cũ:</strong> {customerOldDebt}
+              <div className="info-item" style={{ marginBottom: 20 }}>
+                <strong>Nợ cũ:</strong>{" "}
+                <span style={{ color: "red" }}>{customerOldDebt}</span>
               </div>
               <div className="info-item">
-                <strong>Tổng tiền:</strong> {totalPrice}
+                <strong>Tổng tiền:</strong>{" "}
+                <span style={{ color: "red" }}>{totalPrice}</span>
               </div>
             </Card>
 
             {/* Thông tin nhà cung cấp Card */}
             <Card
               title={
-                <div>
-                  <span style={{ marginRight: 8 }}>Khách hàng</span>
-                  <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={showModal}
-                  ></Button>
-                </div>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={showModal}
+                ></Button>
               }
-              headStyle={{
-                backgroundColor: "#1890ff",
-                color: "white",
-                ...styles.smallCardHeader,
-              }}
-              style={{ marginBottom: 16 }}
+              style={{ marginBottom: 16, height: "250px" }}
             >
               {selectedCustomer ? (
                 <div>
-                  <div className="info-item">
+                  <div className="info-item" style={{ marginBottom: 20 }}>
                     <strong>Khách hàng:</strong> {selectedCustomer.customerName}
                   </div>
-                  <div className="info-item">
+                  <div className="info-item" style={{ marginBottom: 20 }}>
                     <strong>Điện thoại:</strong> {selectedCustomer.phoneNumber}
                   </div>
                   <div className="info-item">
@@ -640,9 +640,23 @@ const SaleView = ({ tabKey }) => {
                   {/* Other supplier details */}
                 </div>
               ) : (
-                <div>Chọn khách hàng</div>
+                <div style={{ fontSize: "16px" }}>Chọn khách hàng</div>
               )}
             </Card>
+
+            <Button
+              style={{
+                marginTop: 16,
+                fontSize: "18px", // Tăng kích thước font
+                padding: "10px 0", // Tăng padding để nút cao hơn
+                height: "auto", // Cho phép chiều cao tự điều chỉnh theo nội dung và padding
+              }}
+              block
+              type="primary"
+              onClick={showPayModal}
+            >
+              Thanh toán
+            </Button>
           </Col>
         </Row>
       </div>

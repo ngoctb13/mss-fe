@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { DownOutlined } from "@ant-design/icons";
-import { Badge, Button, Dropdown, Space, Table } from "antd";
-import { EyeOutlined, DollarCircleOutlined } from "@ant-design/icons";
+import { Badge, Button, Dropdown, Input, Space, Table } from "antd";
+import {
+  EyeOutlined,
+  DollarCircleOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import CustomerAPI from "../../api/CustomerAPI";
 import SaleInvoiceAPI from "../../api/SaleInvoiceAPI";
 import "./DebtNote.css";
@@ -14,8 +18,16 @@ const CustomerDebtNoteList = () => {
   const [isTransactionModalVisible, setIsTransactionModalVisible] =
     useState(false);
   const [isPayDebtModalVisible, setIsPayDebtModalVisible] = useState(false);
-  const [currentCustomerId, setCurrentCustomerId] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [searchText, setSearchText] = useState("");
+
+  const filterData = (data, searchText) => {
+    return data.filter(
+      (item) =>
+        item.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
+        item.phoneNumber.toLowerCase().includes(searchText.toLowerCase())
+    );
+  };
 
   const showPayDebtModal = (customer) => {
     setSelectedCustomer(customer);
@@ -52,7 +64,9 @@ const CustomerDebtNoteList = () => {
       try {
         const response = await CustomerAPI.GetCustomerHaveDebt();
         const customers = response.data;
-        setCustomerData(customers);
+        // setCustomerData(customers);
+
+        setCustomerData(filterData(customers, searchText));
 
         customers.forEach((customer) => {
           fetchInvoiceData(customer.id);
@@ -63,7 +77,7 @@ const CustomerDebtNoteList = () => {
     };
 
     fetchCustomerDebtData();
-  }, []);
+  }, [searchText]);
 
   const updateCustomerDataAfterPayment = () => {
     // Gọi lại API để lấy dữ liệu mới nhất của khách hàng và cập nhật state
@@ -82,7 +96,7 @@ const CustomerDebtNoteList = () => {
 
   const columns = [
     {
-      title: "",
+      title: "TT",
       key: "stt",
       width: "3%",
       render: (text, record, index) => index + 1,
@@ -91,6 +105,11 @@ const CustomerDebtNoteList = () => {
       title: "Tên khách hàng",
       dataIndex: "customerName",
       key: "customerName",
+      render: (text) => (
+        <span style={{ fontWeight: "bold" }}>
+          {text.toLocaleString("vi-VN")}
+        </span>
+      ),
     },
     {
       title: "Số điện thoại",
@@ -148,7 +167,14 @@ const CustomerDebtNoteList = () => {
       <Helmet>
         <title>Sổ nợ - Khách hàng</title>
       </Helmet>
+      <Input
+        placeholder="Tìm kiếm theo tên hoặc mô tả"
+        onChange={(e) => setSearchText(e.target.value)}
+        style={{ width: 200, marginBottom: 10 }}
+        suffix={<SearchOutlined />}
+      />
       <Table
+        className="custom-table-header"
         bordered
         columns={columns}
         dataSource={customerData}
