@@ -1,3 +1,4 @@
-/* .custom-table .ant-table-cell {
-  border-bottom: 1px solid black;
-} */
+.custom-table-header .ant-table-thead > tr > th {
+  background-color: #1890ff; /* Màu nền cho tiêu đề */
+  color: rgb(255, 255, 255); /* Màu chữ cho tiêu đề */
+}

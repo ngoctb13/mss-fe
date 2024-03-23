@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Tabs, Button, Layout } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import OwnerSidebar from "../../components/layout/StoreOwner/OwnerSidebar";
 import AppHeader from "../../components/layout/Header";
 import AppFooter from "../../components/layout/Footer";
@@ -127,16 +128,15 @@ const SaleInvoiceTabs = () => {
               onEdit={onEdit}
               tabBarExtraContent={{
                 right: (
-                  <span
-                    style={{
-                      cursor: "pointer",
-                      fontSize: "18px",
-                      marginRight: "16px",
-                    }}
+                  <Button
+                    icon={<PlusOutlined />}
                     onClick={add}
-                  >
-                    +
-                  </span>
+                    style={{
+                      backgroundColor: "lightgray",
+                      border: "none",
+                      marginLeft: "8px",
+                    }}
+                  />
                 ),
               }}
             >

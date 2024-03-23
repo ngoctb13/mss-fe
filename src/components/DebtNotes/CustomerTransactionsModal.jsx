@@ -26,7 +26,7 @@ const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
 
   const columns = [
     {
-      title: "",
+      title: ".",
       key: "stt",
       width: "3%",
       render: (text, record, index) => index + 1,
@@ -60,7 +60,7 @@ const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
     },
     { title: "Ghi chú", dataIndex: "note", key: "note", width: "30%" },
     {
-      title: "",
+      title: ".",
       key: "operation",
       render: (text, record) => (
         <Button
@@ -98,18 +98,14 @@ const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
         style={{
           display: "flex",
           justifyContent: "space-between",
-          marginBottom: 5,
         }}
       >
         <div style={{ display: "flex" }}>
           <p style={{ marginRight: 10 }}>
             <strong>Tên khách hàng:</strong> {customer?.customerName}
           </p>
-          <p style={{ marginRight: 10 }}>
-            <strong>Số Điện Thoại:</strong> {customer?.phoneNumber}
-          </p>
           <p>
-            <strong>Tổng Nợ:</strong>{" "}
+            <strong>Tổng nợ:</strong>{" "}
             <span style={{ color: "red", fontSize: "16px" }}>
               {customer?.totalDebt?.toLocaleString("vi-VN")} ₫
             </span>
@@ -122,6 +118,7 @@ const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
         </div>
       </div>
       <Table
+        className="custom-table-header"
         dataSource={transactionData}
         columns={columns}
         pagination={false}
