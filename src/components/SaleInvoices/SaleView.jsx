@@ -269,15 +269,20 @@ const SaleView = ({ tabKey }) => {
   const handleRecentInvoices = () => {};
   //
   const handleDownloadPdf = async (invoiceId) => {
-    try {
-      const response = await PdfAPI.DownloadSaleInvoicePdf(invoiceId);
-      const file = new Blob([response.data], { type: "application/pdf" });
-      const fileURL = URL.createObjectURL(file);
-      window.open(fileURL);
-    } catch (error) {
-      console.error("Error downloading PDF:", error);
-      alert("Failed to download PDF. Please try again.");
-    }
+    PdfAPI.DownloadSaleInvoicePdfV2(invoiceId)
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "invoice.pdf"); // or dynamically set the filename
+        document.body.appendChild(link);
+        link.click();
+        link.remove(); // Clean up after downloading
+      })
+      .catch((error) => {
+        console.error("Error downloading the invoice PDF", error);
+        // Handle the error
+      });
   };
   //
   const handlePaymentAndExportPDF = (pricePaid) => {
