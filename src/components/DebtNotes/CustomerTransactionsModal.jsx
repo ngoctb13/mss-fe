@@ -1,21 +1,38 @@
 import React, { useEffect, useState } from "react";
 import DebtPaymentHistoryAPI from "../../api/DebtPaymentHistoryAPI";
-import { Button, Descriptions, Modal, Table, Tag } from "antd";
+import {
+  Button,
+  DatePicker,
+  Descriptions,
+  Modal,
+  Space,
+  Table,
+  Tag,
+} from "antd";
 import { EyeOutlined, DollarCircleOutlined } from "@ant-design/icons";
+import PdfAPI from "../../api/PdfAPI";
+const { RangePicker } = DatePicker;
 
 const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
   const [transactionData, setTransactionData] = useState([]);
+  const [dateRange, setDateRange] = useState([]);
 
   useEffect(() => {
     if (isVisible && customer) {
       fetchTransactionData(customer.id);
       console.log(transactionData);
     }
-  }, [customer, isVisible]);
+  }, [customer, isVisible, dateRange]);
 
   const fetchTransactionData = async (customerId) => {
     try {
-      const response = await DebtPaymentHistoryAPI.GetByCustomer(customerId);
+      console.log(dateRange);
+      const filterParams = {
+        customerId: customerId,
+        startDate: dateRange[0],
+        endDate: dateRange[1],
+      };
+      const response = await DebtPaymentHistoryAPI.GetByFilter(filterParams);
       setTransactionData(response.data);
     } catch (error) {
       console.error("Error fetching transaction history:", error);
@@ -26,7 +43,7 @@ const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
 
   const columns = [
     {
-      title: ".",
+      title: " ",
       key: "stt",
       width: "3%",
       render: (text, record, index) => index + 1,
@@ -60,7 +77,7 @@ const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
     },
     { title: "Ghi chú", dataIndex: "note", key: "note", width: "30%" },
     {
-      title: ".",
+      title: " ",
       key: "operation",
       render: (text, record) => (
         <Button
@@ -79,6 +96,26 @@ const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
     },
     // Thêm các cột khác tương tự...
   ];
+
+  const exportPDF = async () => {
+    try {
+      const filterParams = {
+        customerId: customer.id,
+        startDate: dateRange[0],
+        endDate: dateRange[1],
+      };
+      const response = await PdfAPI.DownloadTransactionsPdf(filterParams);
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Transactions-${customer.id}.pdf`); // Đặt tên file PDF
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error("Error exporting PDF:", error);
+    }
+  };
 
   return (
     <Modal
@@ -100,10 +137,7 @@ const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
           justifyContent: "space-between",
         }}
       >
-        <div style={{ display: "flex" }}>
-          <p style={{ marginRight: 10 }}>
-            <strong>Tên khách hàng:</strong> {customer?.customerName}
-          </p>
+        <div style={{ marginLeft: 120 }}>
           <p>
             <strong>Tổng nợ:</strong>{" "}
             <span style={{ color: "red", fontSize: "16px" }}>
@@ -112,7 +146,19 @@ const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
           </p>
         </div>
         <div>
-          <Button type="primary" style={{ marginRight: 8 }}>
+          <RangePicker
+            format="YYYY-MM-DD HH:mm:ss"
+            showTime={{ format: "HH:mm" }}
+            style={{ marginRight: 15 }}
+            onChange={(dates) => {
+              setDateRange(
+                dates
+                  ? dates.map((date) => date.format("YYYY-MM-DDTHH:mm:ss"))
+                  : []
+              );
+            }}
+          />
+          <Button type="primary" onClick={exportPDF} style={{ marginRight: 8 }}>
             Xuất PDF
           </Button>
         </div>
