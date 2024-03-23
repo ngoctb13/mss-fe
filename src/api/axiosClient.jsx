@@ -2,7 +2,7 @@ import axios from "axios";
 import queryString from "query-string";
 import { ACCESS_TOKEN } from "../constant/constant";
 const axiosClient = axios.create({
-  baseURL: "http://backend.mss.io.vn/api",
+  baseURL: "https://backend.mss.io.vn/api",
   // baseURL: "http://152.42.200.77:8080/api",
   // baseURL: "http://localhost:8080/api",
   headers: {
