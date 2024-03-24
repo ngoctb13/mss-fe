@@ -53,7 +53,7 @@ const Home = () => {
                 hoverable
                 title="Thông tin cá nhân"
                 extra={
-                  <Link to="/personal-info">
+                  <Link to="/staff/personal-info">
                     <EditOutlined />
                   </Link>
                 }
