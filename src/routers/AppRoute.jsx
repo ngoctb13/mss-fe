@@ -35,6 +35,8 @@ import ForgotPasswordEmail from "../pages/common/ForgotPasswordEmail.jsx";
 import ResetPassword from "../pages/common/ResetPassord.jsx";
 import StorageZone from "../pages/StoreOwner/Storage/StorageZone.jsx";
 import StaffStorageZone from "../pages/Staff/Storage/StorageZone.jsx";
+import MyProfile from "../pages/StoreOwner/MyProfile.jsx";
+import StaffProfile from "../pages/Staff/MyProfile.jsx";
 
 const checkTokenValidity = () => {
   const token = localStorage.getItem("accessToken");
@@ -45,6 +47,7 @@ const checkTokenValidity = () => {
 const StoreOwnerRouter = [
   { path: "/owner/home", component: Home },
   { path: "/owner/storage-zone", component: StorageZone },
+  { path: "/owner/personal-info", component: MyProfile },
   { path: "/owner/create-store", component: CreateStore },
   { path: "/owner/customers", component: Customers },
   { path: "/owner/products", component: Products },
@@ -76,6 +79,7 @@ const StoreOwnerRouter = [
 const StaffRouter = [
   { path: "/staff/home", component: StaffHome },
   { path: "/staff/storage-zone", component: StaffStorageZone },
+  { path: "/staff/personal-info", component: StaffProfile },
   { path: "/staff/products", component: Staff_Products },
   { path: "/staff/customers", component: Staff_Customers },
   { path: "/staff/suppliers", component: Staff_Suppliers },
@@ -83,8 +87,9 @@ const StaffRouter = [
   { path: "/staff/sale-tabs", component: Staff_SaleTabs },
 ];
 const AdminRouter = [
-    { path: "/admin/home", component: AdminHome },
-    { path: "/admin/users", component: AdminUserList }];
+  { path: "/admin/home", component: AdminHome },
+  { path: "/admin/users", component: AdminUserList },
+];
 const AppRoute = () => {
   const tokenValid = checkTokenValidity();
 

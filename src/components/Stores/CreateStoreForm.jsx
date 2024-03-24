@@ -41,7 +41,7 @@ const CreateStoreForm = () => {
     }
   };
   if (redirectToHome) {
-    return <Navigate to="/home" />; // Redirect if needed
+    return <Navigate to="/owner/home" />; // Redirect if needed
   }
 
   const onFinishFailed = (errorInfo) => {
