@@ -9,8 +9,8 @@ const UserProfileAPI = {
     return axiosClient.post(url, request);
   },
   ChangeCurrentUserPassword: (newPassword) => {
-    const url = "/profile/current-user/change-password";
-    return axiosClient.post(url, { newPassword });
+    const url = `/profile/current-user/change-password?newPassword=${newPassword}`;
+    return axiosClient.post(url);
   },
 };
 export default UserProfileAPI;
