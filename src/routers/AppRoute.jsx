@@ -35,6 +35,7 @@ import ForgotPasswordEmail from "../pages/common/ForgotPasswordEmail.jsx";
 import ResetPassword from "../pages/common/ResetPassord.jsx";
 import StorageZone from "../pages/StoreOwner/Storage/StorageZone.jsx";
 import StaffStorageZone from "../pages/Staff/Storage/StorageZone.jsx";
+import ListLocationProduct from "../components/StorageZoneComponents/ListLocationProduct";
 
 const checkTokenValidity = () => {
   const token = localStorage.getItem("accessToken");
@@ -52,6 +53,7 @@ const StoreOwnerRouter = [
   { path: "/owner/staff-list", component: Staffs },
   { path: "/owner/debt-note/customer", component: CustomerDebtNote },
   { path: "/owner/debt-note/supplier", component: SupplierDebtNote },
+  { path: "/owner/list-location-product", component: ListLocationProduct },
   {
     path: "/owner/sale-report/sale-invoice-report",
     component: SaleInvoiceReport,

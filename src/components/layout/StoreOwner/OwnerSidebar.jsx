@@ -9,6 +9,7 @@ import {
 } from "@ant-design/icons";
 import { Layout, Menu, theme } from "antd";
 import { Link, useLocation } from "react-router-dom";
+import ListItem from "antd/es/upload/UploadList/ListItem";
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -165,6 +166,9 @@ const OwnerSidebar = () => {
         </SubMenu>
         <Menu.Item key="8" icon={<CalculatorOutlined />}>
           <Link to="#">Thu chi</Link>
+        </Menu.Item>
+        <Menu.Item key="9" icon={<PieChartOutlined />}>
+          <Link to="/owner/list-location-product">Quản lý kho gạo</Link>
         </Menu.Item>
       </Menu>
     </Sider>

@@ -12,5 +12,12 @@ const StorageLocationAPI = {
     const url = `/storage-locations/update/${storageLocationId}`;
     return axiosClient.put(url, data);
   },
+  SetStatus: (data, storageLocationId) =>{
+    const url = `/storage-locations/deactivate/${storageLocationId}`;
+    return axiosClient.put(url, data);
+  },
+  GetProductLocation: function() {
+    return axiosClient.get(`/storage-locations/products/locations`);
+  },
 };
 export default StorageLocationAPI;
