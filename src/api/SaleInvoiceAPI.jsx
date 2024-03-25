@@ -8,5 +8,9 @@ const SaleInvoiceAPI = {
     const url = "/sale-invoice/filter";
     return axiosClient.get(url, { params: filterParams });
   },
+  GetById: (saleInvoiceId) => {
+    const url = `/sale-invoice/find-by-id/${saleInvoiceId}`;
+    return axiosClient.get(url);
+  },
 };
 export default SaleInvoiceAPI;

@@ -7,7 +7,12 @@ const CreateProductModal = ({ isVisible, onCreate, onCancel }) => {
 
   const onFinish = async (values) => {
     setLoading(true);
-    await onCreate(values);
+    const modifiedProductName = `${values.productName} (${values.bag_packing}Kg)`;
+    const modifiedValues = {
+      ...values,
+      productName: modifiedProductName, // Update tên sản phẩm với quy cách
+    };
+    await onCreate(modifiedValues);
     setLoading(false);
     form.resetFields();
   };

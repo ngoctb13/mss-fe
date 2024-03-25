@@ -651,7 +651,6 @@ const SaleView = ({ tabKey }) => {
 
             <Button
               style={{
-                marginTop: 16,
                 fontSize: "18px", // Tăng kích thước font
                 padding: "10px 0", // Tăng padding để nút cao hơn
                 height: "auto", // Cho phép chiều cao tự điều chỉnh theo nội dung và padding

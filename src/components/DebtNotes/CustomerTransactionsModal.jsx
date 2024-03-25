@@ -11,18 +11,27 @@ import {
 } from "antd";
 import { EyeOutlined, DollarCircleOutlined } from "@ant-design/icons";
 import PdfAPI from "../../api/PdfAPI";
+import SaleInvoiceDetailModal from "./CustomerTransactionDetail/SaleInvoiceDetailModal";
+import PaymentRecordDetailModal from "./CustomerTransactionDetail/PaymentRecordDetailModal";
 const { RangePicker } = DatePicker;
 
 const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
   const [transactionData, setTransactionData] = useState([]);
   const [dateRange, setDateRange] = useState([]);
+  const [detailModalInfo, setDetailModalInfo] = useState({
+    isVisible: false,
+    recordType: null,
+    sourceType: null,
+    recordDate: null,
+    sourceId: null,
+  });
 
   useEffect(() => {
     if (isVisible && customer) {
       fetchTransactionData(customer.id);
-      console.log(transactionData);
     }
   }, [customer, isVisible, dateRange]);
+  console.log(transactionData);
 
   const fetchTransactionData = async (customerId) => {
     try {
@@ -39,7 +48,22 @@ const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
     }
   };
 
-  const showDetailOfTransaction = () => {};
+  const showDetailOfTransaction = (record) => {
+    setDetailModalInfo({
+      isVisible: true,
+      recordType: record.type,
+      sourceType: record.sourceType,
+      recordDate: record.recordDate,
+      sourceId: record.sourceId,
+    });
+  };
+
+  const closeDetailModal = () => {
+    setDetailModalInfo((prevState) => ({
+      ...prevState,
+      isVisible: false,
+    }));
+  };
 
   const columns = [
     {
@@ -118,60 +142,84 @@ const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
   };
 
   return (
-    <Modal
-      title="Lịch sử thanh toán nợ"
-      visible={isVisible}
-      onCancel={onClose}
-      width={1000}
-      height={650}
-      centered
-      footer={[
-        <Button key="back" onClick={onClose}>
-          Đóng
-        </Button>,
-      ]}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-        }}
+    <>
+      <Modal
+        title="Lịch sử thanh toán nợ"
+        visible={isVisible}
+        onCancel={onClose}
+        width={1000}
+        height={650}
+        centered
+        footer={[
+          <Button key="back" onClick={onClose}>
+            Đóng
+          </Button>,
+        ]}
       >
-        <div style={{ marginLeft: 120 }}>
-          <p>
-            <strong>Tổng nợ:</strong>{" "}
-            <span style={{ color: "red", fontSize: "16px" }}>
-              {customer?.totalDebt?.toLocaleString("vi-VN")} ₫
-            </span>
-          </p>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <div style={{ marginLeft: 120 }}>
+            <p>
+              <strong>Tổng nợ:</strong>{" "}
+              <span style={{ color: "red", fontSize: "16px" }}>
+                {customer?.totalDebt?.toLocaleString("vi-VN")} ₫
+              </span>
+            </p>
+          </div>
+          <div>
+            <RangePicker
+              format="YYYY-MM-DD HH:mm:ss"
+              showTime={{ format: "HH:mm" }}
+              style={{ marginRight: 15 }}
+              onChange={(dates) => {
+                setDateRange(
+                  dates
+                    ? dates.map((date) => date.format("YYYY-MM-DDTHH:mm:ss"))
+                    : []
+                );
+              }}
+            />
+            <Button
+              type="primary"
+              onClick={exportPDF}
+              style={{ marginRight: 8 }}
+            >
+              Xuất PDF
+            </Button>
+          </div>
         </div>
-        <div>
-          <RangePicker
-            format="YYYY-MM-DD HH:mm:ss"
-            showTime={{ format: "HH:mm" }}
-            style={{ marginRight: 15 }}
-            onChange={(dates) => {
-              setDateRange(
-                dates
-                  ? dates.map((date) => date.format("YYYY-MM-DDTHH:mm:ss"))
-                  : []
-              );
-            }}
-          />
-          <Button type="primary" onClick={exportPDF} style={{ marginRight: 8 }}>
-            Xuất PDF
-          </Button>
-        </div>
-      </div>
-      <Table
-        className="custom-table-header"
-        dataSource={transactionData}
-        columns={columns}
-        pagination={false}
-        rowKey="id"
-        scroll={{ y: 280 }}
-      />
-    </Modal>
+        <Table
+          className="custom-table-header"
+          dataSource={transactionData}
+          columns={columns}
+          pagination={false}
+          rowKey="id"
+          scroll={{ y: 280 }}
+        />
+      </Modal>
+      {detailModalInfo.sourceType === "SALE_INVOICE" && (
+        <SaleInvoiceDetailModal
+          isVisible={detailModalInfo.isVisible}
+          recordType={detailModalInfo.recordType}
+          sourceId={detailModalInfo.sourceId}
+          recordDate={detailModalInfo.recordDate}
+          onClose={closeDetailModal}
+        />
+      )}
+      {detailModalInfo.sourceType === "PAYMENT_RECORD" && (
+        <PaymentRecordDetailModal
+          isVisible={detailModalInfo.isVisible}
+          recordType={detailModalInfo.recordType}
+          sourceId={detailModalInfo.sourceId}
+          recordDate={detailModalInfo.recordDate}
+          onClose={closeDetailModal}
+        />
+      )}
+    </>
   );
 };
 
