@@ -62,7 +62,7 @@ const CustomerDebtNoteList = () => {
   useEffect(() => {
     const fetchCustomerDebtData = async () => {
       try {
-        const response = await CustomerAPI.GetCustomerHaveDebt();
+        const response = await CustomerAPI.GetCustomerOrderByTotalDebt();
         const customers = response.data;
         // setCustomerData(customers);
 
@@ -83,7 +83,7 @@ const CustomerDebtNoteList = () => {
     // Gọi lại API để lấy dữ liệu mới nhất của khách hàng và cập nhật state
     const fetchCustomerDebtData = async () => {
       try {
-        const response = await CustomerAPI.GetCustomerHaveDebt();
+        const response = await CustomerAPI.GetCustomerOrderByTotalDebt();
         const customers = response.data;
         setCustomerData(customers);
       } catch (error) {

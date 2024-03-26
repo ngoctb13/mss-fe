@@ -150,7 +150,7 @@ const OwnerSidebar = () => {
             </Link>
           </Menu.Item>
         </SubMenu>
-        <SubMenu key="7" icon={<PieChartOutlined />} title="Báo cáo nhập hàng">
+        {/* <SubMenu key="7" icon={<PieChartOutlined />} title="Báo cáo nhập hàng">
           <Menu.Item key="7-1">
             <Link to="/owner/import-report/import-invoice-report">
               Báo cáo nhập hàng
@@ -162,10 +162,10 @@ const OwnerSidebar = () => {
           <Menu.Item key="7-3">
             <Link to="#">Nhập kho</Link>
           </Menu.Item>
-        </SubMenu>
-        <Menu.Item key="8" icon={<CalculatorOutlined />}>
+        </SubMenu> */}
+        {/* <Menu.Item key="8" icon={<CalculatorOutlined />}>
           <Link to="#">Thu chi</Link>
-        </Menu.Item>
+        </Menu.Item> */}
       </Menu>
     </Sider>
   );

@@ -16,5 +16,9 @@ const ProductAPI = {
     const url = `/products/by-name/${nameInput}`;
     return axiosClient.get(url);
   },
+  GetByContainName: (nameInput) => {
+    const url = `/products/contain-name/${nameInput}`;
+    return axiosClient.get(url);
+  },
 };
 export default ProductAPI;

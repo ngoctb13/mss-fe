@@ -6,6 +6,7 @@ import {
   Descriptions,
   Modal,
   Space,
+  Select,
   Table,
   Tag,
 } from "antd";
@@ -14,6 +15,7 @@ import PdfAPI from "../../api/PdfAPI";
 import SaleInvoiceDetailModal from "./CustomerTransactionDetail/SaleInvoiceDetailModal";
 import PaymentRecordDetailModal from "./CustomerTransactionDetail/PaymentRecordDetailModal";
 const { RangePicker } = DatePicker;
+const { Option } = Select;
 
 const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
   const [transactionData, setTransactionData] = useState([]);
@@ -25,13 +27,19 @@ const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
     recordDate: null,
     sourceId: null,
   });
+  const [filterType, setFilterType] = useState("all");
+  const [filteredTransactionData, setFilteredTransactionData] = useState([]);
 
   useEffect(() => {
     if (isVisible && customer) {
       fetchTransactionData(customer.id);
     }
-  }, [customer, isVisible, dateRange]);
+  }, [customer, isVisible, dateRange, filterType]);
   console.log(transactionData);
+
+  useEffect(() => {
+    filterTransactions();
+  }, [transactionData, filterType]);
 
   const fetchTransactionData = async (customerId) => {
     try {
@@ -45,6 +53,15 @@ const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
       setTransactionData(response.data);
     } catch (error) {
       console.error("Error fetching transaction history:", error);
+    }
+  };
+
+  const filterTransactions = () => {
+    if (filterType === "all") {
+      setFilteredTransactionData(transactionData);
+    } else {
+      const filtered = transactionData.filter((t) => t.type === filterType);
+      setFilteredTransactionData(filtered);
     }
   };
 
@@ -141,17 +158,23 @@ const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
     }
   };
 
+  const handleClose = () => {
+    setDateRange([]);
+    setFilterType("all");
+    onClose();
+  };
+
   return (
     <>
       <Modal
         title="Lịch sử thanh toán nợ"
         visible={isVisible}
-        onCancel={onClose}
+        onCancel={handleClose}
         width={1000}
         height={650}
         centered
         footer={[
-          <Button key="back" onClick={onClose}>
+          <Button key="back" onClick={handleClose}>
             Đóng
           </Button>,
         ]}
@@ -162,19 +185,29 @@ const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
             justifyContent: "space-between",
           }}
         >
-          <div style={{ marginLeft: 120 }}>
+          <div style={{ marginLeft: 110 }}>
             <p>
-              <strong>Tổng nợ:</strong>{" "}
-              <span style={{ color: "red", fontSize: "16px" }}>
+              <strong style={{ fontSize: "16px" }}>Tổng nợ:</strong>{" "}
+              <span
+                style={{ color: "red", fontSize: "16px", fontWeight: "bold" }}
+              >
                 {customer?.totalDebt?.toLocaleString("vi-VN")} ₫
               </span>
             </p>
           </div>
           <div>
+            <Select
+              defaultValue="all"
+              style={{ width: 120 }}
+              onChange={setFilterType}
+            >
+              <Option value="all">Tất cả</Option>
+              <Option value="SALE_INVOICE">NỢ</Option>
+              <Option value="PAYMENT">TRẢ</Option>
+            </Select>
             <RangePicker
               format="YYYY-MM-DD HH:mm:ss"
               showTime={{ format: "HH:mm" }}
-              style={{ marginRight: 15 }}
               onChange={(dates) => {
                 setDateRange(
                   dates
@@ -194,7 +227,7 @@ const CustomerTransactionsModal = ({ customer, isVisible, onClose }) => {
         </div>
         <Table
           className="custom-table-header"
-          dataSource={transactionData}
+          dataSource={filteredTransactionData}
           columns={columns}
           pagination={false}
           rowKey="id"
