@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Input, Table, Button } from "antd";
+import { Modal, Input, Table, Button, notification } from "antd";
 import CustomerAPI from "../../api/CustomerAPI";
+import "./SaleInvoice.css";
 
 const { Search } = Input;
 const SelectCustomerModal = ({ isVisible, onCancel, onCustomerSelect }) => {
@@ -56,17 +57,35 @@ const SelectCustomerModal = ({ isVisible, onCancel, onCustomerSelect }) => {
     setFormData({ ...formData, [name]: value });
   };
   //
-  const handleSubmit = () => {
-    // Call API to add customer with formData
+  const handleSubmit = async () => {
     console.log("Form Data:", formData);
-    // Reset form data after submitting
-    setFormData({
-      search: "",
-      phoneNumber: "",
-      address: "",
-      note: "",
-    });
-    setSelectedCustomer(null);
+
+    const customerData = {
+      customerName: searchTerm,
+      phoneNumber: formData.phoneNumber,
+      address: formData.address,
+    };
+
+    try {
+      const response = await CustomerAPI.Create(customerData);
+      const newCustomer = response.data;
+      console.log("Khách hàng mới:", newCustomer);
+
+      // Cập nhật danh sách khách hàng với khách hàng mới được thêm
+      setCustomerList([...customerList, newCustomer]);
+
+      // Đặt lại trạng thái của form và thông báo thành công
+      resetFields();
+      notification.success({
+        message: "Thêm khách hàng thành công!",
+      });
+    } catch (error) {
+      console.error("Lỗi khi thêm khách hàng:", error);
+      notification.error({
+        message: "Thêm khách hàng thất bại",
+        description: error.message || "Đã có lỗi xảy ra, vui lòng thử lại.",
+      });
+    }
   };
 
   // Columns for customer table
@@ -191,6 +210,7 @@ const SelectCustomerModal = ({ isVisible, onCancel, onCustomerSelect }) => {
         </div>
         <div style={{ flex: "70%" }}>
           <Table
+            className="custom-table-header"
             dataSource={filteredCustomerList}
             columns={columns}
             rowKey="id"

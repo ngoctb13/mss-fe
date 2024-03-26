@@ -34,6 +34,8 @@ import StoreAPI from "../../api/StoreAPI";
 import ProductAPI from "../../api/ProductAPI";
 import { Helmet } from "react-helmet";
 import PdfAPI from "../../api/PdfAPI";
+import SaleInvoiceAPI from "../../api/SaleInvoiceAPI";
+import RecentInvoicesModal from "./RecentInvoicesModal";
 
 const styles = {
   smallCardHeader: {
@@ -54,6 +56,9 @@ const SaleView = ({ tabKey }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [productInventories, setProductInventories] = useState({});
   const [editingProduct, setEditingProduct] = useState(null);
+  const [isRecentInvoicesModalVisible, setIsRecentInvoicesModalVisible] =
+    useState(false);
+  const [recentInvoices, setRecentInvoices] = useState([]);
 
   //
   //
@@ -102,6 +107,19 @@ const SaleView = ({ tabKey }) => {
       setSearchResults([]); // Clear search results
     }
   };
+  //
+
+  const fetchRecentInvoices = async () => {
+    // Gọi API để lấy danh sách hóa đơn trong 7 ngày gần đây
+    const response = await SaleInvoiceAPI.GetRecentInvoices();
+    setRecentInvoices(response.data); // Giả định dữ liệu trả về nằm trong `data`
+  };
+
+  const handleRecentInvoicesClick = () => {
+    fetchRecentInvoices();
+    setIsRecentInvoicesModalVisible(true);
+  };
+
   //
   const onSelectProduct = (value, option) => {
     // Option contains the selected product's information
@@ -650,7 +668,7 @@ const SaleView = ({ tabKey }) => {
                   backgroundColor: "green",
                   color: "white",
                 }}
-                onClick={handleRecentInvoices}
+                onClick={handleRecentInvoicesClick}
               >
                 HĐ gần đây
               </Button>
@@ -732,6 +750,11 @@ const SaleView = ({ tabKey }) => {
         totalPrice={totalPrice}
         onPaymentSubmit={handlePaymentSubmit}
         onPaymentAndExportPdf={handlePaymentAndExportPDF}
+      />
+      <RecentInvoicesModal
+        isVisible={isRecentInvoicesModalVisible}
+        onClose={() => setIsRecentInvoicesModalVisible(false)}
+        recentInvoices={recentInvoices}
       />
     </div>
   );

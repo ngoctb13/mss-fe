@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Input, Space, Table, Tag, notification } from "antd";
 import StorageLocationAPI from "../../api/StorageLocationAPI";
 import AddZoneModal from "./AddZoneModal";
+import "./style.css";
 
 const StorageZoneList = () => {
   const [zoneList, setZoneList] = useState([]);
@@ -81,7 +82,7 @@ const StorageZoneList = () => {
 
   const columns = [
     {
-      title: "",
+      title: " ",
       key: "stt",
       width: "4%",
       render: (text, record, index) => index + 1,
@@ -136,7 +137,7 @@ const StorageZoneList = () => {
         ), // Và ở đây
     },
     {
-      title: "",
+      title: " ",
       key: "action",
       width: "15%",
       render: (_, record) => {
@@ -171,6 +172,7 @@ const StorageZoneList = () => {
         Thêm vị trí
       </Button>
       <Table
+        className="custom-table-header"
         columns={columns}
         dataSource={zoneList}
         rowKey="id"

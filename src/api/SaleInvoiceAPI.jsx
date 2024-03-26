@@ -12,5 +12,9 @@ const SaleInvoiceAPI = {
     const url = `/sale-invoice/find-by-id/${saleInvoiceId}`;
     return axiosClient.get(url);
   },
+  GetRecentInvoices: () => {
+    const url = `/sale-invoice/recent-invoice`;
+    return axiosClient.get(url);
+  },
 };
 export default SaleInvoiceAPI;
