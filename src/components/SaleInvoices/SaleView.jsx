@@ -14,6 +14,9 @@ import {
   Popconfirm,
   Typography,
   AutoComplete,
+  Tag,
+  Dropdown,
+  Menu,
 } from "antd";
 import {
   PlusOutlined,
@@ -21,6 +24,7 @@ import {
   SaveOutlined,
   CloseOutlined,
   DeleteOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
 import "./SaleInvoice.css";
 import SelectCustomerModal from "./SelectCustomerModal";
@@ -91,7 +95,7 @@ const SaleView = ({ tabKey }) => {
     setSearchValue(value);
     if (value) {
       // Assuming you have an API or method to search products by name or other attributes
-      ProductAPI.GetByNameContain(value).then((response) => {
+      ProductAPI.GetByContainName(value).then((response) => {
         setSearchResults(response.data); // Update with actual API response
       });
     } else {
@@ -508,8 +512,51 @@ const SaleView = ({ tabKey }) => {
       key: "totalPrice",
     },
     {
+      title: "Vị trí",
+      key: "storageLocations",
+      width: "15%",
+      dataIndex: "storageLocations",
+      render: (storageLocations) => {
+        if (!storageLocations || storageLocations.length === 0) {
+          return <span>N/A</span>;
+        }
+
+        const menu = (
+          <Menu>
+            {storageLocations.map((loc) => (
+              <Menu.Item key={loc.locationName}>
+                <Tooltip title={loc.description}>
+                  <Tag color="blue">{loc.locationName}</Tag>
+                </Tooltip>
+              </Menu.Item>
+            ))}
+          </Menu>
+        );
+
+        return (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flexWrap: "nowrap",
+            }}
+          >
+            <Tooltip title={storageLocations[0].description}>
+              <Tag color="blue">{storageLocations[0].locationName}</Tag>
+            </Tooltip>
+            {storageLocations.length > 1 && (
+              <Dropdown overlay={menu}>
+                <Button type="text" icon={<DownOutlined />} size="small" />
+              </Dropdown>
+            )}
+          </div>
+        );
+      },
+    },
+    {
       title: " ",
       dataIndex: "action",
+      width: "8%",
       render: (_, record) => {
         const isEditing = editingProduct && record.key === editingProduct.key;
         return isEditing ? (
@@ -517,7 +564,7 @@ const SaleView = ({ tabKey }) => {
             <Button
               icon={<SaveOutlined />}
               onClick={save}
-              style={{ marginRight: 8, color: "green" }}
+              style={{ color: "green" }}
             />
 
             <Button
@@ -536,9 +583,11 @@ const SaleView = ({ tabKey }) => {
         );
       },
     },
+
     {
       title: " ",
       key: "delete",
+      width: "5%",
       render: (_, record) => (
         <Button
           icon={<DeleteOutlined />}

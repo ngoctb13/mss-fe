@@ -31,11 +31,16 @@ const CustomerPayDebtModal = ({ isVisible, onClose, customer, onUpdate }) => {
     }
   };
 
+  const handleClose = () => {
+    form.resetFields();
+    onClose();
+  };
+
   return (
     <Modal
       title="Lập phiếu thanh toán"
       visible={isVisible}
-      onCancel={onClose}
+      onCancel={handleClose}
       footer={null}
       centered
     >
@@ -48,7 +53,7 @@ const CustomerPayDebtModal = ({ isVisible, onClose, customer, onUpdate }) => {
         </p>
         <p>
           <strong>Tổng nợ:</strong>{" "}
-          <span style={{ color: "red", fontSize: "16px" }}>
+          <span style={{ color: "red", fontSize: "16px", fontWeight: "bold" }}>
             {customer?.totalDebt?.toLocaleString("vi-VN")} ₫
           </span>
         </p>
@@ -58,6 +63,16 @@ const CustomerPayDebtModal = ({ isVisible, onClose, customer, onUpdate }) => {
           label="Số tiền thanh toán"
           rules={[
             { required: true, message: "Vui lòng nhập số tiền thanh toán" },
+            {
+              validator: (_, value) =>
+                value && value > customer.totalDebt
+                  ? Promise.reject(
+                      new Error(
+                        "Số tiền thanh toán không được vượt quá tổng nợ"
+                      )
+                    )
+                  : Promise.resolve(),
+            },
           ]}
         >
           <Input type="number" prefix="₫" />

@@ -16,6 +16,10 @@ const CustomerAPI = {
     const url = `/customer/all/customer-have-debt`;
     return axiosClient.get(url);
   },
+  GetCustomerOrderByTotalDebt: () => {
+    const url = `/customer/all/by-store/order-by-total-debt`;
+    return axiosClient.get(url);
+  },
   Deactive: async (customerId) => {
     const url = `/customer/change-status/${customerId}`;
     return axiosClient.put(url);
