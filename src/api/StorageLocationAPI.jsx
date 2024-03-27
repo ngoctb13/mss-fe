@@ -19,5 +19,8 @@ const StorageLocationAPI = {
   GetProductLocation: function() {
     return axiosClient.get(`/storage-locations/products/locations`);
   },
+  GetByStore: function () {
+    return axiosClient.get('/storage-locations/by-store')
+  },
 };
 export default StorageLocationAPI;

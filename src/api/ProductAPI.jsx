@@ -28,6 +28,14 @@ const ProductAPI = {
       storageLocationIds: selectedLocations
     };
     return axiosClient.post(url, requestBody);
+  },
+  AddOrUpdateLocationForProduct : (productId, selectedLocations) => {
+    const url = `/storage-locations/add-or-update-location-for-product`;
+    const requestBody = {
+      productId: productId,
+      storageLocationIds: selectedLocations
+    };
+    return axiosClient.post(url, requestBody);
   }
 };
 export default ProductAPI;
