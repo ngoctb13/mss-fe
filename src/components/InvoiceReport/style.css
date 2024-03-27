@@ -2,3 +2,7 @@
   overflow-x: auto;
   white-space: nowrap;
 }
+.custom-table-header .ant-table-thead > tr > th {
+  background-color: #1890ff; /* Màu nền cho tiêu đề */
+  color: rgb(255, 255, 255); /* Màu chữ cho tiêu đề */
+}

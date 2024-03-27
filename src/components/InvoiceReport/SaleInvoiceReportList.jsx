@@ -5,6 +5,8 @@ import UserAPI from "../../api/UserAPI";
 import CustomerAPI from "../../api/CustomerAPI";
 import SaleInvoiceAPI from "../../api/SaleInvoiceAPI";
 import dayjs from "dayjs";
+import "./style.css";
+import SaleInvoiceDetailModal from "./SaleInvoiceDetailModal";
 
 const { Option } = Select;
 
@@ -19,6 +21,13 @@ const SaleInvoiceReportList = () => {
   const [usersOfStore, setUsersOfStore] = useState([]);
   const [customersOfStore, setCustomersOfStore] = useState([]);
   const [totalDebtForCustomer, setTotalDebtForCustomer] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedSaleInvoice, setSelectedSaleInvoice] = useState(null);
+
+  const handleRowClick = (record) => {
+    setSelectedSaleInvoice(record);
+    setIsModalVisible(true);
+  };
 
   const totalSale = saleInvoiceData.reduce(
     (sum, record) => sum + parseFloat(record.totalPrice || 0),
@@ -58,7 +67,7 @@ const SaleInvoiceReportList = () => {
     // Định nghĩa các cột theo dữ liệu bạn cần hiển thị
     // Ví dụ:
     {
-      title: "",
+      title: " ",
       key: "stt",
       width: "1%",
       render: (text, record, index) => index + 1,
@@ -265,7 +274,7 @@ const SaleInvoiceReportList = () => {
               {parseFloat(totalPaid).toLocaleString()}
             </span>
           </p>
-          {totalDebtForCustomer !== null && (
+          {/* {totalDebtForCustomer !== null && (
             <p>
               <strong>Còn nợ:</strong>{" "}
               <span
@@ -274,13 +283,30 @@ const SaleInvoiceReportList = () => {
                 {parseFloat(totalDebtForCustomer).toLocaleString()}
               </span>
             </p>
-          )}
+          )} */}
         </div>
       </div>
       <div>
         {/* div 2: Table */}
-        <Table columns={columns} dataSource={saleInvoiceData} size="small" />
+        <Table
+          onRow={(record) => {
+            return {
+              onClick: () => {
+                handleRowClick(record);
+              },
+            };
+          }}
+          className="custom-table-header"
+          columns={columns}
+          dataSource={saleInvoiceData}
+          size="small"
+        />
       </div>
+      <SaleInvoiceDetailModal
+        isVisible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+        saleInvoice={selectedSaleInvoice}
+      />
     </div>
   );
 };

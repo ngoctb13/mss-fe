@@ -139,11 +139,11 @@ const OwnerSidebar = () => {
               Báo cáo bán hàng
             </Link>
           </Menu.Item>
-          <Menu.Item key="6-2">
+          {/* <Menu.Item key="6-2">
             <Link to="/owner/sale-report/sale-invoice-detail-report">
               Chi tiết bán hàng
             </Link>
-          </Menu.Item>
+          </Menu.Item> */}
           <Menu.Item key="6-3">
             <Link to="/owner/sale-report/stock-export-report">
               Xuất kho, lợi nhuận
