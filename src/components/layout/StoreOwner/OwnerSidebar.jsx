@@ -123,9 +123,9 @@ const OwnerSidebar = () => {
           <Menu.Item key="3-1">
             <Link to="/owner/debt-note/customer">Khách hàng</Link>
           </Menu.Item>
-          <Menu.Item key="3-2">
+          {/* <Menu.Item key="3-2">
             <Link to="/owner/debt-note/supplier">Nhà cung cấp</Link>
-          </Menu.Item>
+          </Menu.Item> */}
         </SubMenu>
         <Menu.Item key="4" icon={<DollarOutlined />}>
           <Link to="/owner/sale-tabs">Bán hàng</Link>
